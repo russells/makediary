@@ -4,7 +4,7 @@
 
 # Print a year diary.
 
-versionNumber = "0.1.2"
+versionNumber = "0.1.3"
 
 import sys
 import getopt
