@@ -25,10 +25,11 @@ setup(name='makediary',
       scripts=['bin/makediary'],
       data_files=[('share/man/man1', ['man/makediary.1.gz']),
                   ('lib/python2.3/makediary/eps/vi-ref',
-                  ['eps/vi-ref/vi-ref.tex',
-                   'eps/vi-ref/vi-ref.eps',
-                   'eps/vi-ref/vi-back.tex',
-                   'eps/vi-ref/vi-back.eps',
-                   ])]
-      )
+                   ['eps/vi-ref/vi-ref.tex',
+                    'eps/vi-ref/vi-ref.eps',
+                    'eps/vi-ref/vi-back.tex',
+                    'eps/vi-ref/vi-back.eps']),
+                  ('lib/python2.3/makediary/eps',
+                   ['eps/unix-ref.tex',
+                    'eps/unix-ref.eps'])])
 
