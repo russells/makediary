@@ -7,7 +7,7 @@
 
 set -e -x
 
-# Check for things that indicat we are in the makediary source
+# Check for things that indicate we are in the makediary source
 # directory.
 [ -f VERSION ]
 [ -f PAPER.txt ]
@@ -17,15 +17,21 @@ set -e -x
 _VERSION="$(head -1 VERSION)"
 
 _SRC_DIR="$(pwd)"
-_DEB_BUILD_DIR=$_SRC_DIR/tmp/deb/makediary-$_VERSION
+_DEB_BUILD_DIR=$_SRC_DIR/,tmp/deb/makediary-$_VERSION
 
 # These gymnastics are to ensure that the parent directory exists, but
 # the directory itself does not.
 rm -rf $_DEB_BUILD_DIR
 mkdir -p $_DEB_BUILD_DIR
-rmdir $_DEB_BUILD_DIR
+#rmdir $_DEB_BUILD_DIR
 
-svn export $_SRC_DIR $_DEB_BUILD_DIR
+#svn export $_SRC_DIR $_DEB_BUILD_DIR
+find .    -name '{arch}' -prune \
+       -o -name .arch-ids -prune \
+       -o -name ',*' -prune \
+       -o -type f -print0 \
+   | tar cf - -T - --null \
+   | ( cd $_DEB_BUILD_DIR  &&  tar xvf - )
 
 cd $_DEB_BUILD_DIR
 ./make-man
@@ -33,4 +39,4 @@ fakeroot dpkg-buildpackage -uc -us
 
 cd $_SRC_DIR
 mkdir -p dist-deb
-cp -pv $_SRC_DIR/tmp/deb/makediary_* dist-deb/
+cp -pv $_SRC_DIR/,tmp/deb/makediary_* dist-deb/
