@@ -4,7 +4,7 @@
 
 # Print a year diary.
 
-# $Id: makediary.py 75 2003-07-17 08:31:34Z anonymous $
+# $Id: makediary.py 77 2003-09-24 15:27:02Z anonymous $
 
 versionNumber = "0.1.2pre"
 
@@ -201,7 +201,7 @@ class DiaryInfo:
                 self.usage(sys.stdout)
             elif opt[0] == "--version":
                 print "makediary, version " + versionNumber
-                print "$Id: makediary.py 75 2003-07-17 08:31:34Z anonymous $"
+                print "$Id: makediary.py 77 2003-09-24 15:27:02Z anonymous $"
                 sys.exit(0)
             else:
                 print >>sys.stderr, "Unknown option: %s" % opt[0]
@@ -387,6 +387,18 @@ class BasicPostscriptPage:
                                                              self.di.pageHeight) \
                             + "%5.3f -2 M 0 -10 RL S\n" % (self.di.pageWidth,) \
                             + "%5.3f 0 M 10 0 RL S\n" % (self.di.pageWidth+2,)
+            self.preamble = self.preamble \
+                            + "% Internal registration marks, 5mm long\n" \
+                            + "2 0 M 5 0 RL S\n" \
+                            + "0 2 M 0 5 RL S\n" \
+                            + "0 %5.3f M 0 -5 RL S\n" % (self.di.pageHeight-2,) \
+                            + "2 %5.3f M 5 0 RL S\n" % (self.di.pageHeight,) \
+                            + "%5.3f %5.3f M -5 0 RL S\n" % (self.di.pageWidth-2, \
+                                                              self.di.pageHeight) \
+                            + "%5.3f %5.3f M 0 -5 RL S\n" % (self.di.pageWidth,
+                                                              self.di.pageHeight-2) \
+                            + "%5.3f 2 M 0 5 RL S\n" % (self.di.pageWidth,) \
+                            + "%5.3f 0 M -5 0 RL S\n" % (self.di.pageWidth-2,)
         
         self.postamble =   "end RE SP\n" \
                          + "%% End of page %d\n" % (self.pagenum)
@@ -570,7 +582,7 @@ class VersionPage(PostscriptPage):
         linex = fontSize*6
         s=""
         versionString = self.postscriptEscape(
-            "Version: $Id: makediary.py 75 2003-07-17 08:31:34Z anonymous $")
+            "Version: $Id: makediary.py 77 2003-09-24 15:27:02Z anonymous $")
         dateString = self.postscriptEscape(DateTime.now() \
                                            .strftime("Generated at: %Y-%m-%dT%H:%M:%S%Z"))
         s = s + "% --- Version page\n" \
@@ -1608,7 +1620,7 @@ class Diary:
                                                  DateTime.now().strftime("%Y-%m-%dT%H%M%S%Z")))
         p = p + "%%BeginProlog\n" \
             + "%%%%Creator: %s, by Russell Steicke, version: %s\n" % \
-            (self.di.myname,"$Id: makediary.py 75 2003-07-17 08:31:34Z anonymous $") \
+            (self.di.myname,"$Id: makediary.py 77 2003-09-24 15:27:02Z anonymous $") \
             + DateTime.now().strftime("%%%%CreationDate: %a, %d %b %Y %H:%M:%S %z\n")
         p = p + "%%DocumentNeededResources: font Times-Roman\n" \
             "%%+ font Times-Bold\n%%+ font Helvetica\n%%+ font Helvetica-Oblique\n" \
