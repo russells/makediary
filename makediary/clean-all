@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# $Id: clean-all 68 2003-01-12 09:02:35Z anonymous $
+
+# Get rid of all the non-essential files.
+
+rm -rf dist dist-deb build tmp MANIFEST
+
+find . -type f -name \*~ -print0 | xargs -0 rm -f
