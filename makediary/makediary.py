@@ -21,6 +21,7 @@ from os.path import join as path_join
 from os.path import exists as path_exists
 from os.path import basename
 from os import getcwd
+from errno import EPIPE
 
 # ############################################################################################
 
@@ -2277,7 +2278,14 @@ def go(myname, opts):
     d.diary()
 
 if __name__=='__main__':
-    go(sys.argv[0], sys.argv[1:])
+    try:
+        go(sys.argv[0], sys.argv[1:])
+    except IOError, reason:
+        if reason.errno == EPIPE:
+            sys.exit(1)
+        else:
+            raise
+
 
 # This section is for emacs.
 # Local variables: ***
