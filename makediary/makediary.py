@@ -35,6 +35,7 @@ class DiaryInfo:
                "appointment-width=",
                "colour",
                "cover-image=",
+               "day-to-page",
                "debug-boxes",
                "debug-version",
                "debug-whole-page-boxes",
@@ -64,7 +65,7 @@ class DiaryInfo:
                  [
                   "Usage: %s [--year=year] [--output-file=file]\n",
                   "  [--address-pages=n] [--appointment-width=w] [--appointments]\n",
-                  "  [--colour] [--cover-image=file]\n",
+                  "  [--colour] [--cover-image=file] [--day-to-page]\n",
                   "  [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
                   "  [--images] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
                   "  [--no-appointment-times] [--notes-pages=n]\n",
@@ -132,15 +133,16 @@ class DiaryInfo:
         self.appointments = 0           # Different "styles" for different people.
         self.appointmentTimes = 1       # Print appointment times or not
         self.appointmentWidth = 0.35    # Width of appointments (as proportion)
-        self.colour = 0                 # If true, print images in colour
-        self.moon = 0                   # If true, print moon phases
-        self.weekToOpening = 0          #
-        self.debugBoxes = 0             # If true, draw faint boxes around things for debugging
-        self.debugVersion = 0           # If true, print version info on inside cover.
-        self.debugWholePageBoxes = 0    # If true, draw faint boxes around all pages.
-        self.pageRegistrationMarks = 0  # Print marks to show where to cut.
+        self.colour = False             # If true, print images in colour
+        self.moon = False               # If true, print moon phases
+        self.weekToOpening = False      #
+        self.dayToPage = False          #
+        self.debugBoxes = False         # If true, draw faint boxes around things for debugging
+        self.debugVersion = False       # If true, print version info on inside cover.
+        self.debugWholePageBoxes = False# If true, draw faint boxes around all pages.
+        self.pageRegistrationMarks=False# Print marks to show where to cut.
         self.events = {}                # Events to draw on each page, from .calendar file.
-        self.drawImages = 0             # If true, draw event images
+        self.drawImages = False         # If true, draw event images
         self.nWeeksBefore = 0           # Print this number of weeks before the current year.
         self.nWeeksAfter = 0
         self.smiley = True
@@ -163,24 +165,26 @@ class DiaryInfo:
             elif opt[0] == "--address-pages":
                 self.nAddressPages = self.integerOption("address-pages",opt[1])
             elif opt[0] == "--appointment-width":
-                self.appointments = 1
+                self.appointments = True
                 self.appointmentWidth = self.floatOption("appointment-width",opt[1])
             elif opt[0] == "--appointments":
-                self.appointments = 1
+                self.appointments = True
             elif opt[0] == "--colour":
-                self.colour = 1
+                self.colour = True
             elif opt[0] == "--cover-image":
                 self.coverImage = opt[1]
+            elif opt[0] == "--day-to-page":
+                self.dayToPage = True
             elif opt[0] == "--debug-boxes":
                 self.debugBoxes = 1
             elif opt[0] == "--debug-whole-page-boxes":
                 self.debugWholePageBoxes = 1
             elif opt[0] == "--debug-version":
-                self.debugVersion = 1
+                self.debugVersion = True
             elif opt[0] == "--help":
                 self.usage(sys.stdout)
             elif opt[0] == "--images":
-                self.drawImages = 1
+                self.drawImages = True
             elif opt[0] == "--line-spacing":
                 self.lineSpacing = self.floatOption("line-spacing",opt[1])
             elif opt[0] == "--margins-multiplier":
@@ -190,7 +194,7 @@ class DiaryInfo:
                 self.iMargin = self.iMargin * multiplier
                 self.oMargin = self.oMargin * multiplier
             elif opt[0] == "--moon":
-                self.moon = 1
+                self.moon = True
             elif opt[0] == "--no-appointment-times":
                 self.appointmentTimes = 0
             elif opt[0] == "--no-smiley":
@@ -205,7 +209,7 @@ class DiaryInfo:
                                      + str(reason) + "\n")
                     self.usage()
             elif opt[0] == "--page-registration-marks":
-                self.pageRegistrationMarks = 1
+                self.pageRegistrationMarks = True
             elif opt[0] == "--page-size":
                 self.setPageSize(opt[1])
             elif opt[0] == "--page-x-offset":
@@ -220,7 +224,7 @@ class DiaryInfo:
                 print "makediary, version " + versionNumber
                 sys.exit(0)
             elif opt[0] == "--week-to-opening":
-                self.weekToOpening = 1
+                self.weekToOpening = True
             elif opt[0] == "--weeks-after":
                 self.nWeeksAfter = self.integerOption("weeks-after",opt[1])
             elif opt[0] == "--weeks-before":
@@ -231,6 +235,9 @@ class DiaryInfo:
             else:
                 print >>sys.stderr, "Unknown option: %s" % opt[0]
                 self.usage()
+        if self.weekToOpening and self.dayToPage:
+            print >>sys.stderr, "Can't specify both --week-to-opening and --day-to-page"
+            sys.exit(1)
         self.calcPageLayout()
         self.calcDateStuff()
 
@@ -1318,6 +1325,9 @@ class DiaryPage(PostscriptPage):
 
         if di.weekToOpening:
             self.dheight = self.pHeight_diary/4.0
+        elif di.dayToPage:
+            self.dheight = self.pHeight_diary * 0.9
+            self.bottomcalheight = self.pHeight_diary - self.dheight
         else:
             self.dheight = self.pHeight_diary/2.0
         self.dwidth = self.pWidth
@@ -1333,6 +1343,7 @@ class DiaryPage(PostscriptPage):
 
         # These are the settings that have the most effect on the layout of a day.
         if di.weekToOpening:
+            # Smaller boxes when we cram a week into two pages
             self.titleboxsize = di.lineSpacing * 1.2
         else:
             self.titleboxsize = di.lineSpacing * 1.4
@@ -1569,7 +1580,14 @@ class DiaryPage(PostscriptPage):
             + "RE\n"
         return s
 
-    def calendarsAtTop(self):
+    def largeDayOnPage(self):
+        s = "% -- Day\n" \
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+self.bottomcalheight)) \
+            + self.diaryDay() \
+            + "RE\n"
+        return s
+
+    def titleAndThreeMonthsAtTop(self):
         """Print three calendars on the top half of a page."""
         di = self.di
         s = "%--- three calendars\n"
@@ -1577,7 +1595,7 @@ class DiaryPage(PostscriptPage):
         s = s + self.title(di.dt.strftime("%B %Y"),
                            "Week %d" % di.dt.iso_week[1])
         # Calculate the area we have for drawing.
-        if di.weekToOpening:
+        if di.weekToOpening or di.dayToPage:
             b = di.bMargin + self.pHeight_diary*0.75
         else:
             b = di.bMargin + self.pHeight_diary*0.5
@@ -1609,26 +1627,7 @@ class DiaryPage(PostscriptPage):
         s = s + "%% c_bottom=%5.3f c_height=%5.3f c_width=%5.3f c_totalwidth=%5.3f c_gutter=%5.3f\n" % \
               (c_bottom,c_height,c_width,c_totalwidth,c_gutter)
         for i in (-1,0,1):
-            # We hack around with the number of days we add or subtract to get into the next
-            # month depending on how far into the month we are.  The problem is that any fixed
-            # offset in days is going to be wrong for some day in some month.  Consider the
-            # case where Jan 31 is on a Monday, and therefore the calendars are being printed
-            # at the point where di.dt==Jan 31.  If we subtract less than a whole month's worth
-            # of days we will still be in January and will not print December's calendar, but
-            # if we add a whole month's worth of days, we will be in March.  So with a fixed
-            # number of days we have the choice of printing (Dec,Jan,Mar) or (Jan,Jan,Feb).
-            # Therefore we need to adjust the number of days for printing calendars at
-            # different parts of the month.
-            if di.dt.day < 10:
-                if    i==-1: c_d = di.dt - 15 * DateTime.oneDay
-                elif  i== 1: c_d = di.dt + 45 * DateTime.oneDay
-                else:        c_d = di.dt
-            elif di.dt.day < 20:
-                c_d = di.dt + 30 * DateTime.oneDay * i
-            else: # di.dt.day >= 20
-                if    i==-1: c_d = di.dt - 45 * DateTime.oneDay
-                elif  i== 1: c_d = di.dt + 15 * DateTime.oneDay
-                else:        c_d = di.dt
+            c_d = self.getOffsetMonth(self.di.dt, i)
             c_left = c_indent + (i+1)*(c_width+c_gutter)
             s = s +"%5.3f %5.3f M SA %5.3f %5.3f SC " % \
                 (c_left,c_bottom,c_width,c_height) \
@@ -1647,6 +1646,44 @@ class DiaryPage(PostscriptPage):
             l_y = l_y - di.lineSpacing
 
         s = s + "RE\n"
+        return s
+
+
+    def getOffsetMonth(self, dt, offset):
+        '''Return a DateTime object corresponding to some time in the month indicated by the
+        integer offset from the current month.'''
+
+        if offset==0:
+            return dt
+        else:
+            # Base this from the middle of the month, so we don't get strange month skip
+            # effects when the current day is near the beginning or end of the month.
+            return DateTime.DateTime(dt.year, dt.month, 15) + 30.5 * DateTime.oneDay * offset
+
+
+    def sixMonthsAtBottom(self):
+        '''Print six months at the bottom of the page, Jan-Jun on the left (even) pages, and
+        Jul-Dec on the right (odd) pages.'''
+        if self.di.evenPage:
+            month = 1
+        else:
+            month = 7
+        # Find the year to print calendars for.  Consider what would happen when December 31 is
+        # on a left (even) page.  If we printed calendars for the current year on the bottom of
+        # the page, then the left page would have calendars for Jan-Jun in one year, and the
+        # right page would have calendars for Jul-Dec in the following year.  So normalise
+        # this, and always print calendars for the later year.
+        dty = self.di.dt + DateTime.oneDay
+        monthprop = 0.90
+        s = "%% -- Month %d\n" % month
+        for i in range(0,6):
+            s = s + "%5.3f %5.3f M SA %5.3f %5.3f SC %s RE\n" % \
+                    (self.pLeft+(self.dwidth/6.0)*(i+((1.0-monthprop)/2.0)),
+                     self.pBottom + self.bottomcalheight*(1.0-monthprop)/2.0,
+                     (self.dwidth/6.0)*monthprop,
+                     self.bottomcalheight*monthprop,
+                     DateTime.DateTime(dty.year, month).strftime('%b%Y') )
+            month += 1
         return s
 
 
@@ -1704,14 +1741,16 @@ class DiaryPage(PostscriptPage):
 
     def body(self):
         s = ""
-        if self.di.dt.day_of_week == DateTime.Monday:
+        if self.di.dayToPage:
+            s = self.sixMonthsAtBottom() + self.largeDayOnPage()
+        elif self.di.dt.day_of_week == DateTime.Monday:
             if self.di.weekToOpening:
-                s = self.calendarsAtTop() +  \
+                s = self.titleAndThreeMonthsAtTop() +  \
                     self.printMondayWTO() + \
                     self.printTuesdayWTO() + \
                     self.printWednesdayWTO()
             else:
-                s = self.calendarsAtTop() + self.bottomHalf();
+                s = self.titleAndThreeMonthsAtTop() + self.bottomHalf();
         else:
             if self.di.weekToOpening:
                 s = self.printThursdayWTO() + \
