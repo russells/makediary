@@ -1,5 +1,4 @@
 #!/bin/sh
 set -e -x
 latex vi-ref.tex  && dvips -E -o vi-ref.eps  vi-ref.dvi
-latex vi-back.tex && dvips -E -o vi-back.eps vi-back.dvi
 

@@ -57,6 +57,7 @@ class DiaryInfo:
                "page-y-offset=",
                "paper-size=",
                "planner-years=",
+               "sh-ref",
                "unix-ref",
                "vim-ref",
                "week-to-opening",
@@ -75,7 +76,8 @@ class DiaryInfo:
                   "    [--images] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
                   "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
-                  "    [--page-y-offset=Ymm] [--planner-years=n] [--unix-ref] [--vim-ref]\n",
+                  "    [--page-y-offset=Ymm] [--planner-years=n] \n"
+                  "    [--sh-ref] [--unix-ref] [--vim-ref]\n",
                   "    [--weeks-before=n] [--weeks-after=n] [--week-to-opening]\n",
                   "    [--help] [--version]\n",
                   ]
@@ -156,6 +158,7 @@ class DiaryInfo:
         self.nWeeksBefore = 0           # Print this number of weeks before the current year.
         self.nWeeksAfter = 0
         self.smiley = True
+        self.shRef = False
         self.vimRef = False
         self.unixRef = False
 
@@ -235,6 +238,8 @@ class DiaryInfo:
             elif opt[0] == "--version":
                 print "makediary, version " + versionNumber
                 sys.exit(0)
+            elif opt[0] == "--sh-ref":
+                self.shRef = True
             elif opt[0] == "--unix-ref":
                 self.unixRef = True
             elif opt[0] == "--vim-ref":
@@ -2139,6 +2144,8 @@ class Diary:
             w( EPSFilePage(di, "vi-ref/vi-back.eps", "Vim extensions").page() )
         if di.unixRef:
             w( EPSFilePage(di, "unix-ref.eps", "Unix reference").page() )
+        if di.shRef:
+            w( EPSFilePage(di, "sh-ref.eps", "Shell and utility reference").page() )
 
         for i in range(di.nNotesPages):
             w( NotesPage(di).page() )

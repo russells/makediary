@@ -36,6 +36,7 @@ cd $_DEB_BUILD_DIR
 
 cd eps
 ./compile-unix-ref
+./compile-sh-ref
 cd vi-ref
 ./compile-vi-ref
 cd ../..

@@ -2,5 +2,4 @@
 set -e -x
 ./compile-vi-ref
 gv vi-ref.eps
-gv vi-back.eps
 

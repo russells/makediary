@@ -33,6 +33,7 @@ TlaVersion=$(tla tree-version)--$(tla logs | tail -1)"$Modified"
 
 cd eps
 ./compile-unix-ref
+./compile-sh-ref
 cd vi-ref
 ./compile-vi-ref
 cd ../..

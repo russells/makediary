@@ -1,5 +1,4 @@
 \documentclass{article}
-% $Id: vi-back.tex,v 1.8 2002/10/09 18:53:32 dbindner Exp $
 % Copyright 2002-2004 Donald Bindner
 % Copyright      2004 Russell Steicke
 % Permission is granted to copy, distribute and/or modify this
@@ -48,10 +47,11 @@ Yes, there is help available.\par
 \cmd{Search the man pages for a keyword}{man -k {\it word}}
 \cmd{Read the man page for a subject}{man {\it subject}}
 \cmd{Read a man page in a particular section}{man {\it n} {\it subject}}
-\cmd{(Man sections: 1=User commands 2=System calls 3=Functions 5=File formats
-8=Admin commands)}{}
+\cmd{(Man sections: 1=User~commands 2=System~calls 3=Functions 5=File~formats
+8=Admin~commands)}{}
 \cmd{Info system (mostly for programs from the GNU project)\par}%
 {info {\it subject}}
+\cmd{Many programs take a {\tt -h} or {\tt --help} option.}{}
 }
 
 \vskip 10pt
@@ -75,6 +75,7 @@ Listing files in your file system.\par
 \cmd{File listing including hidden (dot) files}{ls -a}
 \cmd{Long listing (includes time, owner, etc)}{ls -l}
 \cmd{List including char for file type}{ls -F}
+\cmd{View directory, not its contents}{ls -d}
 }
 
 \vskip 10pt
@@ -85,6 +86,20 @@ Finding files and operating on the files you do find.\par
 \cmd{Find files named {\it pattern}}{find {\it dir} -name {\it pattern}}
 \cmd{Find files, run command on them\par}%
 {find {\it dir} -name {\it pattern} | xargs {\it command}}
+}
+
+\vskip 10pt
+
+\vbox{\head{Date and time}
+Find and set the current date and time, and get run time of commands.\par
+\vskip 5pt
+\cmd{Show the current date and time}{date}
+\cmd{Show the current date and time in UTC}{date -u}
+\cmd{Show date and time in RFC822 format}{date -R}
+\cmd{Show date and time in specified format}{date +{\it spec}}
+\cmd{}{date +\%Y\%m\%d {$=>$} 20041004}
+\cmd{Set the system date and time (root only)}{date -s {\it datespec}}
+\cmd{Show run time summary when command completes\par}{time {\it command}}
 }
 
 \vskip 10pt
@@ -139,7 +154,7 @@ Text editors.\par
 \vskip 5pt
 \cmd{Visual editor, available everywhere}{vi [{\it filename}]}
 \cmd{Vi IMproved, on most GNU/Linux systems}{vim}
-\cmd{Emacs, a kitchen sink that is also a text editor}{emacs}
+\cmd{Emacs, has a kitchen sink and also a text editor}{emacs}
 \cmd{Simpler text editor, from pine}{pico}
 \cmd{Pico clone}{nano}
 }
@@ -172,70 +187,6 @@ readers.\par
 }
 
 \vskip 10pt
-
-\vbox{\head{Environment variables}
-Setting and using environment variables.\par
-\vskip 5pt
-\cmd{Setting a variable.  {\it value} must be quoted if it contains white space
-or shell metachars.}{VAR={\it value}}
-\cmd{Getting a variable's value}{\$VAR {\rm or} "\$VAR"}
-\cmd{Expand shell script arguments separately}{"\$@"}
-\cmd{Substitute default value if {\tt VAR} is unset}{\$\{VAR:-{\it default}\}}
-\cmd{Assign substitute value if {\tt VAR} is unset}{\$\{VAR:={\it default}\}}
-\cmd{Assign shell variable array}{A=({\it element1} {\it element2} ...)}
-\cmd{Subscript shell array}{\$\{A[{\it n}]\}}
-\cmd{Expand entire array}{\$\{A[*]\}}
-\cmd{Expand array, quoting each element separately}{"\$\{A[@]\}"}
-}
-
-\vskip 10pt
-
-\vbox{\head{Bourne shell}
-Hints for using the shell.  Here are some of the constructs that let you create
-powerful shell programs, and they can all be used on the command line.\par
-\vskip 5pt
-\cmd{Run command in background}{{\it command} \&}
-\cmd{Redirect output}{{\it command} > {\it file}}
-\cmd{Redirect input}{{\it command} < {\it file}}
-\cmd{Redirect output and error output}{{\it command} >{\it file} 2>\&1}
-\cmd{Run command2 only if command1 succeeds (0 exit status)\par}%
-{{\it command1} \&\& {\it command2}}
-\cmd{Run command2 only if command1 fails (non-0 exit status)\par}%
-{{\it command1} || {\it command2}}
-\cmd{Force a command to succeed}{{\it command} || :}
-\cmd{Run commands in subshell}{( {\it commands} )}
-\cmd{Pipe between two subshells}{( {\it commands} ) | ( {\it commands} )}
-\cmd{Substitute command output}{` {\it command} ` {\rm or} \$( {\it command} )}
-\cmd{Shell arithmetic}{\$((3*4))}
-\cmd{}{p=7 ; echo \$((p+9))}
-}
-
-\vskip 10pt
-
-\vbox{\head{Bourne shell programming}
-More shell programming constructs.  These are mostly useful in scripts, but
-they can also be used on the command line.  (PS Don't use the C shell for shell
-programming.)
-\vskip 5pt
-\cmd{Conditional code with test\par}%
-{if [ {\it test} ] ; then {\it commands} ; fi}
-\cmd{Tests:}{}
-\cmd{Name exists and is a file}{-f {\it name}}
-\cmd{File or directory is readable}{-r {\it file}}
-\cmd{File or directory is writable}{-w {\it file}}
-\cmd{Name exists and is a directory}{-d {\it name}}
-\cmd{String is zero length}{-z {\it string}}
-\cmd{String is non-zero length}{-n {\it string}}
-\cmd{String comparison, case sensitive (Use {\tt [ "x\$FOO" == "xBAR" ]}
-in case a string starts with '{\tt -}')}%
-{{\it string1} == {\it string2}}
-\cmd{}{{\it string1} != {\it string2}}
-\cmd{Number comparison}{{\it number1} -eq {\it number2}}
-\cmd{\ \ and also}{-ne -lt -gt -le -ge}
-\cmd{Looping}{while {\it test} ; do {\it commands} ; done}
-\cmd{Selecting alternatives\par}%
-{case {\it word} in {\it words} ; {\it pattern}) {\it commands} ;; esac}
-}
 
 \end{multicols}
 
