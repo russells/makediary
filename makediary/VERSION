@@ -1,4 +1,4 @@
-0.1
+0.1.1
 $URL: http://localhost:10080/svn/makediary/trunk/makediary/VERSION $
 
 The first line of this file is the version number of makediary.  This
@@ -10,5 +10,5 @@ of packages.
 
 Everything else is ignored.
 
-$Id: VERSION 31 2002-12-29 05:20:26Z anonymous $
+$Id: VERSION 57 2003-01-04 05:15:52Z anonymous $
 

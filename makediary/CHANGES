@@ -1,0 +1,5 @@
+0.1.1
+
+- Added debian package.
+
+- Man page is now in pod format (I got sick of troff.)

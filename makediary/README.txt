@@ -10,7 +10,10 @@ installable package, do:
 
   python setup.py bdist
 
+There are also debian packages, which work on my system but aren't
+guaranteed to work anywhere else.
+
 
 For a very special reason, this used to be called cdp.  :)
 
-$Id: README.txt 31 2002-12-29 05:20:26Z anonymous $
+$Id: README.txt 57 2003-01-04 05:15:52Z anonymous $
