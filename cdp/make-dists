@@ -5,7 +5,10 @@ set -e -x
 rm -rf dist build MANIFEST
 
 python setup.py sdist
-python setup.py bdist
+python2.1 setup.py bdist
+mv dist/cdp-0.1.linux-i686.tar.gz dist/cdp-0.1.linux-i686.python-2.1.tar.gz
+python2.2 setup.py bdist
+mv dist/cdp-0.1.linux-i686.tar.gz dist/cdp-0.1.linux-i686.python-2.2.tar.gz
 
 # RPM building is broken, it looks for makediary.1 where there is a
 # makediary.1.gz.
