@@ -44,6 +44,7 @@ class DiaryInfo:
                "debug-boxes",
                "debug-version",
                "debug-whole-page-boxes",
+               "eps-page=",
                "event-images",
                "help",
                "image-page=",
@@ -76,7 +77,7 @@ class DiaryInfo:
                   "    [--address-pages=n] [--appointment-width=w] [--appointments]\n",
                   "    [--colour] [--cover-image=file] [--day-to-page]\n",
                   "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
-                  "    [--event-images] [--image-page=IMAGEFILE]\n",
+                  "    [--eps-page=epsfile] [--event-images] [--image-page=IMAGEFILE]\n",
                   "    [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
                   "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
@@ -166,6 +167,7 @@ class DiaryInfo:
         self.vimRef = False
         self.unixRef = False
         self.imagePageImages = []
+        self.epsPageFiles = []
 
     def parseOptions(self):
         args = self.opts
@@ -201,10 +203,12 @@ class DiaryInfo:
                 self.debugWholePageBoxes = 1
             elif opt[0] == "--debug-version":
                 self.debugVersion = True
-            elif opt[0] == "--help":
-                self.usage(sys.stdout)
+            elif opt[0] == "--eps-page":
+                self.epsPageFiles.append(opt[1])
             elif opt[0] == "--event-images":
                 self.drawEventImages = True
+            elif opt[0] == "--help":
+                self.usage(sys.stdout)
             elif opt[0] == "--image-page":
                 self.imagePageImages.append(opt[1])
             elif opt[0] == "--line-spacing":
@@ -2224,6 +2228,8 @@ class Diary:
             w( EPSFilePage(di, "unix-ref.eps", "Unix reference").page() )
         if di.shRef:
             w( EPSFilePage(di, "sh-ref.eps", "Shell and utility reference").page() )
+        for epsPageFile in di.epsPageFiles:
+            w( EPSFilePage(di, epsPageFile, '').page() )
 
         for i in range(di.nNotesPages):
             w( NotesPage(di).page() )
