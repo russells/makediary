@@ -64,15 +64,15 @@ class DiaryInfo:
     usageStrings = \
                  [
                   "Usage: %s [--year=year] [--output-file=file]\n",
-                  "  [--address-pages=n] [--appointment-width=w] [--appointments]\n",
-                  "  [--colour] [--cover-image=file] [--day-to-page]\n",
-                  "  [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
-                  "  [--images] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
-                  "  [--no-appointment-times] [--notes-pages=n]\n",
-                  "  [--page-registration-marks] [--page-x-offset=Xmm]\n",
-                  "  [--page-y-offset=Ymm] [--planner-years=n]\n",
-                  "  [--weeks-before=n] [--weeks-after=n] [--week-to-opening]\n",
-                  "  [--help] [--version]\n",
+                  "    [--address-pages=n] [--appointment-width=w] [--appointments]\n",
+                  "    [--colour] [--cover-image=file] [--day-to-page]\n",
+                  "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
+                  "    [--images] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
+                  "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
+                  "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
+                  "    [--page-y-offset=Ymm] [--planner-years=n]\n",
+                  "    [--weeks-before=n] [--weeks-after=n] [--week-to-opening]\n",
+                  "    [--help] [--version]\n",
                   ]
     sizes = PaperSize.getPaperSizeNames()
     sizesString = ''
@@ -80,9 +80,14 @@ class DiaryInfo:
         s = sizes[n]
         if n == len(sizes)-1: sizesString = sizesString+s
         else:                 sizesString = sizesString+s+'|'
-    usageStrings.append("  [--page-size=%s]\n" % sizesString)
-    usageStrings.append("  [--paper-size=%s]\n" % sizesString)
-    usageStrings.append("  Year defaults to next year.\n")
+    usageStrings.append("    [--page-size=%s]\n" % sizesString)
+    usageStrings.append("    [--paper-size=%s]\n" % sizesString)
+    usageStrings.append("  Defaults:\n")
+    usageStrings.append("    year = next year          line-spacing = 6.0mm\n")
+    usageStrings.append("    page-size = a5            paper-size = a5\n")
+    usageStrings.append("    weeks-before = 0          weeks-after = 0\n")
+    usageStrings.append("    appointment-width = 0.35  planner-years = 2\n")
+    usageStrings.append("    address-pages = 6         notes-pages = 6\n")
 
     def usage(self, f=sys.stderr):
         for i in range(len(self.usageStrings)):
@@ -130,8 +135,8 @@ class DiaryInfo:
         self.nNotesPages = 6            #
         self.nPlannerYears = 2          #
         self.coverImage = None          # Pic for the cover page.
-        self.appointments = 0           # Different "styles" for different people.
-        self.appointmentTimes = 1       # Print appointment times or not
+        self.appointments = False       # Different "styles" for different people.
+        self.appointmentTimes = True    # Print appointment times or not
         self.appointmentWidth = 0.35    # Width of appointments (as proportion)
         self.colour = False             # If true, print images in colour
         self.moon = False               # If true, print moon phases
@@ -196,7 +201,7 @@ class DiaryInfo:
             elif opt[0] == "--moon":
                 self.moon = True
             elif opt[0] == "--no-appointment-times":
-                self.appointmentTimes = 0
+                self.appointmentTimes = False
             elif opt[0] == "--no-smiley":
                 self.smiley = False
             elif opt[0] == "--notes-pages":
