@@ -1,6 +1,6 @@
 -*- outline -*-
 
-* $Id: TODO.txt 23 2002-12-26 16:57:39Z anonymous $
+* $Id: TODO.txt 44 2002-12-30 17:26:57Z anonymous $
 
 * Margins  DONE
 
@@ -242,7 +242,19 @@ there is a .../makediary.1.gz file there.  This needs to be tested on a
 redhat box (I'm doing this with debian).  It may actually work on a distro
 that really does use rpm.
 
-* Make a debian package.
+* Make a debian package.  DONE.
 
 There doesn't appear to be a bdist_deb distutils target.  Bummer.
 
+* Add "halfletter" page size.
+
+This could be useful for people wanting to print two pages on letter sized
+paper.  (This is not necessary for A or B series sizes, as each of those is
+exactly half the size of the previous size in the same series.)
+
+* Put examples in the man page.
+
+Plain examples with use of the options.
+
+An example using "halfletter" paper size, then arranging the pages into a
+book with pstops.
