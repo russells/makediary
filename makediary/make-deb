@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# $Id$
+
+# Make the debian package.
+
+set -e -x
+
+_VERSION="$(head -1 VERSION)"
+
+_SRC_DIR="$(pwd)"
+_DEB_BUILD_DIR=tmp/deb/makediary-$_VERSION
+
+rm -rf $_DEB_BUILD_DIR
+mkdir -p $_DEB_BUILD_DIR
+
+tar cf - . \
+    --exclude tmp \
+    --exclude build \
+    --exclude dist \
+    --exclude dist-deb \
+    --exclude .svn | ( cd $_DEB_BUILD_DIR && tar xf - )
+
+cd $_DEB_BUILD_DIR
+fakeroot dpkg-buildpackage -uc -us
+
+cd $_SRC_DIR
+mkdir -p dist-deb
+cp -pv tmp/deb/makediary_* dist-deb/
