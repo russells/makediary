@@ -2,6 +2,8 @@
 
 # Read and parse the .calendar file used by pcal.
 
+# vim: set shiftwidth=4 expandtab smartindent textwidth=95:
+
 __revision__ = """0.2.0"""
 
 import sys
@@ -535,23 +537,26 @@ class DotCalendar:
 
 if __name__ == '__main__':
     d = DotCalendar()
-    d.setYears([2001,2002,2004])
-    d.addYear(2003)
-    sys.stdout.write("hasYear(2002)==%s\n" % d.hasYear(2002))
-    sys.stdout.write("hasYear(2005)==%s\n" % d.hasYear(2005))
-    sys.stdout.write("--- yearlist\n")
-    sys.stdout.write("%s\n" % d.yearlist)
+    if len(sys.argv) > 1:
+        y = int(sys.argv[1])
+    else:
+        y = now().year
+    d.setYears([y-1,y+1,y+2])
+    d.addYear(y)
+    print "hasYear(2002)==%s" % d.hasYear(2002)
+    print "hasYear(2005)==%s" % d.hasYear(2005)
+    print "--- yearlist == %s" % d.yearlist
+    print
     d.readCalendarFile()
-    sys.stdout.write("--- datelist =\n")
     keys = d.datelist.keys()
     keys.sort()
     for key in keys:
-        sys.stdout.write("key %s: %s\n" % (key,d.datelist[key]))
+        print "date %s" % key
+        for date in d.datelist[key]:
+            print "---"
+            for datekey in date:
+                print datekey,":",date[datekey]
+        print
     print "Calendar file was %s" % d.cfilename
+    print "--- yearlist == %s" % d.yearlist
 
-# This section is for emacs.
-# Local variables: ***
-# mode:python ***
-# py-indent-offset:4 ***
-# fill-column:95 ***
-# End: ***
