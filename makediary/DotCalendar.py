@@ -2,9 +2,9 @@
 
 # Read and parse the .calendar file used by pcal.
 
-# $Id: DotCalendar.py 70 2003-01-13 17:24:07Z anonymous $
+# $Id: DotCalendar.py 100 2003-12-26 04:01:35Z anonymous $
 
-__revision__ = """$Id: DotCalendar.py 70 2003-01-13 17:24:07Z anonymous $"""
+__revision__ = """$Id: DotCalendar.py 100 2003-12-26 04:01:35Z anonymous $"""
 
 import sys
 import os
@@ -551,7 +551,7 @@ if __name__ == '__main__':
         sys.stdout.write("key %s: %s\n" % (key,d.datelist[key]))
     print "Calendar file was %s" % d.cfilename
 
-# This section is for emacs, God's Own Text Editor.
+# This section is for emacs.
 # Local variables: ***
 # mode:python ***
 # py-indent-offset:4 ***

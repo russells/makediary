@@ -2,7 +2,7 @@
 
 # Run the diary program.
 
-# $Id: makediary 70 2003-01-13 17:24:07Z anonymous $
+# $Id: makediary 100 2003-12-26 04:01:35Z anonymous $
 
 from makediary import makediary
 import sys
@@ -10,7 +10,7 @@ import sys
 makediary.go(sys.argv[0], sys.argv[1:])
 
 
-# This section is for emacs, God's Own Text Editor.
+# This section is for emacs.
 # Local variables: ***
 # mode:python ***
 # py-indent-offset:4 ***

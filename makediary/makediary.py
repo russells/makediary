@@ -4,7 +4,7 @@
 
 # Print a year diary.
 
-# $Id: makediary.py 98 2003-12-19 05:35:24Z anonymous $
+# $Id: makediary.py 100 2003-12-26 04:01:35Z anonymous $
 
 versionNumber = "0.1.2pre"
 
@@ -218,7 +218,7 @@ class DiaryInfo:
                 self.usage(sys.stdout)
             elif opt[0] == "--version":
                 print "makediary, version " + versionNumber
-                print "$Id: makediary.py 98 2003-12-19 05:35:24Z anonymous $"
+                print "$Id: makediary.py 100 2003-12-26 04:01:35Z anonymous $"
                 sys.exit(0)
             else:
                 print >>sys.stderr, "Unknown option: %s" % opt[0]
@@ -598,7 +598,7 @@ class VersionPage(PostscriptPage):
         linex = fontSize*6
         s=""
         versionString = self.postscriptEscape(
-            "Version: $Id: makediary.py 98 2003-12-19 05:35:24Z anonymous $")
+            "Version: $Id: makediary.py 100 2003-12-26 04:01:35Z anonymous $")
         dateString = self.postscriptEscape(DateTime.now() \
                                            .strftime("Generated at: %Y-%m-%dT%H:%M:%S%Z"))
         s = s + "% --- Version page\n" \
@@ -1746,7 +1746,7 @@ class Diary:
                                                  DateTime.now().strftime("%Y-%m-%dT%H%M%S%Z")))
         p = p + "%%BeginProlog\n" \
             + "%%%%Creator: %s, by Russell Steicke, version: %s\n" % \
-            (self.di.myname,"$Id: makediary.py 98 2003-12-19 05:35:24Z anonymous $") \
+            (self.di.myname,"$Id: makediary.py 100 2003-12-26 04:01:35Z anonymous $") \
             + DateTime.now().strftime("%%%%CreationDate: %a, %d %b %Y %H:%M:%S %z\n")
         p = p + "%%DocumentNeededResources: font Times-Roman\n" \
             "%%+ font Times-Bold\n%%+ font Helvetica\n%%+ font Helvetica-Oblique\n" \
@@ -1997,7 +1997,7 @@ def go(myname, opts):
 if __name__=='__main__':
     go(sys.argv[0], sys.argv[1:])
 
-# This section is for emacs, God's Own Text Editor.
+# This section is for emacs.
 # Local variables: ***
 # mode:python ***
 # py-indent-offset:4 ***

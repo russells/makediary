@@ -2,9 +2,9 @@
 
 # Maintain a dictionary of paper sizes.
 
-# $Id: PaperSize.py 70 2003-01-13 17:24:07Z anonymous $
+# $Id: PaperSize.py 100 2003-12-26 04:01:35Z anonymous $
 
-__revision__ = """$Id: PaperSize.py 70 2003-01-13 17:24:07Z anonymous $"""
+__revision__ = """$Id: PaperSize.py 100 2003-12-26 04:01:35Z anonymous $"""
 
 
 _paperSizes = {
@@ -39,7 +39,7 @@ def getPaperSizeNames():
     return sizes
 
 
-# This section is for emacs, God's Own Text Editor.
+# This section is for emacs.
 # Local variables: ***
 # mode:python ***
 # py-indent-offset:4 ***
