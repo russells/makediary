@@ -1,8 +1,10 @@
 # -*- outline -*-
 
-# $Id: PAPER.txt 7 2002-12-22 07:02:27Z anonymous $
+# $Id: PAPER.txt 35 2002-12-29 10:59:03Z anonymous $
 
-* Paper sizes
+* Paper size notes
+
+Look in makediary/PaperSize.py for a list of supported paper sizes.
 
 ** B5
 
