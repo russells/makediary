@@ -1,6 +1,6 @@
 .\"
 .\" Man page for Russell's makediary command.
-.\" $Id: makediary.1 25 2002-12-26 17:14:20Z anonymous $
+.\" $Id: makediary.1 33 2002-12-29 06:33:39Z anonymous $
 .TH MAKEDIARY "1" "December 2002"
 .SH NAME
 makediary \- output PostScript code for an A5 diary.
@@ -17,6 +17,7 @@ makediary \- output PostScript code for an A5 diary.
 .B [\-\-debug\-version]
 .B [\-\-debug\-whole\-page\-boxes]
 .B [\-\-line\-spacing=\fId\fP]
+.B [\-\-moon]
 .B [\-\-notes\-pages=\fIn\fP]
 .B [\-\-output\-file=\fIfilename\fP]
 .B [\-\-paper\-size=\fIpapersize\fP]
@@ -73,6 +74,9 @@ Display a usage message and exit.
 \fB\-\-line\-spacing=\fId\fR
 Make the line spacing on diary pages \fId\fR
 millimetres.  \fId\fR can be a floating point number.
+.TP
+\fB\-\-moon\fR
+Print pictures of phases of the moon in the title of the day at each phase.
 .TP
 \fB\-\-notes\-pages=\fIn\fR
 Print \fIn\fR notes pages at the beginning and end of the diary.  Defaults to 6.
