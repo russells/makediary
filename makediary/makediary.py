@@ -698,9 +698,10 @@ class PostscriptPage(BasicPostscriptPage):
 
 class EPSFilePage(PostscriptPage):
 
-    def __init__(self, dinfo, epsfilename):
+    def __init__(self, dinfo, epsfilename, epstitle=None):
         PostscriptPage.__init__(self, dinfo)
         self.epsfilename = epsfilename
+        self.epstitle = epstitle
 
     def body(self):
         # Construct the full path to the file.  If we are running from the devel directory, or
@@ -715,8 +716,14 @@ class EPSFilePage(PostscriptPage):
         for path in searchpath:
             epsfilepathname = self.searchfor(path, self.epsfilename)
             if epsfilepathname:
-                return self.embedEPS(epsfilepathname,
-                                     self.pLeft, self.pBottom, self.pWidth, self.pHeight)
+                inset = self.pWidth / 200.0
+                epsp = self.embedEPS(epsfilepathname,
+                                     self.pLeft+inset, self.pBottom+inset,
+                                     self.pWidth-2*inset, self.pHeight-2*inset)
+                if self.epstitle:
+                    return self.title(self.epstitle) + epsp
+                else:
+                    return epsp
         print >>sys.stderr, "Can't find %s" % self.epsfilename
         return "%% -- Can't find %s\n" % self.epsfilename
 
@@ -2128,10 +2135,10 @@ class Diary:
         #self.w( FourExpensePages().page(di) )
 
         if di.vimRef:
-            w( EPSFilePage(di, "vi-ref/vi-ref.eps").page() )
-            w( EPSFilePage(di, "vi-ref/vi-back.eps").page() )
+            w( EPSFilePage(di, "vi-ref/vi-ref.eps", "Vi reference").page() )
+            w( EPSFilePage(di, "vi-ref/vi-back.eps", "Vim extensions").page() )
         if di.unixRef:
-            w( EPSFilePage(di, "unix-ref.eps").page() )
+            w( EPSFilePage(di, "unix-ref.eps", "Unix reference").page() )
 
         for i in range(di.nNotesPages):
             w( NotesPage(di).page() )
