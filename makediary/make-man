@@ -1,8 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 
 # Make the makediary man page.
 
-# $Id$
+# $Id: make-man 54 2003-01-01 07:14:15Z anonymous $
 
-pod2man           man/makediary.pod           man/makediary.1
-pod2html --infile=man/makediary.pod --outfile=man/makediary.1.html
+
+pod2man  --center="User Commands" \
+         --release="User Commands" \
+         man/makediary.pod \
+         man/makediary.1
+
+pod2html --header \
+         --infile=man/makediary.pod \
+         --outfile=man/makediary.1.html
