@@ -2,9 +2,9 @@
 
 # Run the diary program.
 
-# $Id: makediary 27 2002-12-29 04:40:19Z anonymous $
+# $Id: makediary 31 2002-12-29 05:20:26Z anonymous $
 
-from cdp import makediary
+from makediary import makediary
 import sys
 
 makediary.go(sys.argv[0], sys.argv[1:])

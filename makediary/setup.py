@@ -1,11 +1,15 @@
-# Setup for cdp.
+# Setup for makediary.
 
 
-# $Id: setup.py 16 2002-12-22 16:46:53Z anonymous $
+# $Id: setup.py 31 2002-12-29 05:20:26Z anonymous $
 
 from distutils.core import setup
 
-setup(name='cdp',
+# This version number must match the version number in VERSION.
+
+_makeDiaryVersion = '0.1'
+
+setup(name='makediary',
       description="""Make printed diaries.""",
 
       long_description="""
@@ -16,9 +20,9 @@ setup(name='cdp',
 
       author='Russell Steicke',
       author_email='russells@adelie.cx',
-      url='http://adelie.cx/cdp',
-      version='0.1',
+      url='http://adelie.cx/makediary',
+      version=_makeDiaryVersion,
       license="GPL",
-      packages=['cdp'],
-      scripts=['makediary'],
+      packages=['makediary'],
+      scripts=['bin/makediary'],
       data_files=[('man/man1', ['man/makediary.1'])])
