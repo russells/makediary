@@ -2,7 +2,7 @@
 
 # Copy the source tree to adelie.cx (scp.bur.st).
 
-# $Id: export-cdp-to-burst 9 2002-12-22 07:31:21Z anonymous $
+# $Id: export-cdp-to-burst 10 2002-12-22 07:36:05Z anonymous $
 
 set -e
 
@@ -10,9 +10,9 @@ D=~/tmp/export-to-burst-$(date +%Y%m%d-%H%M%S)
 
 mkdir -p $D
 cd $D
-wget -r http://localhost:10080/cdp/repos
+wget -q -r http://localhost:10080/cdp/repos
 cd localhost:10080/cdp
-tar cf - repos | ssh shell.bur.st 'cd public_html/adelie.cx/cdp && tar xf -'
+tar czf - repos | ssh shell.bur.st 'cd public_html/adelie.cx/cdp && tar xzf -'
 
 cd
 rm -rf $D
