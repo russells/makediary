@@ -4,7 +4,7 @@
 
 # Print a year diary.
 
-# $Id: makediary.py 79 2003-11-25 09:50:56Z anonymous $
+# $Id: makediary.py 80 2003-11-25 10:27:41Z anonymous $
 
 versionNumber = "0.1.2pre"
 
@@ -206,7 +206,7 @@ class DiaryInfo:
                 self.usage(sys.stdout)
             elif opt[0] == "--version":
                 print "makediary, version " + versionNumber
-                print "$Id: makediary.py 79 2003-11-25 09:50:56Z anonymous $"
+                print "$Id: makediary.py 80 2003-11-25 10:27:41Z anonymous $"
                 sys.exit(0)
             else:
                 print >>sys.stderr, "Unknown option: %s" % opt[0]
@@ -589,7 +589,7 @@ class VersionPage(PostscriptPage):
         linex = fontSize*6
         s=""
         versionString = self.postscriptEscape(
-            "Version: $Id: makediary.py 79 2003-11-25 09:50:56Z anonymous $")
+            "Version: $Id: makediary.py 80 2003-11-25 10:27:41Z anonymous $")
         dateString = self.postscriptEscape(DateTime.now() \
                                            .strftime("Generated at: %Y-%m-%dT%H:%M:%S%Z"))
         s = s + "% --- Version page\n" \
@@ -1005,7 +1005,8 @@ class PlannerPage(PostscriptPage):
                         #sys.stderr.write("planner: events for %s: %s\n" % (str(dd),eventlist))
                         se = ""             # event list string
                         for event in eventlist:
-                            if event.has_key("short") and not event.has_key("_warning"):
+                            if event.has_key("short") and not event.has_key("_warning") \
+                                and event["short"] != ' ':
                                 if event.has_key("personal"):
                                     font = self.di.subtitleFontName + "-Oblique"
                                 else:
@@ -1627,7 +1628,7 @@ class Diary:
                                                  DateTime.now().strftime("%Y-%m-%dT%H%M%S%Z")))
         p = p + "%%BeginProlog\n" \
             + "%%%%Creator: %s, by Russell Steicke, version: %s\n" % \
-            (self.di.myname,"$Id: makediary.py 79 2003-11-25 09:50:56Z anonymous $") \
+            (self.di.myname,"$Id: makediary.py 80 2003-11-25 10:27:41Z anonymous $") \
             + DateTime.now().strftime("%%%%CreationDate: %a, %d %b %Y %H:%M:%S %z\n")
         p = p + "%%DocumentNeededResources: font Times-Roman\n" \
             "%%+ font Times-Bold\n%%+ font Helvetica\n%%+ font Helvetica-Oblique\n" \
