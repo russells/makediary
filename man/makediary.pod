@@ -25,6 +25,7 @@ B<[--page-x-offset=I<x>]>
 B<[--page-y-offset=I<y>]>
 B<[--paper-size=I<papersize>]>
 B<[--planner-years=I<n>]>
+B<[--week-to-opening]>
 B<[--weeks-after=I<N>]>
 B<[--weeks-before=I<N>]>
 B<[--year=I<year>]>
@@ -135,6 +136,15 @@ to 2, ie the diary year and the following year.
 =item --version
 
 Output version information and exit.
+
+=item --week-to-opening
+
+Print a week to one opening.  This has, on the left side, three calendars and
+Monday to Wednesday, and on the right side, Thursday to Sunday.  The default
+layout has on the left side, three calendars and Monday, on the right side
+Tuesday and Wednesday, then on the next two pages, Thursday and Friday, and
+Saturday and Sunday.  In both layouts, the same day always appears in the same
+position on the same page.
 
 =item --weeks-after=I<N>
 
@@ -275,7 +285,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 =head1 VERSION
 
-$Id: makediary.pod 70 2003-01-13 17:24:07Z anonymous $
+$Id: makediary.pod 87 2003-11-30 14:27:06Z anonymous $
 
 =head1 SEE ALSO
 

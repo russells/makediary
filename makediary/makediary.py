@@ -4,7 +4,7 @@
 
 # Print a year diary.
 
-# $Id: makediary.py 80 2003-11-25 10:27:41Z anonymous $
+# $Id: makediary.py 87 2003-11-30 14:27:06Z anonymous $
 
 versionNumber = "0.1.2pre"
 
@@ -53,6 +53,7 @@ class DiaryInfo:
                "appointments",
                "appointment-width=",
                "no-appointment-times",
+               "week-to-opening",
                "moon",
                "help",
                "version"]
@@ -127,6 +128,7 @@ class DiaryInfo:
         self.appointmentWidth = 0.35    # Width of appointments (as proportion)
         self.colour = 0                 # If true, print images in colour
         self.moon = 0                   # If true, print moon phases
+        self.weekToOpening = 0          #
         self.debugBoxes = 0             # If true, draw faint boxes around things for debugging
         self.debugVersion = 0           # If true, print version info on inside cover.
         self.debugWholePageBoxes = 0    # If true, draw faint boxes around all pages.
@@ -192,6 +194,8 @@ class DiaryInfo:
             elif opt[0] == "--appointment-width":
                 self.appointments = 1
                 self.appointmentWidth = self.floatOption("appointment-width",opt[1])
+            elif opt[0] == "--week-to-opening":
+                self.weekToOpening = 1
             elif opt[0] == "--images":
                 self.drawImages = 1
             elif opt[0] == "--colour":
@@ -206,7 +210,7 @@ class DiaryInfo:
                 self.usage(sys.stdout)
             elif opt[0] == "--version":
                 print "makediary, version " + versionNumber
-                print "$Id: makediary.py 80 2003-11-25 10:27:41Z anonymous $"
+                print "$Id: makediary.py 87 2003-11-30 14:27:06Z anonymous $"
                 sys.exit(0)
             else:
                 print >>sys.stderr, "Unknown option: %s" % opt[0]
@@ -266,9 +270,6 @@ class DiaryInfo:
 
         coverTitleFontMultiplier = pageMultiple
         self.coverTitleFontSize *= coverTitleFontMultiplier
-
-        lineMultiplier = pow(pageMultiple, 0.7);
-        self.lineSpacing *= lineMultiplier
 
         marginMultiplier = pow(pageMultiple, 0.5)
         self.tMargin *= marginMultiplier
@@ -589,7 +590,7 @@ class VersionPage(PostscriptPage):
         linex = fontSize*6
         s=""
         versionString = self.postscriptEscape(
-            "Version: $Id: makediary.py 80 2003-11-25 10:27:41Z anonymous $")
+            "Version: $Id: makediary.py 87 2003-11-30 14:27:06Z anonymous $")
         dateString = self.postscriptEscape(DateTime.now() \
                                            .strftime("Generated at: %Y-%m-%dT%H:%M:%S%Z"))
         s = s + "% --- Version page\n" \
@@ -1311,7 +1312,10 @@ class DiaryPage(PostscriptPage):
         self.ptop_diary = 0
         self.pheight_diary = 0
 
-        self.dheight = self.pHeight_diary/2.0
+        if di.weekToOpening:
+            self.dheight = self.pHeight_diary/4.0
+        else:
+            self.dheight = self.pHeight_diary/2.0
         self.dwidth = self.pWidth
 
         self.appProportion = self.di.appointmentWidth # Proportion of width in appointments
@@ -1324,7 +1328,10 @@ class DiaryPage(PostscriptPage):
             self.dwidthLines = self.pWidth
 
         # These are the settings that have the most effect on the layout of a day.
-        self.titleboxsize = di.lineSpacing * 1.4
+        if di.weekToOpening:
+            self.titleboxsize = di.lineSpacing * 1.2
+        else:
+            self.titleboxsize = di.lineSpacing * 1.4
         self.titleboxy = self.dheight - self.titleboxsize
         self.titlefontsize = self.titleboxsize * 0.63
         self.titlefonty = self.dheight - self.titleboxsize * 0.7
@@ -1401,9 +1408,13 @@ class DiaryPage(PostscriptPage):
         # Adding and removing entries from this list will automatically adjust the number
         # of appointment lines, and the size of the lines.  Entries that are None result in
         # a line without a label.
-        appTimes = ["7","8","9","10","11","12","1","2","3","4","5","6","7"]
+        tempAppTimes = ["7","8","9","10","11","12","1","2","3","4","5","6","7"]
+        appTimes = [ ]
         while len(appTimes) < self.nlines:
-            appTimes.append(None)
+            if len(appTimes) < len(tempAppTimes):
+                appTimes.append(tempAppTimes[len(appTimes)])
+            else:
+                appTimes.append(None)
         # Make the appointment lines end at the same spot as the diary lines.
         appheight = di.lineSpacing #(self.nlines * di.lineSpacing) / len(appTimes)
         s = s + '/%s %5.3f selectfont\n' % (di.subtitleFontName,
@@ -1478,7 +1489,56 @@ class DiaryPage(PostscriptPage):
             + "RE\n"
         return s
 
-    def calendars3(self):
+    def printMondayWTO(self):
+        s = '% -- Monday\n' \
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*0.5))) \
+            + self.diaryDay() \
+            + "RE\n"
+        return s
+
+    def printTuesdayWTO(self):
+        s = '% -- Tuesday\n' \
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*0.25))) \
+            + self.diaryDay() \
+            + "RE\n"
+        return s
+
+    def printWednesdayWTO(self):
+        s = '% -- Wednesday\n' \
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom)) \
+            + self.diaryDay() \
+            + "RE\n"
+        return s
+
+    def printThursdayWTO(self):
+        s = '% -- Thursday\n' \
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*0.75))) \
+            + self.diaryDay() \
+            + "RE\n"
+        return s
+
+    def printFridayWTO(self):
+        s = '% -- Friday\n' \
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*0.5))) \
+            + self.diaryDay() \
+            + "RE\n"
+        return s
+
+    def printSaturdayWTO(self):
+        s = '% -- Saturday\n' \
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*0.25))) \
+            + self.diaryDay() \
+            + "RE\n"
+        return s
+
+    def printSundayWTO(self):
+        s = '% -- Sunday\n' \
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom)) \
+            + self.diaryDay() \
+            + "RE\n"
+        return s
+
+    def calendarsAtTop(self):
         """Print three calendars on the top half of a page."""
         di = self.di
         s = "%--- three calendars\n"
@@ -1486,7 +1546,10 @@ class DiaryPage(PostscriptPage):
         s = s + self.title(di.dt.strftime("%B %Y"),
                            "Week %d" % di.dt.iso_week[1])
         # Calculate the area we have for drawing.
-        b = di.bMargin + self.pHeight_diary/2
+        if di.weekToOpening:
+            b = di.bMargin + self.pHeight_diary*0.75
+        else:
+            b = di.bMargin + self.pHeight_diary*0.5
         l = self.pLeft
         w = self.pWidth
         h = self.pTop - b
@@ -1495,10 +1558,16 @@ class DiaryPage(PostscriptPage):
         #      + "2 2 M 0 %5.3f RL %5.3f 0 RL 0 %5.3f RL %5.3f 0 RL S RE\n" % \
         #      (h-4,w-4,-(h-4),-(w-4))
         s = s + "SA %5.3f %5.3f TR\n" % (l,b)
-        c_bottom = h * 0.65             # The c_ prefix for these variables means "calendar"
-        c_height = h * 0.3
-        c_width = c_height * 1.33
-        c_indent = w * 0.023
+        if di.weekToOpening:
+            c_bottom = h * 0.50
+            c_height = h * 0.44
+            c_indent = w * 0.033
+            c_width = c_height * 1.7
+        else:
+            c_bottom = h * 0.65             # The c_ prefix for these variables means "calendar"
+            c_height = h * 0.3
+            c_indent = w * 0.023
+            c_width = c_height * 1.33
         c_totalwidth = w - 2*c_indent
         c_gutter = (c_totalwidth - 3*c_width) / 2
         c_boxborder = h * 0.02
@@ -1542,9 +1611,10 @@ class DiaryPage(PostscriptPage):
         # Now draw the lines just below the month calendars.
         l_y = c_bottom - di.lineSpacing - 2
         s = s + "0 SLW\n"
-        while l_y > (di.lineSpacing):
+        while l_y > (di.lineSpacing * 0.7):
             s = s + "%5.3f %5.3f M %5.2f 0 RL S\n" % (c_indent,l_y,c_totalwidth)
             l_y = l_y - di.lineSpacing
+
         s = s + "RE\n"
         return s
 
@@ -1604,9 +1674,21 @@ class DiaryPage(PostscriptPage):
     def body(self):
         s = ""
         if self.di.dt.day_of_week == DateTime.Monday:
-            s = self.calendars3() + self.bottomHalf()
+            if self.di.weekToOpening:
+                s = self.calendarsAtTop() +  \
+                    self.printMondayWTO() + \
+                    self.printTuesdayWTO() + \
+                    self.printWednesdayWTO()
+            else:
+                s = self.calendarsAtTop() + self.bottomHalf();
         else:
-            s = self.topHalf() + self.bottomHalf()
+            if self.di.weekToOpening:
+                s = self.printThursdayWTO() + \
+                    self.printFridayWTO() + \
+                    self.printSaturdayWTO() + \
+                    self.printSundayWTO()
+            else:
+                s = self.topHalf() + self.bottomHalf();
         return s
 
 
@@ -1628,7 +1710,7 @@ class Diary:
                                                  DateTime.now().strftime("%Y-%m-%dT%H%M%S%Z")))
         p = p + "%%BeginProlog\n" \
             + "%%%%Creator: %s, by Russell Steicke, version: %s\n" % \
-            (self.di.myname,"$Id: makediary.py 80 2003-11-25 10:27:41Z anonymous $") \
+            (self.di.myname,"$Id: makediary.py 87 2003-11-30 14:27:06Z anonymous $") \
             + DateTime.now().strftime("%%%%CreationDate: %a, %d %b %Y %H:%M:%S %z\n")
         p = p + "%%DocumentNeededResources: font Times-Roman\n" \
             "%%+ font Times-Bold\n%%+ font Helvetica\n%%+ font Helvetica-Oblique\n" \
