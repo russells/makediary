@@ -1,0 +1,27 @@
+# Example .calendar file for makediary
+
+# $Id: dot-calendar 73 2003-06-07 09:52:09Z  $
+
+# Specify European date format
+opt -E
+
+
+# Some standard holidays
+1 1*				New Year's Day #<<short:New Year>>
+26 Jan*				Australia Day #<<short:Aust Day>>
+28-Jan-2002*			Australia Day Holiday #<<short:Aust Day Holiday>>
+14-Feb				Valentine's Day #<<short:Valentine's Day>>
+4 Mar*				Labour Day #<<short:Labour Day>>
+11 Mar				Labour Day (Victoria) #<<short:Labour Day (Vic)>>
+25 Apr*				ANZAC Day #<<short:ANZAC Day>>
+10-Jun-2002			Queen's Birthday (Victoria) #<<short:Queen Bday (Vic)>>
+30-Sep-2002*			Queen's Birthday #<<short:Queen Bday>>
+29-Sep-2003*			Queen's Birthday #<<short:Queen Bday>>
+5 Nov 2002			Melbourne Cup Day #<<Melb Cup>>
+25 Dec*				Christmas Day #<<short:Christmas>>
+26 Dec*				Boxing Day #<<short:Boxing Day>>
+31 12				New Year's Eve
+
+29-3-2002*			Good Friday #<<short:Good Friday>>
+31-3-2002*			Easter Sunday
+1-4-2002*			Easter Monday #<<short:Easter Monday>>

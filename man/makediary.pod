@@ -1,0 +1,282 @@
+=head1 NAME
+
+makediary - output PostScript code for a paper diary.
+
+=head1 SYNOPSIS
+
+B<makediary --help>
+
+B<makediary --version>
+
+B<makediary>
+B<[--address-pages=I<n>>]>
+B<[--colour]>
+B<[--cover-image=I<imagefile>]>
+B<[--debug-boxes]>
+B<[--debug-version]>
+B<[--debug-whole-page-boxes]>
+B<[--line-spacing=I<d>]>
+B<[--moon]>
+B<[--notes-pages=I<n>]>
+B<[--output-file=I<filename>]>
+B<[--page-size=I<pagesize>]>
+B<[--page-registration-marks]>
+B<[--page-x-offset=I<x>]>
+B<[--page-y-offset=I<y>]>
+B<[--paper-size=I<papersize>]>
+B<[--planner-years=I<n>]>
+B<[--weeks-after=I<N>]>
+B<[--weeks-before=I<N>]>
+B<[--year=I<year>]>
+
+=head1 DESCRIPTION
+
+Prints PostScript code for a paper diary.  B<makediary> can generate
+PostScript for several different paper sizes.  B<makediary> can include
+events printed on dates specified in a F<.calendar> file.  The F<.calendar>
+file is in the same format as used by pcal(1), with some extensions.
+
+=head1 OPTIONS
+
+=over
+
+=item --address-pages=I<n>
+
+Print I<n> address pages.  Defaults to 6.
+
+=item --appointments
+
+Print a column of appointment times on the right side of each day.
+
+=item --appointment-width=I<N%>
+
+Specify the width of the appointment times column as a proportion of the
+width of the day.  Defaults to 35%.
+
+=item --colour
+
+When printing images, output colour PostScript.
+
+=item --cover-image=I<imagefile>
+
+Print I<imagefile> on the cover of the diary, centred and below the year.
+The image will be scaled to fit inside a box across the page.
+
+=item --debug-boxes
+
+Print dashed boxes around parts of the output for debugging the spacing.  These
+parts include images, month calendars, and the drawing border of the whole page.
+
+=item --debug-version
+
+On the inside cover, print a page that describes the options that were used
+to generate this diary, the usage message of the B<makediary>, and the CVS
+version number.
+
+=item --debug-whole-page-boxes
+
+Around each diary page (not each sheet of paper), draw a faint box.
+
+=item --help
+
+Display a usage message and exit.
+
+=item --line-spacing=I<d>
+
+Make the line spacing on diary pages I<d> millimetres.  I<d> can be a
+floating point number.
+
+=item --moon
+
+Print pictures of phases of the moon in the title of the day at each phase.
+
+=item --notes-pages=I<n>
+
+Print I<n> notes pages at the beginning and end of the diary.  Defaults to
+6.
+
+=item --output-file=I<filename>
+
+Output PostScript code to I<filename>.  Defaults to standard output.  A
+lone 'B<->' also means standard output.
+
+=item --page-size=I<size>
+
+Specify the size of the pages.  This is not the same as the paper size, so
+you can print smaller pages than the paper size.  See also the
+B<--page-registration-marks> option.
+
+=item --page-registration-marks
+
+Print marks for cutting pages out of a sheet of paper.  This is useful when
+printing pages that are smaller than the paper size.
+
+=item --page-x-offset=I<x>
+
+=item --page-y-offset=I<y>
+
+Move each diary page this far on the paper.  The offsets are in
+millimetres.  The rationale for these options is that printers tend not to
+print exactly where told, so when printing double sided the pages on
+opposite sides of the paper may not line up.  You can specify an offset to
+make them line up.  I<x> and I<y> can be floating point numbers.
+
+=item --paper-size=I<size>
+
+Specify the size of the paper that you are printing on.  This is not the
+same as the size of the diary pages.  Do B<makediary --help> for a list of
+paper sizes.
+
+=item --planner-years=I<n>
+
+Print I<n> two-page planner years, starting with the diary year.  Defaults
+to 2, ie the diary year and the following year.
+
+=item --version
+
+Output version information and exit.
+
+=item --weeks-after=I<N>
+
+Ensure that the diary covers I<N> complete weeks after the specified year.
+
+=item --weeks-before=I<N>
+
+Ensure that the diary covers I<N> complete weeks before the specified year.
+
+=item --year=I<year>
+
+Print a diary for that year.  Defaults to next year.
+
+=back
+
+=head1 PCAL(1) F<.calendar> FILE
+
+B<makediary> finds a F<.calendar> file, it is parsed to find events to
+print on particular days.  The file is in the same format as used by
+pcal(1), with some extensions.
+
+The F<.calendar> file is searched for in these places:
+
+=over
+
+=item * The file named by the environment variable B<DIARY_FILE>.
+
+The file I<.calendar> in the directory named by the environment variable
+B<DIARY_DIR>.
+
+=item * The file I<.calendar> in the directory named by the environment
+variable B<PCAL_DIR>.
+
+=item * The file I<.calendar> in the current directory.
+
+=item * The file I<.calendar> in the directory named by the environment
+variable B<HOME>.
+
+=back
+
+The first one of these found is used, and the rest are ignored.
+
+The I<.calendar> file allows a few extensions from that defined by pcal(1).
+These extensions are embedded in comments, so the file should still make
+sense to pcal(1).
+
+The first type of extension allows for changing the behaviour of B<makediary>.  These
+are of the form:
+
+=over
+
+B<<<< #<<I<key>:I<value>>> >>>>
+
+=back
+
+(This needs documentation...)
+
+The second type of extension is similar in form, but is added to the end of the text for
+a date entry.  The currently defined extensions are:
+
+=over
+
+=item B<<<< #<<image:F<filename>>> >>>>
+
+Specify an image to print next to the entry for this event.  The image will
+be scaled to fit in two lines of the diary.
+
+=item B<<<< #<<year:I<year>>> >>>>
+
+Specify the year in which the event occurred.  This is used so that the
+text can contain a number of years since the event, in the %-substitution
+extension format specified below.
+
+=item B<<<< #<<warn:I<n>I<day(s)>|I<week(s)>|I<month(s)>>> >>>>
+
+Print a warning in lighter text, I<n> days, weeks or months before the
+event.  The text printed will be prefixed by "\fBWarning:\fP", and suffixed
+by the date of the event.
+
+=back
+
+=head2 %-Substitution
+
+Within the extensions specified above, you can substitute some values with
+B<%>-sequences.  The following sequences are available:
+
+=over
+
+=item B<%N>
+
+Substitute the number of years since the event.
+
+=back
+
+=head2 Examples
+
+=over
+
+=item *
+
+ 1-1 Joe Bloggs' %oN birthday #<<image:joebloggs.jpg>> #<<year:1872>>
+
+Print Joe's birthday, with a picture of Joe, and substitute his age, as an
+ordinal.  In 2001, this will say "Joe Bloggs' 129th birthday".
+
+=back
+
+=head1 EXAMPLES
+
+=over
+
+=item Two pages on letter paper
+
+ makediary --page-size=half-letter | psselect -p2- | \
+    pstops -p letter '2:0L(8.5in,0)+1L(8.5in,5.5in)'  > out.ps
+
+=back
+
+=head1 BUGS
+
+The F<.calendar> format is really ugly.  It should really have a better way
+of specifying events etc.  The backward compatibility with pcal(1) is not
+as useful as I imagined it would be.  Two ideas are to use a simple
+database format (perhaps nosql(1)), or use the user's palm data, exported
+from evolution(1) or somewhere.
+
+=head1 AUTHOR
+
+Written by Russell Steicke <russells@adelie.cx>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2002 Russell Steicke.  Released under the terms of the GNU
+General Public License.
+
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+=head1 VERSION
+
+$Id: makediary.pod 70 2003-01-13 17:24:07Z anonymous $
+
+=head1 SEE ALSO
+
+pcal(1), calendar(1), psselect(1), pstops(1).

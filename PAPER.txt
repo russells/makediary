@@ -1,0 +1,27 @@
+# -*- outline -*-
+
+# $Id: PAPER.txt 73 2003-06-07 09:52:09Z  $
+
+* Paper size notes
+
+Look in makediary/PaperSize.py for a list of supported paper sizes.
+
+** B5
+
+500    x 710    points
+176.37 x 250.44 mm
+
+Ricoh printer does not have a size for B5.
+
+gv calls this ISOB5, but it does not appear in the selectable list of
+sizes.
+
+** B5J
+
+517    x 730    points
+182.36 x 257.50 mm
+
+Ricoh printer calls this B5-JIS.
+
+gv calls this B5, and it does appear in the list.
+
