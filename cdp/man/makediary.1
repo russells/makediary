@@ -1,6 +1,6 @@
 .\"
 .\" Man page for Russell's makediary command.
-.\" $Id: makediary.1 7 2002-12-22 07:02:27Z anonymous $
+.\" $Id: makediary.1 20 2002-12-23 15:13:04Z anonymous $
 .TH MAKEDIARY "1" "August 2001"
 .SH NAME
 makediary \- output PostScript code for an A5 diary.
@@ -11,6 +11,8 @@ makediary \- output PostScript code for an A5 diary.
 .br
 .B makediary
 .B [\-\-address\-pages=\fIn\fP]
+.B [\-\-colour]
+.B [\-\-cover\-image=\fIimagefile\fR]
 .B [\-\-debug\-boxes]
 .B [\-\-debug\-version]
 .B [\-\-debug\-whole\-page\-boxes]
@@ -20,9 +22,11 @@ makediary \- output PostScript code for an A5 diary.
 .B [\-\-paper\-size=\fIpapersize\fP]
 .B [\-\-page\-size=\fIpagesize\fP]
 .B [\-\-page\-registration\-marks]
-.B [\-\-page\-x\-offset=\fIN\fP]
-.B [\-\-page\-y\-offset=\fIN\fP]
+.B [\-\-page\-x\-offset=\fIx\fP]
+.B [\-\-page\-y\-offset=\fIy\fP]
 .B [\-\-planner-years=\fIn\fP]
+.B [\-\-weeks\-after=\fIN\fP]
+.B [\-\-weeks\-before=\fIN\fP]
 .B [\-\-year=\fIyear\fP]
 .br
 .SH DESCRIPTION
@@ -43,6 +47,14 @@ Print a column of appointment times on the right side of each day.
 Specify the width of the appointment
 times column as a proportion of the width of the day.  Defaults to 35%.
 .TP
+\fB\-\-colour\fR
+When printing images, output colour PostScript.
+.TP
+\fB\-\-cover\-image=\fIimagefile\fR
+Print \fIimagefile\fR on the cover of
+the diary, centred and below the year.  The image will be scaled to fit
+inside a box across the page.
+.TP
 \fB\-\-debug\-boxes\fR
 Print dashed boxes around parts of the output for debugging the spacing.  These
 parts include images, month calendars, and the drawing border of the whole page.
@@ -57,6 +69,10 @@ Around each diary page (not each sheet of paper), draw a faint box.
 .TP
 \fB\-\-help\fR
 Display a usage message and exit.
+.TP
+\fB\-\-line\-spacing=\fId\fR
+Make the line spacing on diary pages \fId\fR
+millimetres.  \fId\fR can be a floating point number.
 .TP
 \fB\-\-notes\-pages=\fIn\fR
 Print \fIn\fR notes pages at the beginning and end of the diary.  Defaults to 6.
@@ -75,14 +91,15 @@ Print marks for cutting pages out of a
 sheet of paper.  This is useful when printing pages that are smaller than
 the paper size.
 .TP
-\fB\-\-page\-x\-offset\fR
+\fB\-\-page\-x\-offset=\fIx\fR
 .TP
-\fB\-\-page\-y\-offset\fR
+\fB\-\-page\-y\-offset=\fIy\fR
 Move each diary page this far on the paper.  The
 offsets are in millimetres.  The rationale for these options is that
 printers tend not to print exactly where told, so when printing double
 sided the pages on opposite sides of the paper may not line up.  You can
-specify an offset to make them line up.
+specify an offset to make them line up.  \fIx\fR and \fIy\fR can be floating
+point numbers.
 .TP
 \fB\-\-paper\-size=\fIsize\fR
 Specify the size of the paper that you are
@@ -94,6 +111,12 @@ to 2, ie the diary year and the following year.
 .TP
 \fB\-\-version\fR
 Output version information and exit.
+.TP
+\fB\-\-weeks\-after=\fIN\fR
+Ensure that the diary covers \fIN\fR complete weeks after the specified year.
+.TP
+\fB\-\-weeks\-before=\fIN\fR
+Ensure that the diary covers \fIN\fR complete weeks before the specified year.
 .TP
 \fB\-\-year=\fIyear\fR
 Print a diary for that year.  Defaults to next year.
