@@ -1,7 +1,9 @@
 0.1
+$URL: http://localhost:10080/svn/makediary/trunk/makediary/VERSION $
 
-The first line of this file is the version number of makediary.  Everything
-else is ignored.
+The first line of this file is the version number of makediary.  The second
+line contains the URL for this file, which is used when exporting a copy to
+make packages.  Everything else is ignored.
 
-$Id: VERSION 29 2002-12-29 04:43:53Z anonymous $
+$Id: VERSION 30 2002-12-29 04:54:44Z anonymous $
 
