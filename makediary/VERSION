@@ -19,7 +19,8 @@ Everything else is ignored.
 - The version numbers in ~/bin/make-makediary-www and
   ~/bin/export-makediar-to-burst.
 
+- The version numbers in the web page.
 
 
-$Id: VERSION 62 2003-01-05 11:54:16Z anonymous $
+$Id: VERSION 66 2003-01-07 02:45:19Z anonymous $
 
