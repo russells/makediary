@@ -1,6 +1,6 @@
 -*- outline -*-
 
-* $Id: TODO.txt 73 2003-06-07 09:52:09Z  $
+* $Id: TODO.txt 104 2004-01-14 12:41:01Z  $
 
 * Margins  DONE
 
@@ -278,4 +278,11 @@ Perhaps a wxPython app that lets the user set the parameters of the diary,
 and then runs makediary and sends the output somewhere?
 
 This is a bit bigger than some of the other todo items in here... :)
+
+
+* Remove the duplicate list of month names.
+
+In v 1.2, there is a month name list at line 1041, and another at line
+1208.
+
 
