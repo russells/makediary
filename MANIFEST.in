@@ -3,3 +3,12 @@ include setup.py
 include makediary/*.py
 include bin/makediary
 include man/makediary.1.gz
+include eps/vi-ref/vi-ref.tex
+include eps/vi-ref/vi-ref.eps
+include eps/vi-ref/vi-back.tex
+include eps/vi-ref/vi-back.eps
+include eps/unix-ref.tex
+include eps/unix-ref.eps
+include eps/sh-ref.tex
+include eps/sh-ref.eps
+

@@ -27,6 +27,8 @@ mkdir -p $_DEB_BUILD_DIR
 find .    -name '{arch}' -prune \
        -o -name .arch-ids -prune \
        -o -name ',*' -prune \
+       -o -name dist -prune \
+       -o -name dist-deb -prune \
        -o -type f -print0 \
    | tar cf - -T - --null \
    | ( cd $_DEB_BUILD_DIR  &&  tar xvf - )
