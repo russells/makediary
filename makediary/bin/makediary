@@ -2,7 +2,7 @@
 
 # Run the diary program.
 
-# $Id: makediary 14 2002-12-22 16:45:41Z anonymous $
+# $Id: makediary 27 2002-12-29 04:40:19Z anonymous $
 
 from cdp import makediary
 import sys
