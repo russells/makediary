@@ -614,7 +614,7 @@ class EmptyPage(PostscriptPage):
 
 class VersionPage(PostscriptPage):
     def body(self):
-        fontSize = 2.4*self.di.pageHeight/210.0
+        fontSize = 2.2*self.di.pageHeight/210.0
         linex = fontSize*6
         s=""
         versionString = self.postscriptEscape(versionNumber)
