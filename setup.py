@@ -5,7 +5,7 @@ from distutils.core import setup
 
 # This version number must match the version number in VERSION.
 
-_makeDiaryVersion = '0.1.3'
+_makeDiaryVersion = '0.2.0'
 
 setup(name='makediary',
       description="""Make printed diaries.""",

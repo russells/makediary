@@ -3,5 +3,7 @@
 # Get rid of all the non-essential files.
 
 rm -rf dist dist-deb build ,tmp MANIFEST
-
+rm -f */*.pyc
+rm -f makediary/,*.ps
+rm -rf man/makediary.1 man/makediary.1.html
 find . -type f -name \*~ -print0 | xargs -0 rm -f

@@ -2,7 +2,7 @@
 
 # Read and parse the .calendar file used by pcal.
 
-__revision__ = """0.1.3"""
+__revision__ = """0.2.0"""
 
 import sys
 import os

@@ -1,25 +1,28 @@
-0.1.3
-URL???
+0.2.0
 
 The first line of this file is the version number of makediary.  This
 number must match the number in setup.py.
-
-The second line contains the subversion URL for this file, which is used to
-find the URL for the repository when exporting a copy to make certain types
-of packages.
 
 Everything else is ignored.
 
 *** When changing the version number here, don't forget to also change:
 
-- The version number in setup.py.
+- setup.py.
 
-- The version number in makediary/__init__.py.
+- makediary/makediary.py.
 
-- The version number in debian/changelog.
+- makediary/DotCalendar.py.
+
+- makediary/PaperSize.py.
+
+- makediary/__init__.py.
+
+- man/makediary.pod
+
+- debian/changelog.
 
 - The version numbers in ~/bin/make-makediary-www and
-  ~/bin/export-makediary-to-burst.
+  ~/bin/export-makediary-to-burst.  ??
 
 - The version numbers in the web page.
 
