@@ -2,8 +2,6 @@
 
 # Run the diary program.
 
-# $Id: makediary 100 2003-12-26 04:01:35Z anonymous $
-
 from makediary import makediary
 import sys
 

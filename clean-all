@@ -1,7 +1,5 @@
 #!/bin/sh
 
-# $Id: clean-all 73 2003-06-07 09:52:09Z  $
-
 # Get rid of all the non-essential files.
 
 rm -rf dist dist-deb build ,tmp MANIFEST

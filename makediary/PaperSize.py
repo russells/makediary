@@ -2,9 +2,8 @@
 
 # Maintain a dictionary of paper sizes.
 
-# $Id: PaperSize.py 100 2003-12-26 04:01:35Z anonymous $
 
-__revision__ = """$Id: PaperSize.py 100 2003-12-26 04:01:35Z anonymous $"""
+__revision__ = """0.1.3"""
 
 
 _paperSizes = {

@@ -1,8 +1,6 @@
 # Setup for makediary.
 
 
-# $Id: setup.py 99 2003-12-26 03:57:57Z  $
-
 from distutils.core import setup
 
 # This version number must match the version number in VERSION.

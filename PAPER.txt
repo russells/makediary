@@ -1,7 +1,5 @@
 # -*- outline -*-
 
-# $Id: PAPER.txt 73 2003-06-07 09:52:09Z  $
-
 * Paper size notes
 
 Look in makediary/PaperSize.py for a list of supported paper sizes.

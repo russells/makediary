@@ -18,5 +18,3 @@ COPYING.
 
 For a very special reason, this used to be called cdp.  :)
 
-$Id: README.txt 73 2003-06-07 09:52:09Z  $
-

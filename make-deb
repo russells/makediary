@@ -1,7 +1,5 @@
 #!/bin/sh
 
-# $Id: make-deb 73 2003-06-07 09:52:09Z  $
-
 # Make the debian package.  This must be run from within the source
 # directory.
 

@@ -1,5 +1,5 @@
-0.1.2
-$URL: http://localhost:10080/svn/makediary/trunk/VERSION $
+0.1.3
+URL???
 
 The first line of this file is the version number of makediary.  This
 number must match the number in setup.py.
@@ -22,7 +22,4 @@ Everything else is ignored.
   ~/bin/export-makediary-to-burst.
 
 - The version numbers in the web page.
-
-
-$Id: VERSION 101 2003-12-26 04:08:06Z  $
 

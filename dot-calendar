@@ -1,7 +1,5 @@
 # Example .calendar file for makediary
 
-# $Id: dot-calendar 73 2003-06-07 09:52:09Z  $
-
 # Specify European date format
 opt -E
 
