@@ -4,7 +4,9 @@
 
 # Print a year diary.
 
-# $Id: makediary.py 70 2003-01-13 17:24:07Z anonymous $
+# $Id: makediary.py 75 2003-07-17 08:31:34Z anonymous $
+
+versionNumber = "0.1.2pre"
 
 import sys
 import getopt
@@ -198,7 +200,8 @@ class DiaryInfo:
             elif opt[0] == "--help":
                 self.usage(sys.stdout)
             elif opt[0] == "--version":
-                print "Version $Id: makediary.py 70 2003-01-13 17:24:07Z anonymous $"
+                print "makediary, version " + versionNumber
+                print "$Id: makediary.py 75 2003-07-17 08:31:34Z anonymous $"
                 sys.exit(0)
             else:
                 print >>sys.stderr, "Unknown option: %s" % opt[0]
@@ -567,7 +570,7 @@ class VersionPage(PostscriptPage):
         linex = fontSize*6
         s=""
         versionString = self.postscriptEscape(
-            "Version: $Id: makediary.py 70 2003-01-13 17:24:07Z anonymous $")
+            "Version: $Id: makediary.py 75 2003-07-17 08:31:34Z anonymous $")
         dateString = self.postscriptEscape(DateTime.now() \
                                            .strftime("Generated at: %Y-%m-%dT%H:%M:%S%Z"))
         s = s + "% --- Version page\n" \
@@ -1605,7 +1608,7 @@ class Diary:
                                                  DateTime.now().strftime("%Y-%m-%dT%H%M%S%Z")))
         p = p + "%%BeginProlog\n" \
             + "%%%%Creator: %s, by Russell Steicke, version: %s\n" % \
-            (self.di.myname,"$Id: makediary.py 70 2003-01-13 17:24:07Z anonymous $") \
+            (self.di.myname,"$Id: makediary.py 75 2003-07-17 08:31:34Z anonymous $") \
             + DateTime.now().strftime("%%%%CreationDate: %a, %d %b %Y %H:%M:%S %z\n")
         p = p + "%%DocumentNeededResources: font Times-Roman\n" \
             "%%+ font Times-Bold\n%%+ font Helvetica\n%%+ font Helvetica-Oblique\n" \
