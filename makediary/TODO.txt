@@ -1,6 +1,6 @@
 -*- outline -*-
 
-* $Id: TODO.txt 65 2003-01-07 02:44:59Z anonymous $
+* $Id: TODO.txt 67 2003-01-12 08:58:14Z anonymous $
 
 * Margins  DONE
 
@@ -271,3 +271,11 @@ GhostGum gsview on windows thinks that the %%Page marker for the image is
 an incorrect %%Page marker for the document, and psselect thinks that the
 end of the image is the end of the surrounding page.  Fix up the EPS
 generation so that this does not happen.
+
+* GUI frontend for this thing.
+
+Perhaps a wxPython app that lets the user set the parameters of the diary,
+and then runs makediary and sends the output somewhere?
+
+This is a bit bigger than some of the other todo items in here... :)
+
