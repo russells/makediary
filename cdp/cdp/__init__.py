@@ -1,8 +1,6 @@
 #!/usr/bin/python2
 
-# Place holder for a python package.
-
-# $Id: __init__.py 8 2002-12-22 07:30:28Z anonymous $
+# $Id: __init__.py 18 2002-12-23 05:57:39Z anonymous $
 
 """A package for printing book style diaries."""
 
