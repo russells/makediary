@@ -8,27 +8,7 @@ B<makediary --help>
 
 B<makediary --version>
 
-B<makediary>
-B<[--address-pages=I<n>>]>
-B<[--colour]>
-B<[--cover-image=I<imagefile>]>
-B<[--debug-boxes]>
-B<[--debug-version]>
-B<[--debug-whole-page-boxes]>
-B<[--line-spacing=I<d>]>
-B<[--moon]>
-B<[--notes-pages=I<n>]>
-B<[--output-file=I<filename>]>
-B<[--page-size=I<pagesize>]>
-B<[--page-registration-marks]>
-B<[--page-x-offset=I<x>]>
-B<[--page-y-offset=I<y>]>
-B<[--paper-size=I<papersize>]>
-B<[--planner-years=I<n>]>
-B<[--week-to-opening]>
-B<[--weeks-after=I<N>]>
-B<[--weeks-before=I<N>]>
-B<[--year=I<year>]>
+B<makediary> I<[options]>
 
 =head1 DESCRIPTION
 
@@ -84,9 +64,20 @@ version number.
 
 Around each diary page (not each sheet of paper), draw a faint box.
 
+=item --event-images
+
+Print images next to events, where they are specified.  If this is not
+specified, the events will be printed without images.
+
 =item --help
 
 Display a usage message and exit.
+
+=item --image-page=IMAGE
+
+Display an image maximised onto a page.  This can be specified multiple times.
+The images specified will be printed on consecutive pages immediately after the
+personal information page.
 
 =item --line-spacing=I<d>
 

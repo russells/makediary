@@ -43,8 +43,8 @@ class DiaryInfo:
                "debug-boxes",
                "debug-version",
                "debug-whole-page-boxes",
+               "event-images",
                "help",
-               "images",
                "image-page=",
                "line-spacing=",
                "margins-multiplier=",
@@ -75,7 +75,7 @@ class DiaryInfo:
                   "    [--address-pages=n] [--appointment-width=w] [--appointments]\n",
                   "    [--colour] [--cover-image=file] [--day-to-page]\n",
                   "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
-                  "    [--images] [--image-page=IMAGEFILE]\n",
+                  "    [--event-images] [--image-page=IMAGEFILE]\n",
                   "    [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
                   "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
@@ -157,7 +157,7 @@ class DiaryInfo:
         self.debugWholePageBoxes = False# If true, draw faint boxes around all pages.
         self.pageRegistrationMarks=False# Print marks to show where to cut.
         self.events = {}                # Events to draw on each page, from .calendar file.
-        self.drawImages = False         # If true, draw event images
+        self.drawEventImages = False    # If true, draw event images
         self.nWeeksBefore = 0           # Print this number of weeks before the current year.
         self.nWeeksAfter = 0
         self.smiley = True
@@ -202,8 +202,8 @@ class DiaryInfo:
                 self.debugVersion = True
             elif opt[0] == "--help":
                 self.usage(sys.stdout)
-            elif opt[0] == "--images":
-                self.drawImages = True
+            elif opt[0] == "--event-images":
+                self.drawEventImages = True
             elif opt[0] == "--image-page":
                 self.imagePageImages.append(opt[1])
             elif opt[0] == "--line-spacing":
@@ -1710,7 +1710,7 @@ class DiaryPage(PostscriptPage):
 
         # First find out whether we are printing any images for this day.  If so, move all the
         # text to the right, out of the way of the images.
-        if di.drawImages:
+        if di.drawEventImages:
             for i in range(nevents):
                 event = eventlist[i]
                 if event.has_key('image') \
@@ -1721,7 +1721,7 @@ class DiaryPage(PostscriptPage):
         for i in range(nevents):
             event = eventlist[i]
             # Print an image, unless this is a warning event.
-            if event.has_key('image') and di.drawImages \
+            if event.has_key('image') and di.drawEventImages \
                     and not (event.has_key('_warning') and event['_warning']):
                 s = s + self.image(event['image'],
                                    picx + 0.1*di.lineSpacing, y - yspace + 0.1*di.lineSpacing,
