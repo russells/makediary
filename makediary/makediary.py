@@ -4,7 +4,7 @@
 
 # Print a year diary.
 
-# $Id: makediary.py 97 2003-12-19 04:41:34Z anonymous $
+# $Id: makediary.py 98 2003-12-19 05:35:24Z anonymous $
 
 versionNumber = "0.1.2pre"
 
@@ -218,7 +218,7 @@ class DiaryInfo:
                 self.usage(sys.stdout)
             elif opt[0] == "--version":
                 print "makediary, version " + versionNumber
-                print "$Id: makediary.py 97 2003-12-19 04:41:34Z anonymous $"
+                print "$Id: makediary.py 98 2003-12-19 05:35:24Z anonymous $"
                 sys.exit(0)
             else:
                 print >>sys.stderr, "Unknown option: %s" % opt[0]
@@ -598,7 +598,7 @@ class VersionPage(PostscriptPage):
         linex = fontSize*6
         s=""
         versionString = self.postscriptEscape(
-            "Version: $Id: makediary.py 97 2003-12-19 04:41:34Z anonymous $")
+            "Version: $Id: makediary.py 98 2003-12-19 05:35:24Z anonymous $")
         dateString = self.postscriptEscape(DateTime.now() \
                                            .strftime("Generated at: %Y-%m-%dT%H:%M:%S%Z"))
         s = s + "% --- Version page\n" \
@@ -1595,10 +1595,10 @@ class DiaryPage(PostscriptPage):
         #      (h-4,w-4,-(h-4),-(w-4))
         s = s + "SA %5.3f %5.3f TR\n" % (l,b)
         if di.weekToOpening:
-            c_bottom = h * 0.50
-            c_height = h * 0.44
+            c_bottom = h * 0.45
+            c_height = h * 0.49
             c_indent = w * 0.033
-            c_width = c_height * 1.7
+            c_width = c_height * 1.4
         else:
             c_bottom = h * 0.65             # The c_ prefix for these variables means "calendar"
             c_height = h * 0.3
@@ -1645,9 +1645,9 @@ class DiaryPage(PostscriptPage):
                     + "0 %5.3f RL %5.3f 0 RL " % (c_height+2*c_boxborder,c_width+2*c_boxborder) \
                     + "0 %5.3f RL %5.3f 0 RL S\n" % (-c_height-2*c_boxborder,-c_width-2*c_boxborder)
         # Now draw the lines just below the month calendars.
-        l_y = c_bottom - di.lineSpacing - 2
+        l_y = c_bottom - di.lineSpacing - 1.3
         s = s + "0 SLW\n"
-        while l_y > (di.lineSpacing * 0.7):
+        while l_y > (di.lineSpacing * 0.3):
             s = s + "%5.3f %5.3f M %5.2f 0 RL S\n" % (c_indent,l_y,c_totalwidth)
             l_y = l_y - di.lineSpacing
 
@@ -1746,7 +1746,7 @@ class Diary:
                                                  DateTime.now().strftime("%Y-%m-%dT%H%M%S%Z")))
         p = p + "%%BeginProlog\n" \
             + "%%%%Creator: %s, by Russell Steicke, version: %s\n" % \
-            (self.di.myname,"$Id: makediary.py 97 2003-12-19 04:41:34Z anonymous $") \
+            (self.di.myname,"$Id: makediary.py 98 2003-12-19 05:35:24Z anonymous $") \
             + DateTime.now().strftime("%%%%CreationDate: %a, %d %b %Y %H:%M:%S %z\n")
         p = p + "%%DocumentNeededResources: font Times-Roman\n" \
             "%%+ font Times-Bold\n%%+ font Helvetica\n%%+ font Helvetica-Oblique\n" \
