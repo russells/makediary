@@ -22,14 +22,14 @@ set -e
 
 case $Changes in
   0) Modified=""    ; break ;;
-  1) Modified="yes" ; break ;;
+  1) Modified=" (Modified)" ; break ;;
   *)
     echo Error from '`tla changes`' 1>&2
     exit $Changes
     break ;;
 esac
 
-TlaVersion=$(tla tree-version)--$(tla logs | tail -1)$([ -n "$Modified" ] && echo ' (Modified)')
+TlaVersion=$(tla tree-version)--$(tla logs | tail -1)"$Modified"
 
 ./make-man
 rm -rf dist build MANIFEST
