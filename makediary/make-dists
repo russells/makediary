@@ -3,7 +3,7 @@
 # Create the python module distribution.  This must be run from within
 # the makediary source directory.
 
-# $Id: make-dists 51 2002-12-31 17:26:16Z anonymous $
+# $Id: make-dists 52 2002-12-31 17:41:50Z anonymous $
 
 set -e -x
 
@@ -17,6 +17,7 @@ set -e -x
 _VERSION="$(head -1 VERSION)"
 _URL="$( sed -n 's=^\$URL: \([^ ]*\).*$=\1=p' < VERSION )"
 
+./make-man
 rm -rf dist build MANIFEST
 
 python setup.py sdist

@@ -4,4 +4,5 @@
 
 # $Id$
 
-pod2man man/makediary.pod man/makediary.1
+pod2man           man/makediary.pod           man/makediary.1
+pod2html --infile=man/makediary.pod --outfile=man/makediary.1.html
