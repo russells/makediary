@@ -1,6 +1,18 @@
 #!/bin/sh
 
+# Create the python module distribution.  This must be run from within
+# the makediary source directory.
+
+# $Id: make-dists 51 2002-12-31 17:26:16Z anonymous $
+
 set -e -x
+
+# Check for things that indicat we are in the makediary source
+# directory.
+[ -f VERSION ]
+[ -f PAPER.txt ]
+[ -f setup.py ]
+[ -d makediary ]
 
 _VERSION="$(head -1 VERSION)"
 _URL="$( sed -n 's=^\$URL: \([^ ]*\).*$=\1=p' < VERSION )"

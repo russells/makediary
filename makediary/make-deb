@@ -1,11 +1,18 @@
 #!/bin/sh
 
-# $Id: make-deb 50 2002-12-31 17:21:18Z anonymous $
+# $Id: make-deb 51 2002-12-31 17:26:16Z anonymous $
 
 # Make the debian package.  This must be run from within the source
 # directory.
 
 set -e -x
+
+# Check for things that indicat we are in the makediary source
+# directory.
+[ -f VERSION ]
+[ -f PAPER.txt ]
+[ -f setup.py ]
+[ -d makediary ]
 
 _VERSION="$(head -1 VERSION)"
 
