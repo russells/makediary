@@ -1,6 +1,6 @@
 -*- outline -*-
 
-* $Id: TODO.txt 11 2002-12-22 07:44:48Z anonymous $
+* $Id: TODO.txt 13 2002-12-22 16:44:57Z anonymous $
 
 * Margins  DONE
 
@@ -225,11 +225,13 @@ returns a matrix where either element 0 or element 3 (or both) is 0.0, and
 we get a divide by 0 error.  I'll have to work out exactly what this code
 is doing, and if it is really necessary.
 
-* Work out how to put a shell script wrapper in a python package.
+* Work out how to put a shell script wrapper in a python package.  DONE.
 
 The distutils stuff seems geared to just make packages that have python
 source code and go in the python site-packages directory.  I would like to
 put a shell script or a symlink in /usr/bin or /usr/local/bin.
 
-On a similar note, I would also like to install the man page somewhere.
+* Work out how to install a man page using distutils.
+
+There may be a similar thing to 'scripts=["jj"]' in setup.py.
 
