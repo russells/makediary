@@ -13,7 +13,10 @@ installable package, do:
 There are also debian packages, which work on my system but aren't
 guaranteed to work anywhere else.
 
+This is licensed under the GNU General Public Licence, see the file
+COPYING.
 
 For a very special reason, this used to be called cdp.  :)
 
-$Id: README.txt 57 2003-01-04 05:15:52Z anonymous $
+$Id: README.txt 64 2003-01-05 14:34:17Z anonymous $
+
