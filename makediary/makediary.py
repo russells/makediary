@@ -29,45 +29,49 @@ class DiaryInfo:
 
     sectionSep = "%-----------------\n" # Separator inside the postscript
 
-    options = ["year=",
-               "output-file=",
-               "cover-image=",
-               "images",
-               "colour",
+    options = [
                "address-pages=",
-               "notes-pages=",
-               "planner-years=",
+               "appointments",
+               "appointment-width=",
+               "colour",
+               "cover-image=",
+               "debug-boxes",
+               "debug-version",
+               "debug-whole-page-boxes",
+               "help",
+               "images",
                "line-spacing=",
+               "margins-multiplier=",
+               "moon",
+               "no-appointment-times",
+               "notes-pages=",
+               "output-file=",
+               "page-registration-marks",
                "page-size=",
                "page-x-offset=",
                "page-y-offset=",
                "paper-size=",
+               "planner-years=",
+               "week-to-opening",
                "weeks-before=",
                "weeks-after=",
-               "debug-boxes",
-               "debug-version",
-               "debug-whole-page-boxes",
-               "page-registration-marks",
-               "appointments",
-               "appointment-width=",
-               "no-appointment-times",
-               "week-to-opening",
-               "moon",
-               "margins-multiplier=",
-               "help",
-               "version"]
+               "version",
+               "year=",
+               ]
 
     usageStrings = \
-                 ["Usage: %s [--year=year] [--output-file=file]\n",
-                  "  [--cover-image=file] [--address-pages=n] [--notes-pages=n]\n",
-                  "  [--planner-years=n] [--line-spacing=mm] [--appointments]\n",
-                  "  [--appointment-width=w] [--images] [--weeks-before=n] [--weeks-after=n]\n",
-                  "  [--week-to-opening] [--margins-multiplier=f]\n",
-                  "  [--no-appointment-times]\n",
+                 [
+                  "Usage: %s [--year=year] [--output-file=file]\n",
+                  "  [--address-pages=n] [--appointment-width=w] [--appointments]\n",
+                  "  [--colour] [--cover-image=file]\n",
                   "  [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
-                  "  [--page-registration-marks] [--colour] [--moon]\n",
-                  "  [--page-x-offset=Xmm] [--page-y-offset=Ymm]\n",
-                  "  [--help] [--version]\n"]
+                  "  [--images] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
+                  "  [--no-appointment-times] [--notes-pages=n]\n",
+                  "  [--page-registration-marks] [--page-x-offset=Xmm]\n",
+                  "  [--page-y-offset=Ymm] [--planner-years=n]\n",
+                  "  [--weeks-before=n] [--weeks-after=n] [--week-to-opening]\n",
+                  "  [--help] [--version]\n",
+                  ]
     sizes = PaperSize.getPaperSizeNames()
     sizesString = ''
     for n in range(len(sizes)):
@@ -76,6 +80,7 @@ class DiaryInfo:
         else:                 sizesString = sizesString+s+'|'
     usageStrings.append("  [--page-size=%s]\n" % sizesString)
     usageStrings.append("  [--paper-size=%s]\n" % sizesString)
+    usageStrings.append("  Year defaults to next year.\n")
 
     def usage(self, f=sys.stderr):
         for i in range(len(self.usageStrings)):
@@ -151,32 +156,17 @@ class DiaryInfo:
             sys.stderr.write("Unknown arg: %s\n" % args[0] )
             self.usage()
         for opt in optlist:
-            if opt[0] == '--year':
-                self.year = self.integerOption("year",opt[1])
-                self.dt = DateTime.DateTime(self.year)
-            elif opt[0] == '--output-file':
-                try:
-                    self.out = open(opt[1],'w')
-                except IOError, reason:
-                    sys.stderr.write(("Error opening '%s': " % opt[1]) \
-                                     + str(reason) + "\n")
-                    self.usage()
+            if 0:  # Make it easier to move options around
+                pass
             elif opt[0] == "--address-pages":
                 self.nAddressPages = self.integerOption("address-pages",opt[1])
-            elif opt[0] == "--notes-pages":
-                self.nNotesPages = self.integerOption("notes-pages",opt[1])
-            elif opt[0] == "--planner-years":
-                self.nPlannerYears = self.integerOption("planner-years",opt[1])
-            elif opt[0] == "--line-spacing":
-                self.lineSpacing = self.floatOption("line-spacing",opt[1])
-            elif opt[0] == "--page-size":
-                self.setPageSize(opt[1])
-            elif opt[0] == "--paper-size":
-                self.setPaperSize(opt[1])
-            elif opt[0] == "--page-x-offset":
-                self.pageXOffset = self.floatOption("page-x-offset", opt[1])
-            elif opt[0] == "--page-y-offset":
-                self.pageYOffset = self.floatOption("page-y-offset", opt[1])
+            elif opt[0] == "--appointment-width":
+                self.appointments = 1
+                self.appointmentWidth = self.floatOption("appointment-width",opt[1])
+            elif opt[0] == "--appointments":
+                self.appointments = 1
+            elif opt[0] == "--colour":
+                self.colour = 1
             elif opt[0] == "--cover-image":
                 self.coverImage = opt[1]
             elif opt[0] == "--debug-boxes":
@@ -185,38 +175,55 @@ class DiaryInfo:
                 self.debugWholePageBoxes = 1
             elif opt[0] == "--debug-version":
                 self.debugVersion = 1
-            elif opt[0] == "--page-registration-marks":
-                self.pageRegistrationMarks = 1
-            elif opt[0] == "--appointments":
-                self.appointments = 1
-            elif opt[0] == "--no-appointment-times":
-                self.appointmentTimes = 0
-            elif opt[0] == "--appointment-width":
-                self.appointments = 1
-                self.appointmentWidth = self.floatOption("appointment-width",opt[1])
-            elif opt[0] == "--week-to-opening":
-                self.weekToOpening = 1
+            elif opt[0] == "--help":
+                self.usage(sys.stdout)
             elif opt[0] == "--images":
                 self.drawImages = 1
-            elif opt[0] == "--colour":
-                self.colour = 1
-            elif opt[0] == "--moon":
-                self.moon = 1
-            elif opt[0] == "--weeks-before":
-                self.nWeeksBefore = self.integerOption("weeks-before",opt[1])
-            elif opt[0] == "--weeks-after":
-                self.nWeeksAfter = self.integerOption("weeks-after",opt[1])
+            elif opt[0] == "--line-spacing":
+                self.lineSpacing = self.floatOption("line-spacing",opt[1])
             elif opt[0] == "--margins-multiplier":
                 multiplier = self.floatOption("margins-multiplier",opt[1])
                 self.tMargin = self.tMargin * multiplier
                 self.bMargin = self.bMargin * multiplier
                 self.iMargin = self.iMargin * multiplier
                 self.oMargin = self.oMargin * multiplier
-            elif opt[0] == "--help":
-                self.usage(sys.stdout)
+            elif opt[0] == "--moon":
+                self.moon = 1
+            elif opt[0] == "--no-appointment-times":
+                self.appointmentTimes = 0
+            elif opt[0] == "--notes-pages":
+                self.nNotesPages = self.integerOption("notes-pages",opt[1])
+            elif opt[0] == '--output-file':
+                try:
+                    self.out = open(opt[1],'w')
+                except IOError, reason:
+                    sys.stderr.write(("Error opening '%s': " % opt[1]) \
+                                     + str(reason) + "\n")
+                    self.usage()
+            elif opt[0] == "--page-registration-marks":
+                self.pageRegistrationMarks = 1
+            elif opt[0] == "--page-size":
+                self.setPageSize(opt[1])
+            elif opt[0] == "--page-x-offset":
+                self.pageXOffset = self.floatOption("page-x-offset", opt[1])
+            elif opt[0] == "--page-y-offset":
+                self.pageYOffset = self.floatOption("page-y-offset", opt[1])
+            elif opt[0] == "--paper-size":
+                self.setPaperSize(opt[1])
+            elif opt[0] == "--planner-years":
+                self.nPlannerYears = self.integerOption("planner-years",opt[1])
             elif opt[0] == "--version":
                 print "makediary, version " + versionNumber
                 sys.exit(0)
+            elif opt[0] == "--week-to-opening":
+                self.weekToOpening = 1
+            elif opt[0] == "--weeks-after":
+                self.nWeeksAfter = self.integerOption("weeks-after",opt[1])
+            elif opt[0] == "--weeks-before":
+                self.nWeeksBefore = self.integerOption("weeks-before",opt[1])
+            elif opt[0] == '--year':
+                self.year = self.integerOption("year",opt[1])
+                self.dt = DateTime.DateTime(self.year)
             else:
                 print >>sys.stderr, "Unknown option: %s" % opt[0]
                 self.usage()
