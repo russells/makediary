@@ -1,5 +1,5 @@
 0.1.1
-$URL: http://localhost:10080/svn/makediary/trunk/makediary/VERSION $
+$URL: http://localhost:10080/svn/makediary/trunk/makediary--/VERSION $
 
 The first line of this file is the version number of makediary.  This
 number must match the number in setup.py.
