@@ -6,7 +6,7 @@
 
 # $Id: makediary.py 100 2003-12-26 04:01:35Z anonymous $
 
-versionNumber = "0.1.2pre"
+versionNumber = "0.1.2"
 
 import sys
 import getopt
