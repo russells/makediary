@@ -1,7 +1,7 @@
 # Setup for makediary.
 
 
-# $Id: setup.py 31 2002-12-29 05:20:26Z anonymous $
+# $Id: setup.py 32 2002-12-29 05:28:22Z anonymous $
 
 from distutils.core import setup
 
@@ -20,7 +20,7 @@ setup(name='makediary',
 
       author='Russell Steicke',
       author_email='russells@adelie.cx',
-      url='http://adelie.cx/makediary',
+      url='http://6u.adelie.cx/makediary',
       version=_makeDiaryVersion,
       license="GPL",
       packages=['makediary'],
