@@ -4,7 +4,7 @@
 
 # Print a year diary.
 
-# $Id: makediary.py 87 2003-11-30 14:27:06Z anonymous $
+# $Id: makediary.py 94 2003-12-18 16:06:58Z anonymous $
 
 versionNumber = "0.1.2pre"
 
@@ -55,6 +55,7 @@ class DiaryInfo:
                "no-appointment-times",
                "week-to-opening",
                "moon",
+               "margins-multiplier=",
                "help",
                "version"]
 
@@ -62,7 +63,8 @@ class DiaryInfo:
                  ["Usage: %s [--year=year] [--output-file=file]\n",
                   "  [--cover-image=file] [--address-pages=n] [--notes-pages=n]\n",
                   "  [--planner-years=n] [--line-spacing=mm] [--appointments]\n",
-                  "  [--appointment-width=w] [--images] [--weeks-before] [--weeks-after]\n",
+                  "  [--appointment-width=w] [--images] [--weeks-before=n] [--weeks-after=n]\n",
+                  "  [--week-to-opening] [--margins-multiplier=f]\n",
                   "  [--no-appointment-times]\n",
                   "  [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
                   "  [--page-registration-marks] [--colour] [--moon]\n",
@@ -206,11 +208,17 @@ class DiaryInfo:
                 self.nWeeksBefore = self.integerOption("weeks-before",opt[1])
             elif opt[0] == "--weeks-after":
                 self.nWeeksAfter = self.integerOption("weeks-after",opt[1])
+            elif opt[0] == "--margins-multiplier":
+                multiplier = self.floatOption("margins-multiplier",opt[1])
+                self.tMargin = self.tMargin * multiplier
+                self.bMargin = self.bMargin * multiplier
+                self.iMargin = self.iMargin * multiplier
+                self.oMargin = self.oMargin * multiplier
             elif opt[0] == "--help":
                 self.usage(sys.stdout)
             elif opt[0] == "--version":
                 print "makediary, version " + versionNumber
-                print "$Id: makediary.py 87 2003-11-30 14:27:06Z anonymous $"
+                print "$Id: makediary.py 94 2003-12-18 16:06:58Z anonymous $"
                 sys.exit(0)
             else:
                 print >>sys.stderr, "Unknown option: %s" % opt[0]
@@ -590,7 +598,7 @@ class VersionPage(PostscriptPage):
         linex = fontSize*6
         s=""
         versionString = self.postscriptEscape(
-            "Version: $Id: makediary.py 87 2003-11-30 14:27:06Z anonymous $")
+            "Version: $Id: makediary.py 94 2003-12-18 16:06:58Z anonymous $")
         dateString = self.postscriptEscape(DateTime.now() \
                                            .strftime("Generated at: %Y-%m-%dT%H:%M:%S%Z"))
         s = s + "% --- Version page\n" \
@@ -1710,7 +1718,7 @@ class Diary:
                                                  DateTime.now().strftime("%Y-%m-%dT%H%M%S%Z")))
         p = p + "%%BeginProlog\n" \
             + "%%%%Creator: %s, by Russell Steicke, version: %s\n" % \
-            (self.di.myname,"$Id: makediary.py 87 2003-11-30 14:27:06Z anonymous $") \
+            (self.di.myname,"$Id: makediary.py 94 2003-12-18 16:06:58Z anonymous $") \
             + DateTime.now().strftime("%%%%CreationDate: %a, %d %b %Y %H:%M:%S %z\n")
         p = p + "%%DocumentNeededResources: font Times-Roman\n" \
             "%%+ font Times-Bold\n%%+ font Helvetica\n%%+ font Helvetica-Oblique\n" \
