@@ -1,7 +1,5 @@
 -*- outline -*-
 
-* $Id: TODO.txt 104 2004-01-14 12:41:01Z  $
-
 * Margins  DONE
 
 There are some strangeties in the calculation of margins.
@@ -64,6 +62,7 @@ size.
 Images in EPS format get printed at 0,0.  Use translate to put them in the
 correct place.
 
+
 * Make DiaryInfo a parameter to all the classes.  DONE
 At the moment all the page classes refer to a global var called "di" to get
 all their page and diary configuration information.  This should be a
@@ -93,9 +92,11 @@ perhaps special formatted comments should be used instead.  (Now changed so
 that the strings are of the form #<<key:value>>, and pcal sees it as a
 comment.)
 
+
 * Figure out the data structures for DotCalendar.  MOSTLY DONE
 This will probably be a dictionary of dates.  Each dictionary will be
 another data structure containing a list of events that happen on that day.
+
 
 * DotCalendar extensions to pcal format
 Anything that needs to be extended (the thing I am thinking about is the
@@ -103,14 +104,17 @@ search path for image files), could be done with special formatted
 comments.  A comment that matches '^#<<(?P<name>[^:]+):(?P<value>.*)>>
 could be used to set a name:value configuration pair.
 
+
 * Data structures
 Sort out the data structures for each day and event.  Currently there is a
 level of indirection missing in the list of events on a particular day.
+
 
 * Holidays
 Sort out whether the information about whether a day is a holiday or not is
 an attribute of the day, or an attribute of an event that occurs on that
 day.
+
 
 * pcal(1) bug?
 After an entry that specifies a year, following entries that do not specify
@@ -120,7 +124,9 @@ previously specified year.
 Figure out whether this is a bug, or is documented somewhere in the pcal
 man page.
 
+
 * %-substitution.  MOSTLY DONE
+
 This will be a lot of work.
 
 It is going to have to be done after the event is copied for each year,
@@ -130,14 +136,17 @@ How do I do a deep copy of a dictionary?  DONE.
 
 Mostly done.  Still need to sort out %[uUwW] and %[-+]N?[DWMY].
 
+
 * Image size.  DONE
 Write the code to print images bounded by a box, with the correct aspect
 ratio.  They should remain centred in the box.
+
 
 * Event warnings.  DONE
 Add a #<<warn:2 weeks>> type flag.  Events have that key will be printed
 again in gray, that long before the real event.  So it will also need a
 'grey' key in the event dictionary to indicate this.
+
 
 * Memoise most of the page drawing.  DONE
 This is a long term plan.
@@ -164,6 +173,7 @@ PostScript output).  A lot of recalculation is done for every page, and it
 should probably be done only once by each page class, as it will not change
 between pages in the same run.
 
+
 * Invent my own config file format.
 Like the world needs another one... :)
 
@@ -178,11 +188,13 @@ A more structured way to specify events, and to mark them as personal etc.
 I'll probably use nosql for this, as I really want a lightweight database
 to hold that info.
 
+
 * Generalise the PostScript stuff.
 Some of this needs to be in a general PostScript drawing library.  Some
 other stuff (like day layouts) would be better also in a library, so then
 the application becomes a wrapper for that stuff, driven by the config
 file.
+
 
 * Fix the problem with image printing and restore.
 
@@ -191,11 +203,13 @@ file through pstops to print on a different size paper.  (Something to do
 with eps and image bounding boxes or something?  You can probably tell that
 I'm guessing.)
 
+
 * Use StringIO.
 
 The program does lots (and lots) of string contatenation.  I should
 probably use StringIO to speed that up.  Do some tests to see if that
 really does speed things up.
+
 
 * Distinguish between paper size and page size.  DONE.
 
@@ -210,11 +224,13 @@ scale.
 Another benefit of this is that the registration marks that are below and
 to the left of the page would magically reappear.
 
+
 * Make a paper size dictionary.  MOSTLY DONE.
 
 This would contain a list of tuples (width,height), indexed by paper size
 name.  Then when setting paper sizes and page sizes, I would have an easy
 way to calculate where to put the page on the paper.
+
 
 * Fix the debug-boxes and page translation bug.  DONE.
 
@@ -225,15 +241,18 @@ returns a matrix where either element 0 or element 3 (or both) is 0.0, and
 we get a divide by 0 error.  I'll have to work out exactly what this code
 is doing, and if it is really necessary.
 
+
 * Work out how to put a shell script wrapper in a python package.  DONE.
 
 The distutils stuff seems geared to just make packages that have python
 source code and go in the python site-packages directory.  I would like to
 put a shell script or a symlink in /usr/bin or /usr/local/bin.
 
+
 * Work out how to install a man page using distutils.
 
 There may be a similar thing to 'scripts=["jj"]' in setup.py.
+
 
 * Fix the bdist_rpm distutils target.
 
@@ -242,15 +261,18 @@ there is a .../makediary.1.gz file there.  This needs to be tested on a
 redhat box (I'm doing this with debian).  It may actually work on a distro
 that really does use rpm.
 
+
 * Make a debian package.  DONE.
 
 There doesn't appear to be a bdist_deb distutils target.  Bummer.
+
 
 * Add "halfletter" page size.
 
 This could be useful for people wanting to print two pages on letter sized
 paper.  (This is not necessary for A or B series sizes, as each of those is
 exactly half the size of the previous size in the same series.)
+
 
 * Put examples in the man page.
 
@@ -259,10 +281,12 @@ Plain examples with use of the options.
 An example using "halfletter" paper size, then arranging the pages into a
 book with pstops.
 
+
 * Print reasonable version numbers.
 
 Make ``makediary --version'' print the version number (not the svn
 dollar-Id-dollar string.)
+
 
 * Fix EPS.
 
@@ -271,6 +295,7 @@ GhostGum gsview on windows thinks that the %%Page marker for the image is
 an incorrect %%Page marker for the document, and psselect thinks that the
 end of the image is the end of the surrounding page.  Fix up the EPS
 generation so that this does not happen.
+
 
 * GUI frontend for this thing.
 
@@ -284,5 +309,37 @@ This is a bit bigger than some of the other todo items in here... :)
 
 In v 1.2, there is a month name list at line 1041, and another at line
 1208.
+
+
+* Darker outlines for weekend days in planner.
+
+
+* Address database.
+
+Look at using the output format from eg evolution, so we don't have to invent
+yet another file format.
+
+
+* Forward planner page (year to page, month to box).
+
+
+* Linux admin commands page.  :)
+
+
+* Measurements and conversions page.
+
+
+* Map of world with timezones page.
+
+I would prefer a vector map that is converted to PostScript at runtime.
+
+
+* Layout description file.
+
+This is a big task.
+
+At runtime, specify a file that contains a description of the diary layout that
+we wish to generate.  It should contain short (one line) descriptions of the
+page groups.
 
 
