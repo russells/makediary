@@ -16,4 +16,4 @@ setup(name='cdp',
       version='1.0',
       license="GPL",
       packages=['cdp'],
-      scripts=['cdp/makediary.py'])
+      scripts=['makediary'])

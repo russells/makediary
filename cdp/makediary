@@ -1,0 +1,18 @@
+#!/usr/bin/python2.2
+
+# Run the diary program.
+
+# $Id$
+
+from cdp import makediary
+import sys
+
+makediary.go(sys.argv[0], sys.argv[1:])
+
+
+# This section is for emacs, God's Own Text Editor.
+# Local variables: ***
+# mode:python ***
+# py-indent-offset:4 ***
+# fill-column:95 ***
+# End: ***
