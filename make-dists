@@ -38,5 +38,5 @@ python setup.py bdist
 # RPM building is broken, it looks for makediary.1 where there is a
 # makediary.1.gz.
 
-#python setup.py bdist_rpm
+python setup.py bdist_rpm
 

@@ -23,4 +23,4 @@ setup(name='makediary',
       license="GPL",
       packages=['makediary'],
       scripts=['bin/makediary'],
-      data_files=[('share/man/man1', ['man/makediary.1'])])
+      data_files=[('share/man/man1', ['man/makediary.1.gz'])])

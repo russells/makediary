@@ -2,4 +2,4 @@ include *.txt
 include setup.py
 include makediary/*.py
 include bin/makediary
-include man/makediary.1
+include man/makediary.1.gz

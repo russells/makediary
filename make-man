@@ -11,3 +11,6 @@ pod2man  --center="User Commands" \
 pod2html --header \
          --infile=man/makediary.pod \
          --outfile=man/makediary.1.html
+
+gzip -c man/makediary.1 > man/makediary.1.gz
+
