@@ -17,6 +17,9 @@ import PaperSize
 import Moon
 from mx import DateTime #import *
 from math import pow
+from os.path import join as path_join
+from os.path import exists as path_exists
+from os import getcwd
 
 # ############################################################################################
 
@@ -54,6 +57,7 @@ class DiaryInfo:
                "page-y-offset=",
                "paper-size=",
                "planner-years=",
+               "vim-ref",
                "week-to-opening",
                "weeks-before=",
                "weeks-after=",
@@ -70,7 +74,7 @@ class DiaryInfo:
                   "    [--images] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
                   "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
-                  "    [--page-y-offset=Ymm] [--planner-years=n]\n",
+                  "    [--page-y-offset=Ymm] [--planner-years=n] [--vim-ref]\n",
                   "    [--weeks-before=n] [--weeks-after=n] [--week-to-opening]\n",
                   "    [--help] [--version]\n",
                   ]
@@ -151,6 +155,7 @@ class DiaryInfo:
         self.nWeeksBefore = 0           # Print this number of weeks before the current year.
         self.nWeeksAfter = 0
         self.smiley = True
+        self.vimRef = False
 
     def parseOptions(self):
         args = self.opts
@@ -228,6 +233,8 @@ class DiaryInfo:
             elif opt[0] == "--version":
                 print "makediary, version " + versionNumber
                 sys.exit(0)
+            elif opt[0] == "--vim-ref":
+                self.vimRef = True
             elif opt[0] == "--week-to-opening":
                 self.weekToOpening = True
             elif opt[0] == "--weeks-after":
@@ -677,7 +684,7 @@ class PostscriptPage(BasicPostscriptPage):
 
         s = s + "%%EndDocument\nRE end RE\n"
         # Now draw a box so we can see where the image should be.
-        s = s + "%5.3f %5.3f %5.3f %5.3f 0 boxLBWH\n" % (x,y,maxwidth,maxheight)
+        #s = s + "%5.3f %5.3f %5.3f %5.3f 0 boxLBWH\n" % (x,y,maxwidth,maxheight)
         return s
 
 
@@ -692,8 +699,40 @@ class EPSFilePage(PostscriptPage):
         self.epsfilename = epsfilename
 
     def body(self):
-        return self.embedEPS(self.epsfilename,
-                             self.pLeft, self.pBottom, self.pWidth, self.pHeight)
+        # Construct the full path to the file.  If we are running from the devel directory, or
+        # otherwise not from a full path name, look at relative locations first.
+        if sys.argv[0].startswith('.'):
+            searchpath = ['.', '..', '../..']
+            for p in sys.path:
+                searchpath.append(p)
+        else:
+            searchpath = sys.path
+        #print >>sys.stderr, "searchpath is %s" % str(searchpath)
+        for path in searchpath:
+            epsfilepathname = self.searchfor(path, self.epsfilename)
+            if epsfilepathname:
+                return self.embedEPS(epsfilepathname,
+                                     self.pLeft, self.pBottom, self.pWidth, self.pHeight)
+        print >>sys.stderr, "Can't find %s" % self.epsfilename
+        return "%% -- Can't find %s\n" % self.epsfilename
+
+    def searchfor(self, path, epsfilename):
+        #print >>sys.stderr, "searchfor  (%s, %s)" % (path,epsfilename)
+        p = path_join(path, epsfilename)
+        pe = path_join(path, 'eps', epsfilename)
+        pme = path_join(path, 'makediary', 'eps', epsfilename)
+        #print >>sys.stderr, "Looking for %s, cwd is %s" % (p, getcwd())
+        if path_exists(pme):
+            #print "Found %s" % pme
+            return pme
+        elif path_exists(pe):
+            #print "Found %s" % pe
+            return pe
+        elif path_exists(p):
+            #print "Found %s" % p
+            return p
+        else:
+            return None
 
 
 # ############################################################################################
@@ -2074,18 +2113,20 @@ class Diary:
         for i in range(di.nAddressPages):
             w( AddressPage(di).page() )
 
-        w( EPSFilePage(di, "../,embedded-pages/vi-ref/vi-ref-up.eps").page() )
-        w( EPSFilePage(di, "../,embedded-pages/vi-ref/vi-back-up.eps").page() )
-
         # Ensure we start the expense pages on an even page
         if di.evenPage:
             if di.nAddressPages != 0:
-                w( AddressPAge(di).page() )
+                w( AddressPage(di).page() )
             else:
                 w( EmptyPage(di).page() )
 
         w( TwoExpensePages().page(di) )
         #self.w( FourExpensePages().page(di) )
+
+        if di.vimRef:
+            w( EPSFilePage(di, "vi-ref/vi-ref.eps").page() )
+            w( EPSFilePage(di, "vi-ref/vi-back.eps").page() )
+
         for i in range(di.nNotesPages):
             w( NotesPage(di).page() )
 

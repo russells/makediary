@@ -1,0 +1,238 @@
+\documentclass{article}
+% $Id: vi-ref.tex,v 1.8 2002/10/09 18:53:32 dbindner Exp $
+% Copyright 2002-2004 Donald Bindner
+% Permission is granted to copy, distribute and/or modify this
+% document under the terms of the GNU Free Documentation License,
+% Version 1.1 or any later version published by the Free Software
+% Foundation.
+
+\usepackage{multicol}
+
+\setlength{\textheight}{11 in}
+\setlength{\textwidth}{7.5 in}
+\setlength{\hoffset}{-2 in}
+\setlength{\voffset}{-1 in}
+\setlength{\footskip}{12 pt}
+\setlength{\oddsidemargin}{1.5 in}
+\setlength{\evensidemargin}{1.5 in}
+\setlength{\topmargin}{13 pt}
+\setlength{\headheight}{12 pt}
+\setlength{\headsep}{0 in}
+
+\setlength{\parindent}{0 in}
+
+%\ifx \pdfpagewidth \undefined
+%\else
+% \pdfpagewidth=11in    % page width of PDF output
+% \pdfpageheight=8.5in  % page height of PDF output
+%\fi
+
+\begin{document}
+\thispagestyle{empty}
+\fontsize{9}{10}\selectfont
+
+\newcommand{\key}[2]{#1 \hfill \texttt{#2}\par}
+\newcommand{\head}[1]{{\large\textbf{#1}}\\}
+
+\begin{multicols}{2}
+{\Large Vi Reference Card}
+
+\vskip 15pt
+
+\vbox{\head{Modes}
+Vi has two modes: insertion mode, and command mode.  The editor begins
+in command mode, where cursor movement and text deletion and pasting
+occur.  Insertion mode begins upon entering an insertion or change
+command.  [ESC] returns the editor to command mode (where you can
+quit, for example by typing \texttt{:q!}).  Most commands execute as
+soon as you type them except for ``colon'' commands which execute when
+you press the return key.
+}
+
+\vskip 10pt
+\vbox{\head{Quitting}
+\key{exit, saving changes}{:x}
+\key{quit (unless changes)}{:q}
+\key{quit (force, even if unsaved)}{:q!}
+}
+
+\vskip 10pt
+
+\vbox{\head{Inserting text}
+\key{insert before cursor, before line}{i , I}
+\key{append after cursor, after line}{a , A}
+\key{open new line after, line before}{o , O}
+\key{replace one char, many chars}{r , R}
+}
+
+\vskip 10pt
+
+\vbox{\head{Motion}
+\key{left, down, up, right}{h , j , k , l}
+\key{next word, blank delimited word}{w , W}
+\key{beginning of word, of blank delimited word}{b , B}
+\key{end of word, of blank delimited word}{e , E}
+\key{sentence back, forward}{( , )}
+\key{paragraph back, forward}{$\{$ , $\}$}
+\key{beginning, end of line}{0 , \$}
+\key{beginning, end of file}{1G , G}
+\key{line \texttt{\textit{n}}}{\textit{n}G\textrm{ or }:\textit{n}}
+\key{forward, back to char \texttt{\textit{c}}}{f\textit{c} , F\textit{c}}
+\key{forward, back to before char \texttt{\textit{c}}}{t\textit{c} , T\textit{c}}
+\key{top, middle, bottom of screen}{H , M , L}
+}
+
+\vskip 10pt
+
+\vbox{\head{Deleting text}
+Almost all deletion commands are performed by typing \texttt{d}
+followed by a \textit{motion}.  For example \texttt{dw} deletes a
+word.  A few other deletions are:\par
+\vskip 5pt
+\key{character to right, left}{x , X}
+\key{to end of line}{D}
+\key{line}{dd}
+\key{line}{:d}
+}
+
+\vskip 10pt
+
+\vbox{\head{Yanking text}
+Like deletion, almost all yank commands are performed by typing
+\texttt{y} followed by a \textit{motion}.  For example \texttt{y\$}
+yanks to the end of line.  Two other yank commands are:\par 
+\vskip 5pt
+\key{line}{yy}
+\key{line}{:y}
+}
+
+\vskip 10pt
+
+\vbox{\head{Changing text}
+The change command is a deletion command that leaves the editor in
+insert mode.  It is performed by typing
+\texttt{c} followed by a \textit{motion}.  For example \texttt{cw}
+changes a word.  A few other change commands are:\par 
+\vskip 5pt
+\key{to end of line}{C}
+\key{line}{cc}
+}
+
+\vskip 10pt
+
+\vbox{\head{Putting text}
+\key{put after position or after line}{p}
+\key{put before position or before line}{P}
+}
+
+\vskip 10pt
+
+\vbox{\head{Registers}
+Named registers may be specified before any deletion, change, yank, or
+put command.  The general prefix has the form \texttt{"\textit{c}}
+where \texttt{\textit{c}} may be any lower case letter.  For example,
+\texttt{"adw} deletes a word into register \texttt{a}.  It may
+thereafter be put back into the text with an appropriate put command,
+for example \texttt{"ap}.\par 
+}
+
+\vskip10pt
+
+\vbox{\head{Markers}
+Named markers may be set on any line of a file.  Any lower case letter
+may be a marker name.  Markers may also be used as the limits for
+ranges.\par
+\vskip 5pt
+\key{set marker \texttt{\textit{c}} on this line}{m\textit{c}}
+\key{goto marker \texttt{\textit{c}}}{`\textit{c}}
+\key{goto marker \texttt{\textit{c}} first non-blank}{'\textit{c}}
+}
+
+\vskip 10pt
+
+\vbox{\head{Search for strings}
+\key{search forward}{/\textit{string}}
+\key{search backward}{?\textit{string}}
+\key{repeat search in same, reverse direction}{n , N}
+}
+
+\vskip 10pt
+
+\vbox{\head{Replace}
+The search and replace function is accomplished with the \texttt{:s}
+command.  It is commonly used in combination with ranges or
+the \texttt{:g} command (below).\par
+\vskip 5pt
+\key{replace pattern with string}{:s/\textit{pattern}/\textit{string}/\textit{flags}}
+\key{flags: all on each line, confirm each}{g , c}
+\key{repeat last :s command}{\&}
+}
+
+\vskip 10pt
+\vbox{\head{Regular expressions}
+\key{any single character except newline}{.\textrm{ (dot)}}
+\key{zero or more repeats}{*}
+\key{any character in set}{[\dots]}
+\key{any character not in set}{[\^\ \dots]}
+\key{beginning, end of line}{\^\ , \$}
+\key{beginning, end of word}{ $\backslash$< , $\backslash$>}
+\key{grouping}{$\backslash(\ldots\backslash)$}
+\key{contents of \texttt{\textit{n}}th grouping}{$\backslash$\textit{n}}
+}
+
+\vskip 10pt
+\vbox{\head{Counts}
+Nearly every command may be preceded by a number that specifies how
+many times it is to be performed.  For example \texttt{5dw} will
+delete 5 words and \texttt{3fe} will move the cursor forward to the
+3rd occurance of the letter \texttt{e}.  Even insertions may be
+repeated conveniently with this method, say to insert the same line
+100 times.
+}
+
+\vskip 10pt
+
+\vbox{\head{Ranges}
+Ranges may precede most ``colon'' commands and cause them to be
+executed on a line or lines.  For example \texttt{:3,7d} would delete lines
+3$-$7.  Ranges are commonly combined with the \texttt{:s} command to
+perform a replacement on several lines, as with
+\texttt{:.,\$s/pattern/string/g} to make a replacement from the current line to
+the end of the file.\par
+\vskip 5pt
+\key{lines \texttt{\textit{n-m}}}{:\texttt{\textit{n}},\texttt{\textit{m}}}
+\key{current line}{:.}
+\key{last line}{:\$}
+\key{marker \texttt{\textit{c}}}{:'\textit{c}}
+\key{all lines}{:\%}
+\key{all matching lines}{:g/\textit{pattern}/}
+}
+
+\vskip 10pt
+
+\vbox{\head{Files}
+\key{write file (current file if no name given)}{:w \textit{file}}
+\key{append file (current file if no name given)}{:w >>\textit{file}}
+\key{read file after line}{:r \textit{file}}
+\key{read program output}{:r !\textit{program}}
+\key{next file}{:n}
+\key{previous file}{:prev}
+\key{edit new file}{:e \textit{file}}
+\key{replace line with program output}{:.!\textit{program}}
+}
+
+\vskip 10pt
+
+\vbox{\head{Other}
+\key{toggle upper/lower case}{\~\ }
+\key{join lines}{J}
+\key{repeat last text-changing command}{.}
+\key{undo last change, all changes on line}{u , U}
+}
+
+\end{multicols}
+
+\vspace{\fill}
+\copyright 2002-2004 Donald J.\ Bindner -- licensed under the terms of the GNU
+Free Documentation License version 1.1 or later.
+\end{document}

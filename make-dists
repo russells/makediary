@@ -37,6 +37,8 @@ python setup.py bdist
 
 # RPM building is broken, it looks for makediary.1 where there is a
 # makediary.1.gz.
+# Fixed the man page problem, now it won't build when I include the embedded
+# EPS pages.
 
-python setup.py bdist_rpm
+#python setup.py bdist_rpm
 
