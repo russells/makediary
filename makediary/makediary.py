@@ -57,6 +57,7 @@ class DiaryInfo:
                "page-y-offset=",
                "paper-size=",
                "planner-years=",
+               "unix-ref",
                "vim-ref",
                "week-to-opening",
                "weeks-before=",
@@ -74,7 +75,7 @@ class DiaryInfo:
                   "    [--images] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
                   "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
-                  "    [--page-y-offset=Ymm] [--planner-years=n] [--vim-ref]\n",
+                  "    [--page-y-offset=Ymm] [--planner-years=n] [--unix-ref] [--vim-ref]\n",
                   "    [--weeks-before=n] [--weeks-after=n] [--week-to-opening]\n",
                   "    [--help] [--version]\n",
                   ]
@@ -156,6 +157,7 @@ class DiaryInfo:
         self.nWeeksAfter = 0
         self.smiley = True
         self.vimRef = False
+        self.unixRef = False
 
     def parseOptions(self):
         args = self.opts
@@ -233,6 +235,8 @@ class DiaryInfo:
             elif opt[0] == "--version":
                 print "makediary, version " + versionNumber
                 sys.exit(0)
+            elif opt[0] == "--unix-ref":
+                self.unixRef = True
             elif opt[0] == "--vim-ref":
                 self.vimRef = True
             elif opt[0] == "--week-to-opening":
@@ -2126,6 +2130,8 @@ class Diary:
         if di.vimRef:
             w( EPSFilePage(di, "vi-ref/vi-ref.eps").page() )
             w( EPSFilePage(di, "vi-ref/vi-back.eps").page() )
+        if di.unixRef:
+            w( EPSFilePage(di, "unix-ref.eps").page() )
 
         for i in range(di.nNotesPages):
             w( NotesPage(di).page() )

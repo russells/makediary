@@ -1,0 +1,322 @@
+\documentclass{article}
+% $Id: vi-back.tex,v 1.8 2002/10/09 18:53:32 dbindner Exp $
+% Copyright 2002-2004 Donald Bindner
+% Copyright      2004 Russell Steicke
+% Permission is granted to copy, distribute and/or modify this
+% document under the terms of the GNU Free Documentation License,
+% Version 1.1 or any later version published by the Free Software
+% Foundation.
+
+\usepackage{multicol}
+
+\setlength{\textheight}{11 in}
+\setlength{\textwidth}{7.5 in}
+\setlength{\hoffset}{-2 in}
+\setlength{\voffset}{-1 in}
+\setlength{\footskip}{12 pt}
+\setlength{\oddsidemargin}{1.5 in}
+\setlength{\evensidemargin}{1.5 in}
+\setlength{\topmargin}{13 pt}
+\setlength{\headheight}{12 pt}
+\setlength{\headsep}{0 in}
+
+\setlength{\parindent}{0 in}
+
+\ifx \pdfpagewidth \undefined
+\else
+ \pdfpagewidth=11in    % page width of PDF output
+ \pdfpageheight=8.5in  % page height of PDF output
+\fi
+
+\newcommand{\ctrl}{C-}
+
+\begin{document}
+\thispagestyle{empty}
+\fontsize{9}{10}\selectfont
+
+\newcommand{\key}[2]{#1 \hfill \texttt{#2}\par}
+\newcommand{\head}[1]{{\large\textbf{#1}}\\}
+
+\begin{multicols}{2}
+{\Large Unix commands}
+
+\vskip 15pt
+
+\vbox{\head{Directory navigation}
+Moving around the file system.\par
+\vskip 5pt
+\key{where am I?}{pwd}
+\key{change directory}{cd}
+\key{up one level}{cd ..}
+\key{return to prev dir}{cd -}
+}
+
+\vskip 10pt
+
+\vbox{\head{Directory listing}
+Listing files in your file system.\par
+\vskip 5pt
+\key{Basic file listing}{ls}
+\key{File listing including hidden (dot)files}{ls -a}
+\key{Long listing (includes time, owner, etc)}{ls -l}
+\key{List including char for file type}{ls -F}
+}
+
+\vskip 10pt
+
+\vbox{\head{Managing free space}
+Commands to find out how much space is used or free.\par
+\vskip 5pt
+\key{List space used on mounted file systems}{df}
+\key{List space used on one file system}{df \it filesystem}
+\key{List space used in human-readable format}{df -h}
+\key{List space used in a directory}{du \it dir}
+\key{Summary of space used in a directory}{du -s \it dir}
+}
+
+\vskip 10pt
+
+\vbox{\head{File system management}
+Commands to mount, unmount and check file systems.\par
+\vskip 5pt
+\key{Mount a file system listed in fstab}{mount \it filesystem}
+\key{}{mount \it device}
+\key{Mount a file system}{mount -t {\it fstype} {\it device} {\it dir}}
+\key{Unmount a mounted file system}{umount \it filesystem}
+\key{List space used in human-readable format}{df -h}
+\key{List space used in a directory}{du \it dir}
+\key{Summary of space used in a directory}{du -s \it dir}
+}
+
+\vskip 10pt
+
+\vbox{\head{Managing users}
+Commands to manage users and passwords.\par
+\vskip 5pt
+\key{Change your own password}{passwd}
+\key{Change password for a user (root only)}{passwd \it username}
+\key{Change user id}{su \it username}
+\key{Change user id, run login shell}{su - \it username}
+\key{Change user id to root}{su}
+\key{Run single command as root}{sudo \it command}
+\key{Run single command, with shell redirection\par}{sudo sh -c '{\it command} > {\it f}'}
+}
+
+\vskip 10pt
+
+\vbox{\head{Editors}
+Text editors.\par
+\vskip 5pt
+\key{Visual editor, available everywhere}{vi}
+\key{Vi IMproved, on most GNU/Linux systems}{vim}
+\key{Emacs, a kitchen sink that is also a text editor}{emacs}
+\key{Simpler text editor, from pine}{pico}
+\key{Pico clone}{nano}
+}
+
+\vskip 10pt
+
+\vbox{\head{Archiving}
+Commands to archive files and directories.\par
+\vskip 5pt
+\key{Create a tar archive}{tar cf {\it archivefile.tar} {\it dirs}}
+\key{Create a compressed tar archive}{tar czf {\it archivefile.tar.gz} {\it dirs}}
+}
+
+\vskip 10pt
+
+\vbox{\head{Mail}
+Commands to send and read mail.  The Unix facilities for reading mail are
+surprisingly rich, and often much more convenient than graphical mail
+readers.\par
+\vskip 5pt
+\key{Send mail from command line}{mail -s {\it subject} {\it recipients}}
+\key{}{{\it commands} | mail -s {\it subject} {\it recipients}}
+\key{Popular text mode mail reader}{mutt}
+\key{Send mail with mutt from cmd line\par}%
+{mutt -x -s {\it subject} [-a {\it file}] {\it recipients}}
+\key{Older (non-free) text mode mail reader}{pine}
+}
+
+\vskip 10pt
+
+\vbox{\head{Shell tricks}
+Hints for using the shell.  Here are some of the constructs that let you create
+powerful shell programs, and they can all be used on the command line.\par
+\vskip 5pt
+\key{Redirect output}{{\it command} > {\it file}}
+\key{Redirect input}{{\it command} < {\it file}}
+\key{Redirect output and error output}{{\it command} >{\it file} 2>\&1}
+\key{Run command2 only if command1 succeeds (0 exit status)\par}%
+{{\it command1} \&\& {\it command2}}
+\key{Run command2 only if command1 fails (non-0 exit status)\par}%
+{{\it command1} || {\it command2}}
+\key{Force a command to succeed}{{\it command} || :}
+\key{Run commands in subshell}{( {\it commands} )}
+\key{Pipe between two subshells}{( {\it commands} ) | ( {\it commands} )}
+}
+
+\vskip 10pt
+
+\vbox{\head{Shell programming}
+More shell programming constructs.  These are mostly useful in scripts, but
+they can also be used on the command line.
+\vskip 5pt
+\key{Conditional code with test\par}{if [ {\it test} ] ; then {\it commands} ; done}
+\key{Tests:}{}
+\key{Name exists and is a file}{-f {\it name}}
+\key{File or directory is readable}{-r {\it file}}
+\key{File or directory is writable}{-w {\it file}}
+\key{Name exists and is a directory}{-d {\it name}}
+\key{String is zero length}{-z {\it string}}
+\key{String is non-zero length}{-n {\it string}}
+}
+
+\end{multicols}
+
+\vspace{\fill}
+\copyright 2002-2004 Donald J.\ Bindner,
+\copyright 2004 Russell Steicke
+-- licensed under the terms of the GNU
+Free Documentation License version 1.1 or later.
+\end{document}
+
+
+% -----------------------
+
+\vskip 10pt
+
+\vbox{\head{Objects}
+In addition to the usual motions that are supported by Vi, Vim supports
+several objects: word, sentence, paragraph, and block.  These are used with
+editing commands (delete, change, and yank).  The advantage over
+motions is that you do not have to be at one end of an object to use it.
+For example \texttt{das} will delete a sentence from anywhere within it.\par
+\vskip 5pt
+\key{a word, a sentence, a paragraph}{aw, as, ap}
+\key{same without white space (inner)}{iw, is, ip}
+\key{blocks delimited by $[\,]$, (), \texttt{<>}, and $\{\}$}{a[, a(, a<, a$\{$}
+\key{same without surrounding brackets}{i[, i(, i<, i$\{$}
+}
+
+\vskip 10pt
+
+\vbox{\head{Extra motions}
+\key{jump to beginning, end of $\{\,\}$ block}{[$\{$ , ]$\}$}
+\key{same for parentheses}{[( , ])}
+\key{same for / (C--style comments)}{[/ , ]/}
+\key{previous end of word, space--delimited}{ge, gE}
+}
+
+\vskip 10pt
+
+\vbox{\head{Extra markers}
+Marks set with capital letters are ``global''; jumping to a global mark may
+take you to a different file.  Several marks are remembered between
+editing sessions:
+\vskip 5pt
+\key{position when file was last open}{'"}
+\key{position where file was last edited}{'.}
+\key{file and position of last Vim session}{'0}
+}
+
+\vskip 10pt
+
+\vbox{\head{Other searching}
+\key{incremental search}{:set (no)incsearch}
+\key{highlight search}{:set (no)hlsearch}
+\key{ignore case in search}{:set (no)ignorecase}
+\key{find word under cursor fwd, back}{* , \#}
+}
+
+\vskip 10pt
+
+\vbox{\head{Interface and colors}
+\key{syntax coloring}{:syntax on}
+\key{switch to graphical}{:gui}
+\vskip 5pt
+\key{show line numbers}{:set number}
+\key{show commands in progress}{:set showcmd}
+\key{show matching bracket}{:set showmatch}
+\vskip 5pt
+\key{autoindent}{:set ai}
+\key{smartindent}{:set si}
+\key{file format (dos, unix, mac)}{:set ff=...}
+\key{good for editing tables}{:set virtualedit=all}
+\key{edit option set}{:options}
+}
+
+\vskip 10pt
+
+\vbox{\head{Insert mode editing}
+There are some commands available while in insert mode:\par
+\vskip 5pt
+\key{copy from line above, below}{\ctrl Y , \ctrl E}
+\key{complete from previous match}{\ctrl P}
+\key{insert from (paste) register}{\ctrl R}
+\key{insert digraph}{\ctrl K \textit{di}}
+\key{execute single command}{\ctrl O \textit{command}}
+}
+
+\vskip 10pt
+
+\vbox{\head{Folding}
+To make working with a file more convenient, multiple lines may be
+``folded'' together into a single highlighted line.  Use this to get long
+sections out of the way while editing.\par
+\vskip 5pt
+\key{create, delete a fold}{zf, zd}
+\key{open, (re--)close a fold}{zo, zc}
+\key{remove outermost folds, more folds}{zr, zm}
+\key{remove all, re--fold all folds}{zR, zM}
+\key{disable, (re--)enable, toggle folds}{zn, zN, zi}
+\key{save, load view (including folds)}{:mkview, :lo}
+}
+
+\vskip 10pt
+
+\vbox{\head{Compiling and source code}
+There are several commands for facilitating software development:
+\vskip 5pt
+\key{correct indentation of line}{==}
+\key{increase the indent level}{>>}
+\key{decrease the indent level}{<<}
+\vskip 5pt
+\key{run make and move cursor to first error}{:make}
+\key{move to next, previous error}{:cnext, :cprev}
+\key{move to first, last error}{:cfirst, :clast}
+\key{view error or list of errors}{:cc, :clist}
+\key{list lines with identifier under cursor}{[I}
+}
+
+\vskip 10pt
+
+\vbox{\head{Using ctags}
+You must first run ctags or etags on your file to use these features.\par
+\vskip 5pt
+\key{jump to function with tagname}{:tag \textit{tagname}}
+\key{jump to tag under cursor}{\ctrl ]}
+\key{previous tag}{\ctrl t}
+}
+
+\vskip 10pt
+
+\vbox{\head{Other}
+\key{reformat margins}{gq}
+\key{make case upper, lower, toggle}{gU, gu, g\~\ }
+\key{add subtract from number under cursor}{\ctrl A , \ctrl X}
+\key{edit file under cursor}{gf}
+\key{view man page under cursor}{K}
+\key{print highlighted copy}{:hardcopy}
+\key{list digraphs}{:digraphs}
+\key{editable command history}{q:}
+}
+
+\end{multicols}
+
+\vspace{\fill}
+\copyright 2002-2004 Donald J.\ Bindner,
+\copyright 2004 Russell Steicke
+-- licensed under the terms of the GNU
+Free Documentation License version 1.1 or later.
+\end{document}
