@@ -1,6 +1,6 @@
 -*- outline -*-
 
-* $Id: TODO.txt 44 2002-12-30 17:26:57Z anonymous $
+* $Id: TODO.txt 63 2003-01-05 11:58:11Z anonymous $
 
 * Margins  DONE
 
@@ -258,3 +258,9 @@ Plain examples with use of the options.
 
 An example using "halfletter" paper size, then arranging the pages into a
 book with pstops.
+
+* Print reasonable version numbers.
+
+Make ``makediary --version'' print the version number (not the svn $Id: TODO.txt 63 2003-01-05 11:58:11Z anonymous $
+string.)
+
