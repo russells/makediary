@@ -1266,15 +1266,19 @@ class PlannerPage(PostscriptPage):
                                     font = self.di.subtitleFontName + "-Oblique"
                                 else:
                                     font = self.di.subtitleFontName
+                                if event.has_key("small"):
+                                    eventFontSize = self.fontsize*0.3
+                                else:
+                                    eventFontSize = self.fontsize*0.6
                                 if len(se)==0:
                                     se = "/%s %5.3f selectfont (%s) SH " % \
-                                         (font, self.fontsize*0.6,
+                                         (font, eventFontSize,
                                           self.postscriptEscape(event["short"]))
                                 else: se = se + \
                                            "/%s %5.3f selectfont (, ) SH " % \
                                            (self.di.subtitleFontName, self.fontsize*0.6) + \
                                            "/%s %5.3f selectfont (%s) SH " % \
-                                           (font, self.fontsize*0.6,
+                                           (font, eventFontSize,
                                             self.postscriptEscape(event["short"]))
 
                         if len(se) != 0:
@@ -1734,10 +1738,14 @@ class DiaryPage(PostscriptPage):
                 imageDrawn = True
             else:
                 imageDrawn = False
-            if event.has_key('personal'):
-                s = s + '/%s-Oblique %5.3f selectfont\n' % (di.subtitleFontName, yspace*0.6)
+            if event.has_key('small'):
+                eventFontSize = yspace*0.3
             else:
-                s = s + '/%s %5.3f selectfont\n' % (di.subtitleFontName, yspace*0.6)
+                eventFontSize = yspace*0.6
+            if event.has_key('personal'):
+                s = s + '/%s-Oblique %5.3f selectfont\n' % (di.subtitleFontName, eventFontSize)
+            else:
+                s = s + '/%s %5.3f selectfont\n' % (di.subtitleFontName, eventFontSize)
 
             if event.has_key('grey')  and  event['grey']:
                 s = s + "0.5 setgray "
