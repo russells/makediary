@@ -997,8 +997,8 @@ class PlannerPage(PostscriptPage):
             else:
                 # Fill the weekends and holidays slightly grey
                 if (n%7==DateTime.Saturday)  or  (n%7==DateTime.Sunday) or isholiday:
-                    s = s + "0 %5.3f %5.3f %5.3f 0 %5.3f boxLBWHgray " % \
-                        (dayb,self.monthwidth,self.lineheight,self.weekendgray)
+                    s = s + "0 %5.3f %5.3f %5.3f %5.3f %5.3f boxLBWHgray " % \
+                        (dayb,self.monthwidth,self.lineheight,self.titleboxThick,self.weekendgray)
                 # All the other days are white
                 else:
                     s = s + "0 %5.3f %5.3f %5.3f 0 boxLBWH\n" % \

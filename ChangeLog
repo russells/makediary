@@ -2,6 +2,46 @@
 # arch-tag: automatic-ChangeLog--russells@adelie.cx--2004a/makediary--trunk--0
 #
 
+2004-04-17 04:54:04 GMT	Russell Steicke <russells@adelie.cx>	patch-83
+
+    Summary:
+      Merge from russells@rlt.localnet--1/makediary--trunk--0
+    Revision:
+      makediary--trunk--0--patch-83
+
+    Merge from russells@rlt.localnet--1/makediary--trunk--0
+    
+    Patches applied:
+    
+     * russells@rlt.localnet--1/makediary--trunk--0--patch-2
+       Merge from russells@adelie.cx--2004a/makediary--trunk--0
+    
+     * russells@rlt.localnet--1/makediary--trunk--0--patch-3
+       - Change script to use tla instead of svn.
+    
+
+    modified files:
+     clean-all make-deb make-dists {arch}/=tagging-method
+
+    new patches:
+     russells@rlt.localnet--1/makediary--trunk--0--patch-2
+     russells@rlt.localnet--1/makediary--trunk--0--patch-3
+
+
+2004-04-17 03:50:51 GMT	Russell Steicke <russells@adelie.cx>	patch-82
+
+    Summary:
+      - Added ChangeLog.
+    Revision:
+      makediary--trunk--0--patch-82
+
+    - Added ChangeLog.
+    
+
+    new files:
+     .arch-ids/ChangeLog.id ChangeLog
+
+
 2004-04-17 03:05:41 GMT	Russell Steicke <russells@adelie.cx>	patch-81
 
     Summary:
