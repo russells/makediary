@@ -1,13 +1,13 @@
 # Setup for makediary.
 
 
-# $Id: setup.py 75 2003-07-17 08:31:34Z  $
+# $Id: setup.py 99 2003-12-26 03:57:57Z  $
 
 from distutils.core import setup
 
 # This version number must match the version number in VERSION.
 
-_makeDiaryVersion = '0.1.2pre'
+_makeDiaryVersion = '0.1.2'
 
 setup(name='makediary',
       description="""Make printed diaries.""",
