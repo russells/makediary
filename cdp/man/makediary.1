@@ -1,0 +1,172 @@
+.\"
+.\" Man page for Russell's makediary command.
+.\" $Id: makediary.1,v 1.5 2002/12/21 06:34:33 russells Exp $
+.TH MAKEDIARY "1" "August 2001"
+.SH NAME
+makediary \- output PostScript code for an A5 diary.
+.SH SYNOPSIS
+.B makediary \-\-help
+.br
+.B makediary \-\-version
+.br
+.B makediary
+.B [\-\-address\-pages=\fIn\fP]
+.B [\-\-debug\-boxes]
+.B [\-\-debug\-version]
+.B [\-\-debug\-whole\-page\-boxes]
+.B [\-\-line\-spacing=\fId\fP]
+.B [\-\-notes\-pages=\fIn\fP]
+.B [\-\-output\-file=\fIfilename\fP]
+.B [\-\-paper\-size=\fIpapersize\fP]
+.B [\-\-page\-size=\fIpagesize\fP]
+.B [\-\-page\-registration\-marks]
+.B [\-\-page\-x\-offset=\fIN\fP]
+.B [\-\-page\-y\-offset=\fIN\fP]
+.B [\-\-planner-years=\fIn\fP]
+.B [\-\-year=\fIyear\fP]
+.br
+.SH DESCRIPTION
+.\" Add any additional description here
+.PP
+Prints PostScript code for an A5 diary.  Can include events printed on dates
+specified in a \fI.calendar\fP file.  The \fI.calendar\fP file is in the same
+format as used by \fIpcal\fP(1), with some extensions.
+.SH OPTIONS
+.TP
+\fB\-\-address\-pages=\fIn\fR
+Print \fIn\fR address pages.  Defaults to 6.
+.TP
+\fB\-\-appointments\fR
+Print a column of appointment times on the right side of each day.
+.TP
+\fB\-\-appointment\-width=\fIN%\fR
+Specify the width of the appointment
+times column as a proportion of the width of the day.  Defaults to 35%.
+.TP
+\fB\-\-debug\-boxes\fR
+Print dashed boxes around parts of the output for debugging the spacing.  These
+parts include images, month calendars, and the drawing border of the whole page.
+.TP
+\fB\-\-debug\-version\fR
+On the inside cover, print a page that describes
+the options that were used to generate this diary, the usage message of the
+\fBmakediary\fR, and the CVS version number.
+.TP
+\fB\-\-debug\-whole\-page\-boxes\fR
+Around each diary page (not each sheet of paper), draw a faint box.
+.TP
+\fB\-\-help\fR
+Display a usage message and exit.
+.TP
+\fB\-\-notes\-pages=\fIn\fR
+Print \fIn\fR notes pages at the beginning and end of the diary.  Defaults to 6.
+.TP
+\fB\-\-output\-file=\fIfilename\fR
+Output PostScript code to \fIfilename\fR.
+Defaults to standard output.  A lone '\fB-\fR' also means standard output.
+.TP
+\fB\-\-page\-size=\fIsize\fR
+Specify the size of the pages.  This is not
+the same as the paper size, so you can print smaller pages than the paper
+size.  See also the \fB\-\-page\-registration\-marks\fR option.
+.TP
+\fB\-\-page\-registration\-marks
+Print marks for cutting pages out of a
+sheet of paper.  This is useful when printing pages that are smaller than
+the paper size.
+.TP
+\fB\-\-page\-x\-offset\fR
+.TP
+\fB\-\-page\-y\-offset\fR
+Move each diary page this far on the paper.  The
+offsets are in millimetres.  The rationale for these options is that
+printers tend not to print exactly where told, so when printing double
+sided the pages on opposite sides of the paper may not line up.  You can
+specify an offset to make them line up.
+.TP
+\fB\-\-paper\-size=\fIsize\fR
+Specify the size of the paper that you are
+printing on.  This is not the same as the size of the diary pages.
+.TP
+\fB\-\-planner\-years=\fIn\fR
+Print \fIn\fR two-page planner years, starting with the diary year.  Defaults
+to 2, ie the diary year and the following year.
+.TP
+\fB\-\-version\fR
+Output version information and exit.
+.TP
+\fB\-\-year=\fIyear\fR
+Print a diary for that year.  Defaults to next year.
+
+.SH PCAL(1) \fI.calendar\fP FILE
+If
+.B makediary
+finds a \fI.calendar\fP file, it is parsed to find events to print on particular
+days.  The file is in the same format as used by \fIpcal\fP(1), with some
+extensions.
+.P
+The \fI.calendar\fP file is searched for in these places:
+.IP
+The file named by the environment variable \fBDIARY_FILE\fP.
+.IP
+The file \fI.calendar\fP in the directory named by the environment variable \fBDIARY_DIR\fP.
+.IP
+The file \fI.calendar\fP in the directory named by the environment variable \fBPCAL_DIR\fP.
+.IP
+The file \fI.calendar\fP in the current directory.
+.IP
+The file \fI.calendar\fP in the directory named by the environment variable \fBHOME\fP.
+.P
+The first one of these found is used, and the rest are ignored.
+.P
+The \fI.calendar\fP file allows a few extensions from that defined by \fIpcal\fP(1).  These
+extensions are embedded in comments, so the file should still make sense to \fIpcal\fP.
+.P
+The first type of extension allows for changing the behaviour of \fImakediary\fP.  These
+are of the form:
+.IP
+\fB#<<\fP\fIkey\fP\fB:\fP\fIvalue\fP\fB>>\fP
+.P
+The second type of extension is similar in form, but is added to the end of the text for
+a date entry.  The currently defined extensions are:
+.TP
+\fB#<<image:\fP\fIfilename\fP\fB>>\fP
+Specify an image to print next to the entry for this event.  The image will be scaled to
+fit in two lines of the diary.
+.TP
+\fB#<<year:\fP\fIyear\fP\fB>>\fP
+Specify the year in which the event occurred.  This is used so that the text can contain
+a number of years since the event, in the %-substitution extension format specified
+below.
+.TP
+\fB#<<warn:\fP\fIn\fP \fIday(s)\fP|\fIweek(s)\fP|\fImonth(s)\fP\fB>>\fP
+Print a warning in lighter text, \fIn\fP days, weeks or months before the event.  The
+text printed will be prefixed by "\fBWarning:\fP", and suffixed by the date of the event.
+.SS %-Substitution
+Within the extensions specified above, you can substitute some values with
+.B %
+sequences.  The following sequences are available.
+.TP
+\fB%N\fR
+Substitute the number of years since the event.
+.SS Examples
+.TP
+1-1  Joe Bloggs' %oN birthday #<<image:joebloggs.jpg>> #<<year:1872>>
+Print Joe's birthday, with a picture of Joe, and substitute his age, as an ordinal.  In 2001,
+this will say "Joe Bloggs' 129th birthday".
+.SH BUGS
+The \fI.calendar\fR format is really ugly.  It should really have a better
+way of specifying events etc.  Damn the backward compatibility with
+\fIpcal(1)\fR, it's not as useful as I imagined it would be.  Two ideas are
+to use a simple database format (perhaps \fInosql(1)\fR), or use the user's
+palm data, exported from \fIevolution\fR or somewhere.
+.SH AUTHOR
+Written by Russell Steicke.
+.SH COPYRIGHT
+Copyright \(co 2002 Russell Steicke.  Released under the terms of the GNU
+General Public License.
+.P
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH "SEE ALSO"
+\fIpcal\fP(1), \fIcalendar\fP(1).

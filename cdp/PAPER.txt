@@ -1,0 +1,25 @@
+# -*- outline -*-
+
+# $Id: PAPER.txt,v 1.1 2001/12/10 02:41:26 russells Exp $
+
+* Paper sizes
+
+** B5
+
+500    x 710    points
+176.37 x 250.44 mm
+
+Ricoh printer does not have a size for B5.
+
+gv calls this ISOB5, but it does not appear in the selectable list of
+sizes.
+
+** B5J
+
+517    x 730    points
+182.36 x 257.50 mm
+
+Ricoh printer calls this B5-JIS.
+
+gv calls this B5, and it does appear in the list.
+
