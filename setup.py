@@ -28,8 +28,15 @@ setup(name='makediary',
                    ['eps/vi-ref/vi-ref.tex',
                     'eps/vi-ref/vi-ref.eps',
                     'eps/vi-ref/vi-back.tex',
-                    'eps/vi-ref/vi-back.eps']),
+                    'eps/vi-ref/vi-back.eps',
+                   ]
+                  ),
                   ('lib/python2.3/makediary/eps',
                    ['eps/unix-ref.tex',
-                    'eps/unix-ref.eps'])])
+                    'eps/unix-ref.eps',
+                    'eps/sh-ref.tex',
+                    'eps/sh-ref.eps',
+                   ]
+                  )
+                 ])
 
