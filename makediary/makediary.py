@@ -44,6 +44,7 @@ class DiaryInfo:
                "margins-multiplier=",
                "moon",
                "no-appointment-times",
+               "no-smiley",
                "notes-pages=",
                "output-file=",
                "page-registration-marks",
@@ -142,6 +143,7 @@ class DiaryInfo:
         self.drawImages = 0             # If true, draw event images
         self.nWeeksBefore = 0           # Print this number of weeks before the current year.
         self.nWeeksAfter = 0
+        self.smiley = True
 
     def parseOptions(self):
         args = self.opts
@@ -191,6 +193,8 @@ class DiaryInfo:
                 self.moon = 1
             elif opt[0] == "--no-appointment-times":
                 self.appointmentTimes = 0
+            elif opt[0] == "--no-smiley":
+                self.smiley = False
             elif opt[0] == "--notes-pages":
                 self.nNotesPages = self.integerOption("notes-pages",opt[1])
             elif opt[0] == '--output-file':
@@ -652,15 +656,16 @@ class CoverPage(PostscriptPage):
             + "% move that far left of the centre\n" \
             + "%5.2f exch sub %5.2f M SH\n" % (textxcentre,textycentre)
         if self.di.coverImage==None:
-            smileysize = self.di.coverTitleFontSize
-            smileyycentre = ((ytop-ybottom) * 0.33) + ybottom
-            smileyxcentre = textxcentre
-            s = s \
-                + "% a big smiley face\n" \
-                + ("%5.2f %5.2f M SA %5.2f dup SC\n" % \
-                   (smileyxcentre,smileyycentre,smileysize)) \
-                + self.smiley() \
-                + "RE\n"
+            if self.di.smiley:
+                smileysize = self.di.coverTitleFontSize
+                smileyycentre = ((ytop-ybottom) * 0.33) + ybottom
+                smileyxcentre = textxcentre
+                s = s \
+                    + "% a big smiley face\n" \
+                    + ("%5.2f %5.2f M SA %5.2f dup SC\n" % \
+                       (smileyxcentre,smileyycentre,smileysize)) \
+                    + self.smiley() \
+                    + "RE\n"
         else:
             picxsize = (xright-xleft) * picxprop
             picysize = (xright-xleft) * picyprop
