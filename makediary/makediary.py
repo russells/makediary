@@ -1359,13 +1359,13 @@ class DiaryPage(PostscriptPage):
 
     def diaryDay(self):
 
-        """Print a diary day in half a page.  At the point this is called, the graphics state
-        has already been translated so we can just draw straight into our patch."""
+        """Print a diary day in part of a page.  At the point this is called, the graphics
+        state has already been translated so we can just draw straight into our patch."""
 
         di = self.di
         dt = di.dt
 
-        s = "%%--- diary page half for %d-%02d-%02d\n" % (dt.year,dt.month,dt.day)
+        s = "%%--- diary day for %d-%02d-%02d\n" % (dt.year,dt.month,dt.day)
 
         # Find out if this is a holiday.
         dd = DateTime.DateTime(dt.year, dt.month, dt.day)
@@ -1387,7 +1387,7 @@ class DiaryPage(PostscriptPage):
             s = s + "0 %5.3f %5.3f %5.3f %5.3f boxLBWH\n" % \
                 (self.titleboxy, self.dwidth, self.titleboxsize, di.underlineThick)
 
-        # Print the day name as the half page header.
+        # Print the day name as the diary day header.
         s = s + "10 10 M /%s %5.2f selectfont " % (di.titleFontName, self.titlefontsize)
         dtext = dt.strftime("%A, %e %B") # %e seems to be undocumented
         if di.evenPage:
@@ -1434,7 +1434,7 @@ class DiaryPage(PostscriptPage):
         return s
 
     def drawAppointments(self):
-        """Draw the appointments box on the diary half-page."""
+        """Draw the appointments box on the diary day."""
         di = self.di
         s = ""
         # Adding and removing entries from this list will automatically adjust the number
@@ -1664,18 +1664,24 @@ class DiaryPage(PostscriptPage):
     def sixMonthsAtBottom(self):
         '''Print six months at the bottom of the page, Jan-Jun on the left (even) pages, and
         Jul-Dec on the right (odd) pages.'''
+
         if self.di.evenPage:
             month = 1
+            s = "% -- Bottom calendars, months 1-6\n"
         else:
             month = 7
+            s = "% -- Bottom calendars, months 7-12\n"
+
         # Find the year to print calendars for.  Consider what would happen when December 31 is
         # on a left (even) page.  If we printed calendars for the current year on the bottom of
         # the page, then the left page would have calendars for Jan-Jun in one year, and the
         # right page would have calendars for Jul-Dec in the following year.  So normalise
         # this, and always print calendars for the later year.
         dty = self.di.dt + DateTime.oneDay
+
+        # Proportion of the month box to fill.
         monthprop = 0.90
-        s = "%% -- Month %d\n" % month
+
         for i in range(0,6):
             s = s + "%5.3f %5.3f M SA %5.3f %5.3f SC %s RE\n" % \
                     (self.pLeft+(self.dwidth/6.0)*(i+((1.0-monthprop)/2.0)),
