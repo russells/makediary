@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Make the makediary man page.
+
+# $Id$
+
+pod2man man/makediary.pod man/makediary.1
