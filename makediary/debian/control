@@ -10,6 +10,7 @@ Package: makediary
 Architecture: all
 Depends: ${shlibs:Depends}, python (>= 2.2) | python2.2,
  python2.2-egenix-mxdatetime, python2.2-imaging
+Suggests: psutils
 Description: Program to generate PostScript year diaries
  makediary generates PostScript code that prints a year diary.  The
  diary can be on one of several different paper sizes (or can be a
