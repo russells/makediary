@@ -539,7 +539,7 @@ class BasicPostscriptPage:
 # ############################################################################################
 
 class PostscriptPage(BasicPostscriptPage):
-    """Basic PostScript page with images."""
+    """Basic PostScript page with images and embedded Postscript objects."""
 
     def image(self,file,x,y,xmaxsize,ymaxsize):
 
@@ -598,6 +598,102 @@ class PostscriptPage(BasicPostscriptPage):
         s = s + "RE end\n" \
             + "% End EPS image\n" + self.di.sectionSep
         return s
+
+
+    def embedEPS(self, filename, x, y, maxwidth, maxheight):
+        '''Embed an EPS file within the diary.'''
+
+        epsfile = open(filename, 'r')
+        # Search for the BoundingBox comment, must be in the first 20 lines.
+        boundingboxfound  = False
+        for i in range(0,20):
+            line = epsfile.readline()
+            if line.startswith("%%BoundingBox:"):
+                list = line.split()
+                if len(list) != 5:
+                    continue
+                epsx1_pt = float(list[1])
+                epsy1_pt = float(list[2])
+                epsx2_pt = float(list[3])
+                epsy2_pt = float(list[4])
+                epsx1 = epsx1_pt/self.di.points_mm
+                epsy1 = epsy1_pt/self.di.points_mm
+                epsx2 = epsx2_pt/self.di.points_mm
+                epsy2 = epsy2_pt/self.di.points_mm
+                epswidth  = epsx2 - epsx1
+                epsheight = epsy2 - epsy1
+                boundingboxfound = True
+                break
+        if not boundingboxfound:
+            print >>sys.stderr, "No %%%%BoundingBox in %s\n" % filename
+            return "%% +++ Error reading %%%%BoundingBox comment in %s\n" % filename
+
+        s = self.di.sectionSep + "%% Beginning embedded PS file: %s\n" % filename
+        s = s + "%% x=%5.3f y=%5.3f maxwidth=%5.3f maxheight=%5.3f\n" % \
+                (x,y,maxwidth,maxheight)
+        s = s + "%% epsx1_pt=%7.3f   epsy1_pt=%7.3f   epsx2_pt=%7.3f   epsy2_pt=%7.3f\n" % \
+                (epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt)
+        s = s + "%% epsx1   =%7.3f   epsy1   =%7.3f   epsx2   =%7.3f   epsy2   =%7.3f\n" % \
+                (epsx1, epsy1, epsx2, epsy2)
+
+        # Move to the required origin for the EPS
+        s = s + "%5.3f %5.3f M\n" % (x,y)
+
+        # Find out which of the x or y axes has to be adjusted.
+        rawxscale = maxwidth / epswidth
+        rawyscale = maxheight / epsheight
+        if rawxscale == rawyscale:
+            scale = rawxscale
+            xadj = 0
+            yadj = 0
+        elif rawxscale < rawyscale:
+            scale = rawxscale
+            xadj = 0
+            yadj = (maxheight - (epsheight * scale))/2.0
+        else:
+            scale = rawyscale
+            xadj = (maxwidth - (epswidth * scale))/2.0
+            yadj = 0
+        s = s + "% Results from scaling:\n"
+        s = s + "%% rawxscale=%5.3f rawyscale=%5.3f scale=%5.3f xadj=%5.3f yadj=%5.3f\n" % \
+                (rawxscale,rawyscale,scale,xadj,yadj)
+        xadj -= epsx1*scale
+        yadj -= epsy1*scale
+        s = s + "%% Then, xadj=%5.3f yadj=%5.3f\n" % (xadj,yadj)
+        # Now go there
+        s = s + "SA %5.3f %5.3f RM %5.3f %5.3f SC CP TR\n" % (xadj,yadj,scale,scale)
+
+        # Redefine showpage so the EPS file doesn't muck up our page count, save the graphics
+        # state, and scale so the EPS measurements in points are the correct size in our world
+        # of millimetres.
+        s = s + "5 dict begin /showpage { } bind def SA %5.6f %5.6f SC\n" % \
+                (1.0/self.di.points_mm, 1.0/self.di.points_mm)
+        s = s + "%%%%BeginDocument: %s\n" % filename
+
+        epsfile.seek(0)
+        for line in epsfile.readlines():
+            s = s + line
+        epsfile.close()
+
+        s = s + "%%EndDocument\nRE end RE\n"
+        # Now draw a box so we can see where the image should be.
+        s = s + "%5.3f %5.3f %5.3f %5.3f 0 boxLBWH\n" % (x,y,maxwidth,maxheight)
+        return s
+
+
+# ############################################################################################
+
+# A page whose content is made up of an EPS file.
+
+class EPSFilePage(PostscriptPage):
+
+    def __init__(self, dinfo, epsfilename):
+        PostscriptPage.__init__(self, dinfo)
+        self.epsfilename = epsfilename
+
+    def body(self):
+        return self.embedEPS(self.epsfilename,
+                             self.pLeft, self.pBottom, self.pWidth, self.pHeight)
 
 
 # ############################################################################################
@@ -1977,6 +2073,9 @@ class Diary:
 
         for i in range(di.nAddressPages):
             w( AddressPage(di).page() )
+
+        w( EPSFilePage(di, "../,embedded-pages/vi-ref/vi-ref-up.eps").page() )
+        w( EPSFilePage(di, "../,embedded-pages/vi-ref/vi-back-up.eps").page() )
 
         # Ensure we start the expense pages on an even page
         if di.evenPage:
