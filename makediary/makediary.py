@@ -1731,6 +1731,9 @@ class DiaryPage(PostscriptPage):
                 s = s + self.image(event['image'],
                                    picx + 0.1*di.lineSpacing, y - yspace + 0.1*di.lineSpacing,
                                    1.8*yspace, 1.8*yspace)
+                imageDrawn = True
+            else:
+                imageDrawn = False
             if event.has_key('personal'):
                 s = s + '/%s-Oblique %5.3f selectfont\n' % (di.subtitleFontName, yspace*0.6)
             else:
@@ -1743,7 +1746,10 @@ class DiaryPage(PostscriptPage):
             s = s + "%5.3f %5.3f M" % (textx, y+(yspace*0.25))
             st = self.postscriptEscape(event['text'])
             s = s + ' (%s) SH 0 setgray\n' % st
-            y = y - yspace
+            if imageDrawn:
+                y = y - 2*yspace
+            else:
+                y = y - yspace
         return s
 
 
