@@ -2,9 +2,9 @@
 
 # Read and parse the .calendar file used by pcal.
 
-# $Id: DotCalendar.py,v 1.19 2002/12/21 03:52:14 russells Exp $
+# $Id: DotCalendar.py 6 2002-12-22 07:01:29Z anonymous $
 
-__revision__ = """$Id: DotCalendar.py,v 1.19 2002/12/21 03:52:14 russells Exp $"""
+__revision__ = """$Id: DotCalendar.py 6 2002-12-22 07:01:29Z anonymous $"""
 
 import sys
 import os

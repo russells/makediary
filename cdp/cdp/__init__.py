@@ -2,7 +2,7 @@
 
 # Place holder for a python package.
 
-# $Id: __init__.py,v 1.1 2001/05/20 09:23:14 russells Exp $
+# $Id: __init__.py 6 2002-12-22 07:01:29Z anonymous $
 
 """A package for printing book style diaries."""
 
