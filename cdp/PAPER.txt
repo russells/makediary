@@ -1,6 +1,6 @@
 # -*- outline -*-
 
-# $Id: PAPER.txt,v 1.1 2001/12/10 02:41:26 russells Exp $
+# $Id: PAPER.txt 7 2002-12-22 07:02:27Z anonymous $
 
 * Paper sizes
 
