@@ -21,7 +21,7 @@ from math import pow
 # ############################################################################################
 
 class DiaryInfo:
-    
+
     """ This class holds configuration information for the rest of the program, parses command
     line args, prints the usage message."""
 
@@ -104,24 +104,24 @@ class DiaryInfo:
         self.translateXOffset = 0.0
         self.translateYOffset = 0.0
         self.iMargin = 12.0             # Page layout options
-        self.oMargin = 5.0              # 
-        self.bMargin = 5.0              # 
+        self.oMargin = 5.0              #
+        self.bMargin = 5.0              #
         self.tMargin = 5.0              #
-        self.coverTitleFontSize = 20.0  # 
-        self.titleFontSize = 7.0        # 
-        self.titleFontName = "Times-Bold" # 
-        self.subtitleFontSize = 4.0     # 
-        self.subtitleFontName = "Helvetica" # 
+        self.coverTitleFontSize = 20.0  #
+        self.titleFontSize = 7.0        #
+        self.titleFontName = "Times-Bold" #
+        self.subtitleFontSize = 4.0     #
+        self.subtitleFontName = "Helvetica" #
         self.titleY = -1                # Distance from bottom to title, calc from page size
-        self.titleLineY = -1            # 
+        self.titleLineY = -1            #
         self.titleGray = 0.8            # Background for titles on some pages
         self.underlineThick = 0.2       # Thickness of title lines etc
         self.lineSpacing = 6.0          # Spacing for writing lines
         self.evenPage = 0               # even and odd pages
         self.out = sys.stdout           # Output file
         self.nAddressPages = 6          # Default
-        self.nNotesPages = 6            # 
-        self.nPlannerYears = 2          # 
+        self.nNotesPages = 6            #
+        self.nPlannerYears = 2          #
         self.coverImage = None          # Pic for the cover page.
         self.appointments = 0           # Different "styles" for different people.
         self.appointmentTimes = 1       # Print appointment times or not
@@ -283,7 +283,7 @@ class DiaryInfo:
         self.oMargin *= marginMultiplier
 
     def calcPageLayout(self):
-        
+
         # This should only be called once, just after the page size has been determined.
         # self.titleY leaves a smaller gap than the font size because the font does not
         # completely fill the box.
@@ -347,17 +347,17 @@ class BasicPostscriptPage:
 
     def __init__(self, dinfo):
         self.di = dinfo
-        self.pagenum = 0                # 
-        self.preamble = ""              # 
-        self.postamble = ""             # 
-        
+        self.pagenum = 0                #
+        self.preamble = ""              #
+        self.postamble = ""             #
+
         self.pLeft = 0                  # Page limits
-        self.pRight = 0                 # 
-        self.pTop = 0                   # 
-        self.pBottom = 0                # 
-        self.pWidth = 0                 # 
-        self.pHeight = 0                # 
-        
+        self.pRight = 0                 #
+        self.pTop = 0                   #
+        self.pBottom = 0                #
+        self.pWidth = 0                 #
+        self.pHeight = 0                #
+
         self.pagenum = self.di.getNextPageNumber()
         self.preamble =   self.di.sectionSep \
                         + ("%%%%Page: %d %d\n" % (self.pagenum,self.pagenum)) \
@@ -410,7 +410,7 @@ class BasicPostscriptPage:
                                                               self.di.pageHeight-2) \
                             + "%5.3f 2 M 0 5 RL S\n" % (self.di.pageWidth,) \
                             + "%5.3f 0 M -5 0 RL S\n" % (self.di.pageWidth-2,)
-        
+
         self.postamble =   "end RE SP\n" \
                          + "%% End of page %d\n" % (self.pagenum)
         self.setMargins()
@@ -422,7 +422,7 @@ class BasicPostscriptPage:
             return self.preamble + self.body() + self.postamble
 
     def debugPageBox(self):
-        
+
         bottom = self.di.bMargin
         top = self.di.pageHeight - self.di.tMargin
         if self.di.evenPage:
@@ -433,7 +433,7 @@ class BasicPostscriptPage:
             right = self.di.pageWidth - self.di.oMargin
         #return "0 SLW %5.3f %5.3f %5.3f %5.3f 2 debugboxLBRTD\n" % (left,bottom,right,top)
         return "0 SLW %5.3f %5.3f %5.3f %5.3f debugboxLBRT\n" % (left,bottom,right,top)
-    
+
     def body(self):
         return "% Nothing here\n"
 
@@ -500,13 +500,13 @@ class BasicPostscriptPage:
             + "% end smiley\n"
         return s
 
-    
+
     def postscriptEscape(self,s):
         """Replace occurrences of PostScript special characters in a string.  The ones we
         replace are: '\' -> '\\', '(' -> '\(', ')' -> '\)'.  Note that the backslashes have to
         be done first, or they will be matched by the backslashes used to escape '(' and
         ')'."""
-        
+
         s2 = re.sub( r"\\", r"\\\\", s )
         s3 = re.sub( r"\(", r"\(", s2 )
         s4 = re.sub( r"\)", r"\)", s3 )
@@ -519,7 +519,7 @@ class PostscriptPage(BasicPostscriptPage):
     """Basic PostScript page with images."""
 
     def image(self,file,x,y,xmaxsize,ymaxsize):
-        
+
         """Print an image on the page.  The image will be scaled so it will fit within a box at
         (x,y), with size (xmaxsize,ymaxsize), and centred inside that box."""
 
@@ -545,7 +545,7 @@ class PostscriptPage(BasicPostscriptPage):
                 scale = rawxscale
                 xpos = x
                 ypos = y + (ymaxsize - (ysize * scale))/2.0
-        
+
         s = s + self.di.sectionSep + "% Begin EPS image:\n"
         if self.di.debugBoxes:
             if rawxscale > rawyscale:
@@ -634,7 +634,7 @@ class CoverPage(PostscriptPage):
         picyprop = 0.8
         textycentre = (ytop-ybottom) * 0.66 + ybottom - textheight/2
         textxcentre = (xright-xleft)/2 + xleft
-        
+
         s =   "% --- cover page\n" \
             + "% border around the cover page\n" \
             + "%5.3f %5.3f %5.3f %5.3f %5.3f boxLBRT\n" % \
@@ -830,8 +830,8 @@ class PersonalInformationPage(PostscriptPage):
 
     def __init__(self, dinfo):
         PostscriptPage.__init__(self, dinfo)
-        self.linenum = 1                # 
-        self.linespacing = 0            # 
+        self.linenum = 1                #
+        self.linespacing = 0            #
         self.minlines = 20              # Required no of lines to fit in all our info
 
     def body(self):
@@ -851,7 +851,7 @@ class PersonalInformationPage(PostscriptPage):
         s = s + "SA %5.3f %5.3f TR\n" % (self.pLeft,self.pBottom)
         fontsize = self.linespacing * 0.5
         s = s + "/%s %5.3f selectfont\n" % (self.di.subtitleFontName,fontsize)
-        
+
         s = s \
             + self.do1line("Name"              ,None       ,0) \
             + self.do1line("Phone"             ,"Mobile"   ,0) \
@@ -874,7 +874,7 @@ class PersonalInformationPage(PostscriptPage):
 
         while self.linenum < nlines:
             s = s + self.do1line(None,None,0)
-        
+
         s = s + "RE\n"
         return s
 
@@ -1026,11 +1026,11 @@ class PlannerPage(PostscriptPage):
                                            "/%s %5.3f selectfont (%s) SH " % \
                                            (font, self.fontsize*0.6,
                                             self.postscriptEscape(event["short"]))
-                            
+
                         if len(se) != 0:
                             se = "%5.3f %5.3f M " %(self.lineheight*1.1, dayb+self.textb) + \
                                  se + "\n"
-                            s = s + se 
+                            s = s + se
 
         # Do the month titles (top and bottom). We attempt to make this localised, by using
         # strftime(), but that doesn't appear to work, even with LANG and LC_TIME set in the
@@ -1133,7 +1133,7 @@ class AddressPage(PostscriptPage):
         for par in (("Name",self.left+self.namewidth/2.0),
                     ("Address",self.left+self.namewidth+self.addrwidth/2.0),
                     ("Telephone",self.left+self.namewidth+self.addrwidth+self.telewidth/2.0)):
-            
+
             s = s + "(%s) dup exch SWP2D %5.3f exch sub %5.3f M SH\n" % \
                 (par[0],par[1], titley)
         return s
@@ -1335,7 +1335,7 @@ class DiaryPage(PostscriptPage):
 
 
     def diaryDay(self):
-        
+
         """Print a diary day in half a page.  At the point this is called, the graphics state
         has already been translated so we can just draw straight into our patch."""
 
@@ -1645,7 +1645,7 @@ class DiaryPage(PostscriptPage):
         di = self.di
         if not di.moon:
             return ""
-        
+
         # Calculate the current phase, and the previous and next day's phases
         dt = di.dt
         dty = di.dt - DateTime.oneDay
@@ -1669,7 +1669,7 @@ class DiaryPage(PostscriptPage):
 
         # In the southern hemisphere, a first quarter moon is light on the left, and a third
         # quarter moon is light on the right.
-        
+
         if quarter == self.mooncalc.MOON_NM:
             s = s + "%5.3f %5.3f %5.3f 0 360 arc fill %% new moon\n" % (x,y,radius) \
                 + "%5.3f %5.3f M (New) SH %5.3f %5.3f M (Moon) SH\n" % \
@@ -1845,7 +1845,7 @@ class Diary:
         names will print the corresponding calendar with its bottom left corner at
         currentpoint.  The calendar will be 1 unit high and 1 unit wide.  Change the size of
         these calendars by calling scale before calling the calendar procedure"""
-        
+
         p = self.di.sectionSep
         y = self.di.year
         a7 = 142.86                     # 1000/7
