@@ -619,7 +619,11 @@ class PostscriptPage(BasicPostscriptPage):
     def embedEPS(self, filename, x, y, maxwidth, maxheight):
         '''Embed an EPS file within the diary.'''
 
-        epsfile = open(filename, 'r')
+        try:
+            epsfile = open(filename, 'r')
+        except IOError, reason:
+            print >>sys.stderr, "Can't open %s: %s" % (filename, str(reason))
+            return "%% +++ Error opening %s: %s\n" % (filename, str(reason))
         # Search for the BoundingBox comment, must be in the first 20 lines.
         boundingboxfound  = False
         for i in range(0,20):
@@ -627,7 +631,10 @@ class PostscriptPage(BasicPostscriptPage):
             if line.startswith("%%BoundingBox:"):
                 list = line.split()
                 if len(list) != 5:
-                    continue
+                    print >>sys.stderr, "EPS file %s: can't split \"%s\"" % \
+                             (filename, line.strip())
+                    return "%% +++ EPS file %s\n%% +++ Can't split \"%s\"\n" % \
+                             (filename, line.strip())
                 epsx1_pt = float(list[1])
                 epsy1_pt = float(list[2])
                 epsx2_pt = float(list[3])
@@ -691,7 +698,7 @@ class PostscriptPage(BasicPostscriptPage):
             s = s + line
         epsfile.close()
 
-        s = s + "%%EndDocument\nRE end RE\n"
+        s = s + "\n%%EndDocument\nRE end RE\n"
         # Now draw a box so we can see where the image should be.
         #s = s + "%5.3f %5.3f %5.3f %5.3f 0 boxLBWH\n" % (x,y,maxwidth,maxheight)
         return s
@@ -709,28 +716,38 @@ class EPSFilePage(PostscriptPage):
         self.epstitle = epstitle
 
     def body(self):
-        # Construct the full path to the file.  If we are running from the devel directory, or
-        # otherwise not from a full path name, look at relative locations first.
-        if sys.argv[0].startswith('.'):
-            searchpath = ['.', '..', '../..']
-            for p in sys.path:
-                searchpath.append(p)
+        epsfilepathname = None
+        # If we are given a full or relative-to-pwd path to the file, use that.
+        if self.epsfilename.startswith('/') or self.epsfilename.startswith('./') \
+               or self.epsfilename.startswith('../'):
+            epsfilepathname = self.epsfilename
         else:
-            searchpath = sys.path
-        #print >>sys.stderr, "searchpath is %s" % str(searchpath)
-        for path in searchpath:
-            epsfilepathname = self.searchfor(path, self.epsfilename)
-            if epsfilepathname:
-                inset = self.pWidth / 200.0
-                epsp = self.embedEPS(epsfilepathname,
-                                     self.pLeft+inset, self.pBottom+inset,
-                                     self.pWidth-2*inset, self.pHeight-2*inset)
-                if self.epstitle:
-                    return self.title(self.epstitle) + epsp
-                else:
-                    return epsp
-        print >>sys.stderr, "Can't find %s" % self.epsfilename
-        return "%% -- Can't find %s\n" % self.epsfilename
+            # Otherwise, construct the full path to the file.  If we are running from the
+            # development directory, or otherwise not from a full path name, look at relative
+            # locations first.
+            if sys.argv[0].startswith('.'):
+                searchpath = ['.', '..', '../..']
+                for p in sys.path:
+                    searchpath.append(p)
+            else:
+                searchpath = sys.path
+            #print >>sys.stderr, "searchpath is %s" % str(searchpath)
+            for path in searchpath:
+                epsfilepathname = self.searchfor(path, self.epsfilename)
+                if epsfilepathname:
+                    break
+        if epsfilepathname:
+            inset = self.pWidth / 200.0
+            epsp = self.embedEPS(epsfilepathname,
+                                 self.pLeft+inset, self.pBottom+inset,
+                                 self.pWidth-2*inset, self.pHeight-2*inset)
+            if self.epstitle:
+                return self.title(self.epstitle) + epsp
+            else:
+                return epsp
+        else:
+            print >>sys.stderr, "Can't find %s" % self.epsfilename
+            return "%% -- Can't find %s\n" % self.epsfilename
 
     def searchfor(self, path, epsfilename):
         #print >>sys.stderr, "searchfor  (%s, %s)" % (path,epsfilename)
