@@ -81,7 +81,7 @@ class DiaryInfo:
                   "    [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
                   "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
-                  "    [--page-y-offset=Ymm] [--planner-years=n] \n"
+                  "    [--page-y-offset=Ymm] [--planner-years=n] \n",
                   "    [--sh-ref] [--unix-ref] [--vim-ref]\n",
                   "    [--weeks-before=n] [--weeks-after=n] [--week-to-opening]\n",
                   "    [--help] [--version]\n",
