@@ -1,6 +1,12 @@
 makediary (0.2.0-1) unstable; urgency=low
 
-  * Work out what's changed when tagging back to adelie.cx.
+  * Added vi, vim and unix reference pages.  Vi and vim pages are (C) Donald
+    Bindner, available under GFDL.  Unix page was based on those.
+  * Can stop smiley printing on cover page, if you wish.
+  * Added option to print a day per page.  In this mode you get a year's worth
+    of month calendars across the bottom of each opening.
+  * Expanded the man page.
+  * Moved to gnuarch for revision control.
 
  -- Russell Steicke <russells@adelie.cx>  Thu, 07 Oct 2004 10:12:00 +1100
 

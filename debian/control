@@ -2,7 +2,7 @@ Source: makediary
 Section: utilities
 Priority: optional
 Maintainer: Russell Steicke <russells@adelie.cx>
-Build-Depends-Indep: debhelper (>> 3.0.0), python-dev, perl
+Build-Depends-Indep: debhelper (>> 3.0.0), python-dev (>= 2.3), perl
 Standards-Version: 3.5.2
 
 Package: makediary
