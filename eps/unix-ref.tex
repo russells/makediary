@@ -42,6 +42,20 @@
 
 %\vskip 15pt
 
+\vbox{\head{Getting help}
+Yes, there is help available.\par
+\vskip 5pt
+\cmd{Search the man pages for a keyword}{man -k {\it word}}
+\cmd{Read the man page for a subject}{man {\it subject}}
+\cmd{Read a man page in a particular section}{man {\it n} {\it subject}}
+\cmd{(Man sections: 1=User commands 2=System calls 3=Functions 5=File formats
+8=Admin commands)}{}
+\cmd{Info system (mostly for programs from the GNU project)\par}%
+{info {\it subject}}
+}
+
+\vskip 10pt
+
 \vbox{\head{Directory navigation}
 Moving around the file system.\par
 \vskip 5pt
@@ -58,7 +72,7 @@ Moving around the file system.\par
 Listing files in your file system.\par
 \vskip 5pt
 \cmd{Basic file listing}{ls}
-\cmd{File listing including hidden (dot)files}{ls -a}
+\cmd{File listing including hidden (dot) files}{ls -a}
 \cmd{Long listing (includes time, owner, etc)}{ls -l}
 \cmd{List including char for file type}{ls -F}
 }
@@ -138,6 +152,8 @@ Commands to archive files and directories.\par
 \cmd{Create a tar archive}{tar cf {\it archivefile.tar} {\it dirs}}
 \cmd{Extract contents of a tar archive}{tar xf {\it archivefile.tar}}
 \cmd{Create a compressed tar archive}{tar czf {\it archivefile.tar.gz} {\it dirs}}
+\cmd{Copy a directory tree\par}%
+{( cd {\it src} \&\& tar cf - . ) | ( cd {\it dest} \&\& tar xf -)}
 }
 
 \vskip 10pt
@@ -162,9 +178,14 @@ Setting and using environment variables.\par
 \vskip 5pt
 \cmd{Setting a variable.  {\it value} must be quoted if it contains white space
 or shell metachars.}{VAR={\it value}}
-\cmd{Getting a variable's value}{\$VAR}
+\cmd{Getting a variable's value}{\$VAR {\rm or} "\$VAR"}
+\cmd{Expand shell script arguments separately}{"\$@"}
 \cmd{Substitute default value if {\tt VAR} is unset}{\$\{VAR:-{\it default}\}}
 \cmd{Assign substitute value if {\tt VAR} is unset}{\$\{VAR:={\it default}\}}
+\cmd{Assign shell variable array}{A=({\it element1} {\it element2} ...)}
+\cmd{Subscript shell array}{\$\{A[{\it n}]\}}
+\cmd{Expand entire array}{\$\{A[*]\}}
+\cmd{Expand array, quoting each element separately}{"\$\{A[@]\}"}
 }
 
 \vskip 10pt
@@ -196,7 +217,8 @@ More shell programming constructs.  These are mostly useful in scripts, but
 they can also be used on the command line.  (PS Don't use the C shell for shell
 programming.)
 \vskip 5pt
-\cmd{Conditional code with test\par}{if [ {\it test} ] ; then {\it commands} ; done}
+\cmd{Conditional code with test\par}%
+{if [ {\it test} ] ; then {\it commands} ; fi}
 \cmd{Tests:}{}
 \cmd{Name exists and is a file}{-f {\it name}}
 \cmd{File or directory is readable}{-r {\it file}}
@@ -204,11 +226,15 @@ programming.)
 \cmd{Name exists and is a directory}{-d {\it name}}
 \cmd{String is zero length}{-z {\it string}}
 \cmd{String is non-zero length}{-n {\it string}}
-\cmd{Strings are equal}{{\it string1} == {\it string2}}
-\cmd{Strings are not equal}{{\it string1} != {\it string2}}
+\cmd{String comparison, case sensitive (Use {\tt [ "x\$FOO" == "xBAR" ]}
+in case a string starts with '{\tt -}')}%
+{{\it string1} == {\it string2}}
+\cmd{}{{\it string1} != {\it string2}}
 \cmd{Number comparison}{{\it number1} -eq {\it number2}}
 \cmd{\ \ and also}{-ne -lt -gt -le -ge}
 \cmd{Looping}{while {\it test} ; do {\it commands} ; done}
+\cmd{Selecting alternatives\par}%
+{case {\it word} in {\it words} ; {\it pattern}) {\it commands} ;; esac}
 }
 
 \end{multicols}
