@@ -4,7 +4,7 @@
 
 # Print a year diary.
 
-# $Id: makediary.py 96 2003-12-19 03:43:35Z anonymous $
+# $Id: makediary.py 97 2003-12-19 04:41:34Z anonymous $
 
 versionNumber = "0.1.2pre"
 
@@ -218,7 +218,7 @@ class DiaryInfo:
                 self.usage(sys.stdout)
             elif opt[0] == "--version":
                 print "makediary, version " + versionNumber
-                print "$Id: makediary.py 96 2003-12-19 03:43:35Z anonymous $"
+                print "$Id: makediary.py 97 2003-12-19 04:41:34Z anonymous $"
                 sys.exit(0)
             else:
                 print >>sys.stderr, "Unknown option: %s" % opt[0]
@@ -598,7 +598,7 @@ class VersionPage(PostscriptPage):
         linex = fontSize*6
         s=""
         versionString = self.postscriptEscape(
-            "Version: $Id: makediary.py 96 2003-12-19 03:43:35Z anonymous $")
+            "Version: $Id: makediary.py 97 2003-12-19 04:41:34Z anonymous $")
         dateString = self.postscriptEscape(DateTime.now() \
                                            .strftime("Generated at: %Y-%m-%dT%H:%M:%S%Z"))
         s = s + "% --- Version page\n" \
@@ -1470,20 +1470,30 @@ class DiaryPage(PostscriptPage):
             return
         eventlist = di.events[date]
         nevents = len(eventlist)
-        x = startx
+        textx = startx
+        picx = startx
         y = starty
         s = ''
         s = s + '%% events for %s\n' % str(date)
+
+        # First find out whether we are printing any images for this day.  If so, move all the
+        # text to the right, out of the way of the images.
+        if di.drawImages:
+            for i in range(nevents):
+                event = eventlist[i]
+                if event.has_key('image') \
+                        and not (event.has_key('_warning') and event['_warning']):
+                    textx = textx + 2.2*yspace
+                    break
+
         for i in range(nevents):
-            xx = x
             event = eventlist[i]
             # Print an image, unless this is a warning event.
             if event.has_key('image') and di.drawImages \
                     and not (event.has_key('_warning') and event['_warning']):
                 s = s + self.image(event['image'],
-                                   x + 0.1*di.lineSpacing, y - yspace + 0.1*di.lineSpacing,
+                                   picx + 0.1*di.lineSpacing, y - yspace + 0.1*di.lineSpacing,
                                    1.8*yspace, 1.8*yspace)
-                xx = x + 2.2*yspace
             if event.has_key('personal'):
                 s = s + '/%s-Oblique %5.3f selectfont\n' % (di.subtitleFontName, yspace*0.6)
             else:
@@ -1493,7 +1503,7 @@ class DiaryPage(PostscriptPage):
                 s = s + "0.5 setgray "
             else:
                 s = s + "0 setgray "
-            s = s + "%5.3f %5.3f M" % (xx, y+(yspace*0.25))
+            s = s + "%5.3f %5.3f M" % (textx, y+(yspace*0.25))
             st = self.postscriptEscape(event['text'])
             s = s + ' (%s) SH 0 setgray\n' % st
             y = y - yspace
@@ -1736,7 +1746,7 @@ class Diary:
                                                  DateTime.now().strftime("%Y-%m-%dT%H%M%S%Z")))
         p = p + "%%BeginProlog\n" \
             + "%%%%Creator: %s, by Russell Steicke, version: %s\n" % \
-            (self.di.myname,"$Id: makediary.py 96 2003-12-19 03:43:35Z anonymous $") \
+            (self.di.myname,"$Id: makediary.py 97 2003-12-19 04:41:34Z anonymous $") \
             + DateTime.now().strftime("%%%%CreationDate: %a, %d %b %Y %H:%M:%S %z\n")
         p = p + "%%DocumentNeededResources: font Times-Roman\n" \
             "%%+ font Times-Bold\n%%+ font Helvetica\n%%+ font Helvetica-Oblique\n" \
