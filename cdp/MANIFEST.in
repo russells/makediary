@@ -2,3 +2,4 @@ include *.txt
 include setup.py
 include cdp/*.py
 include makediary
+include man/makediary.1
