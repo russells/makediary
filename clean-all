@@ -4,6 +4,6 @@
 
 # Get rid of all the non-essential files.
 
-rm -rf dist dist-deb build tmp MANIFEST
+rm -rf dist dist-deb build ,tmp MANIFEST
 
 find . -type f -name \*~ -print0 | xargs -0 rm -f
