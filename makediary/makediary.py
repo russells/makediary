@@ -4,7 +4,7 @@
 
 # Print a year diary.
 
-# $Id: makediary.py 94 2003-12-18 16:06:58Z anonymous $
+# $Id: makediary.py 96 2003-12-19 03:43:35Z anonymous $
 
 versionNumber = "0.1.2pre"
 
@@ -218,7 +218,7 @@ class DiaryInfo:
                 self.usage(sys.stdout)
             elif opt[0] == "--version":
                 print "makediary, version " + versionNumber
-                print "$Id: makediary.py 94 2003-12-18 16:06:58Z anonymous $"
+                print "$Id: makediary.py 96 2003-12-19 03:43:35Z anonymous $"
                 sys.exit(0)
             else:
                 print >>sys.stderr, "Unknown option: %s" % opt[0]
@@ -598,7 +598,7 @@ class VersionPage(PostscriptPage):
         linex = fontSize*6
         s=""
         versionString = self.postscriptEscape(
-            "Version: $Id: makediary.py 94 2003-12-18 16:06:58Z anonymous $")
+            "Version: $Id: makediary.py 96 2003-12-19 03:43:35Z anonymous $")
         dateString = self.postscriptEscape(DateTime.now() \
                                            .strftime("Generated at: %Y-%m-%dT%H:%M:%S%Z"))
         s = s + "% --- Version page\n" \
@@ -1309,6 +1309,7 @@ class DiaryPage(PostscriptPage):
 
     def __init__(self,dinfo):
         PostscriptPage.__init__(self,dinfo)
+        self.weekendgray = (1.0+self.di.titleGray)/2.0
 
 
     def setMargins(self):
@@ -1359,6 +1360,27 @@ class DiaryPage(PostscriptPage):
         dt = di.dt
 
         s = "%%--- diary page half for %d-%02d-%02d\n" % (dt.year,dt.month,dt.day)
+
+        # Find out if this is a holiday.
+        dd = DateTime.DateTime(dt.year, dt.month, dt.day)
+        isholiday = 0
+        if self.di.events.has_key(dd):
+            #sys.stderr.write("%s has events\n" % dd)
+            eventlist = self.di.events[dd]
+            for event in eventlist:
+                if event.has_key('holiday'):
+                    #sys.stderr.write("%s is a holiday: %s\n" % (dd,str(event)))
+                    isholiday = 1
+
+        # Draw the box around the title
+        if isholiday or dd.day_of_week==DateTime.Saturday or dd.day_of_week==DateTime.Sunday:
+            s = s + "0 %5.3f %5.3f %5.3f %5.3f %5.3f boxLBWHgray\n" % \
+                (self.titleboxy, self.dwidth, self.titleboxsize, di.underlineThick, \
+                self.weekendgray)
+        else:
+            s = s + "0 %5.3f %5.3f %5.3f %5.3f boxLBWH\n" % \
+                (self.titleboxy, self.dwidth, self.titleboxsize, di.underlineThick)
+
         # Print the day name as the half page header.
         s = s + "10 10 M /%s %5.2f selectfont " % (di.titleFontName, self.titlefontsize)
         dtext = dt.strftime("%A, %e %B") # %e seems to be undocumented
@@ -1375,10 +1397,6 @@ class DiaryPage(PostscriptPage):
                 (jtext, self.dwidth-self.titlefontgap, self.titlefonty)
         else:
             s = s + "%5.3f %5.3f M (%s) SH\n" % (self.titlefontgap,self.titlefonty,jtext)
-
-        # Draw the box around the title
-        s = s + "0 %5.3f %5.3f %5.3f %5.3f boxLBWH\n" % \
-            (self.titleboxy, self.dwidth, self.titleboxsize, di.underlineThick)
 
         # Draw all the writing lines.
         s = s + "0 SLW "
@@ -1718,7 +1736,7 @@ class Diary:
                                                  DateTime.now().strftime("%Y-%m-%dT%H%M%S%Z")))
         p = p + "%%BeginProlog\n" \
             + "%%%%Creator: %s, by Russell Steicke, version: %s\n" % \
-            (self.di.myname,"$Id: makediary.py 94 2003-12-18 16:06:58Z anonymous $") \
+            (self.di.myname,"$Id: makediary.py 96 2003-12-19 03:43:35Z anonymous $") \
             + DateTime.now().strftime("%%%%CreationDate: %a, %d %b %Y %H:%M:%S %z\n")
         p = p + "%%DocumentNeededResources: font Times-Roman\n" \
             "%%+ font Times-Bold\n%%+ font Helvetica\n%%+ font Helvetica-Oblique\n" \
