@@ -33,6 +33,13 @@ find .    -name '{arch}' -prune \
 
 cd $_DEB_BUILD_DIR
 ./make-man
+
+cd eps
+./compile-unix-ref
+cd vi-ref
+./compile-vi-ref
+cd ../..
+
 fakeroot dpkg-buildpackage -uc -us
 
 cd $_SRC_DIR
