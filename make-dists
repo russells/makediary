@@ -36,6 +36,7 @@ cd eps
 ./compile-sh-ref
 cd vi-ref
 ./compile-vi-ref
+./compile-vi-back
 cd ../..
 
 rm -rf dist build MANIFEST
