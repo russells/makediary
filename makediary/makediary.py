@@ -19,6 +19,7 @@ from mx import DateTime #import *
 from math import pow
 from os.path import join as path_join
 from os.path import exists as path_exists
+from os.path import basename
 from os import getcwd
 
 # ############################################################################################
@@ -44,6 +45,7 @@ class DiaryInfo:
                "debug-whole-page-boxes",
                "help",
                "images",
+               "image-page=",
                "line-spacing=",
                "margins-multiplier=",
                "moon",
@@ -73,7 +75,8 @@ class DiaryInfo:
                   "    [--address-pages=n] [--appointment-width=w] [--appointments]\n",
                   "    [--colour] [--cover-image=file] [--day-to-page]\n",
                   "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
-                  "    [--images] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
+                  "    [--images] [--image-page=IMAGEFILE]\n",
+                  "    [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
                   "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
                   "    [--page-y-offset=Ymm] [--planner-years=n] \n"
@@ -161,6 +164,7 @@ class DiaryInfo:
         self.shRef = False
         self.vimRef = False
         self.unixRef = False
+        self.imagePageImages = []
 
     def parseOptions(self):
         args = self.opts
@@ -200,6 +204,8 @@ class DiaryInfo:
                 self.usage(sys.stdout)
             elif opt[0] == "--images":
                 self.drawImages = True
+            elif opt[0] == "--image-page":
+                self.imagePageImages.append(opt[1])
             elif opt[0] == "--line-spacing":
                 self.lineSpacing = self.floatOption("line-spacing",opt[1])
             elif opt[0] == "--margins-multiplier":
@@ -703,6 +709,71 @@ class PostscriptPage(BasicPostscriptPage):
         #s = s + "%5.3f %5.3f %5.3f %5.3f 0 boxLBWH\n" % (x,y,maxwidth,maxheight)
         return s
 
+    def searchfor(self, path, type, filename):
+        '''Look for a file in the python search path, with a couple of optional prefixes.'''
+        #print >>sys.stderr, "searchfor  (%s, %s)" % (path,filename)
+        p = path_join(path, filename)
+        pe = path_join(path, type, filename)
+        pme = path_join(path, 'makediary', type, filename)
+        #print >>sys.stderr, "Looking for %s, cwd is %s" % (p, getcwd())
+        if path_exists(pme):
+            #print "Found %s" % pme
+            return pme
+        elif path_exists(pe):
+            #print "Found %s" % pe
+            return pe
+        elif path_exists(p):
+            #print "Found %s" % p
+            return p
+        else:
+            return None
+
+
+# ############################################################################################
+
+# A page whose content is made up of an image file.
+
+class ImageFilePage(PostscriptPage):
+
+    def __init__(self, dinfo, imgfilename, epstitle=None):
+        PostscriptPage.__init__(self, dinfo)
+        self.imgfilename = imgfilename
+        self.epstitle = epstitle
+
+    def body(self):
+        imgfilepathname = None
+        # If we are given a full or relative-to-pwd path to the file, use that.
+        if self.imgfilename.startswith('/') or self.imgfilename.startswith('./') \
+               or self.imgfilename.startswith('../'):
+            imgfilepathname = self.imgfilename
+        else:
+            # Otherwise, construct the full path to the file.  If we are running from the
+            # development directory, or otherwise not from a full path name, look at relative
+            # locations first.
+            if sys.argv[0].startswith('.'):
+                searchpath = ['.', '..', '../..']
+                for p in sys.path:
+                    searchpath.append(p)
+            else:
+                searchpath = sys.path
+            #print >>sys.stderr, "searchpath is %s" % str(searchpath)
+            for path in searchpath:
+                imgfilepathname = self.searchfor(path, 'image', self.imgfilename)
+                if imgfilepathname:
+                    break
+        if imgfilepathname:
+            inset = self.pWidth / 200.0
+            imgp = self.image(imgfilepathname,
+                                 self.pLeft+inset, self.pBottom+inset,
+                                 self.pWidth-2*inset, self.pHeight-2*inset)
+            if self.epstitle:
+                return self.title(self.epstitle) + imgp
+            else:
+                return imgp
+        else:
+            print >>sys.stderr, "Can't find %s" % self.imgfilename
+            return "%% -- Can't find %s\n" % self.imgfilename
+
 
 # ############################################################################################
 
@@ -733,7 +804,7 @@ class EPSFilePage(PostscriptPage):
                 searchpath = sys.path
             #print >>sys.stderr, "searchpath is %s" % str(searchpath)
             for path in searchpath:
-                epsfilepathname = self.searchfor(path, self.epsfilename)
+                epsfilepathname = self.searchfor(path, 'eps', self.epsfilename)
                 if epsfilepathname:
                     break
         if epsfilepathname:
@@ -748,24 +819,6 @@ class EPSFilePage(PostscriptPage):
         else:
             print >>sys.stderr, "Can't find %s" % self.epsfilename
             return "%% -- Can't find %s\n" % self.epsfilename
-
-    def searchfor(self, path, epsfilename):
-        #print >>sys.stderr, "searchfor  (%s, %s)" % (path,epsfilename)
-        p = path_join(path, epsfilename)
-        pe = path_join(path, 'eps', epsfilename)
-        pme = path_join(path, 'makediary', 'eps', epsfilename)
-        #print >>sys.stderr, "Looking for %s, cwd is %s" % (p, getcwd())
-        if path_exists(pme):
-            #print "Found %s" % pme
-            return pme
-        elif path_exists(pe):
-            #print "Found %s" % pe
-            return pe
-        elif path_exists(p):
-            #print "Found %s" % p
-            return p
-        else:
-            return None
 
 
 # ############################################################################################
@@ -2134,6 +2187,13 @@ class Diary:
         else:
             w( EmptyPage(di).page() )
         w( PersonalInformationPage(di).page() )
+
+        # Print image pages, if there are any, and end on a new opening.
+        for imagePageImage in di.imagePageImages:
+            w( ImageFilePage(di, imagePageImage, basename(imagePageImage)).page() )
+        if di.evenPage:
+            self.w( EmptyPage(di).page() )
+
         w( TwoCalendarPages(di).page() )
         # Ensure that the planner pages are on facing pages.
         if di.nPlannerYears > 0:
