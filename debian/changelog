@@ -1,4 +1,4 @@
-makediary (0.1.2pre-1) unstable; urgency=low
+makediary (0.1.2-1) unstable; urgency=low
 
   * Print release number in --version output.
   * Add option to print a week to an opening.

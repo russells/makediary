@@ -16,11 +16,13 @@ Everything else is ignored.
 
 - The version number in makediary/__init__.py.
 
+- The version number in debian/changelog.
+
 - The version numbers in ~/bin/make-makediary-www and
   ~/bin/export-makediary-to-burst.
 
 - The version numbers in the web page.
 
 
-$Id: VERSION 99 2003-12-26 03:57:57Z  $
+$Id: VERSION 101 2003-12-26 04:08:06Z  $
 
