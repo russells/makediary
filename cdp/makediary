@@ -1,8 +1,8 @@
-#!/usr/bin/python2.2
+#!/usr/bin/python
 
 # Run the diary program.
 
-# $Id$
+# $Id: makediary 14 2002-12-22 16:45:41Z anonymous $
 
 from cdp import makediary
 import sys
