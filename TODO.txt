@@ -311,7 +311,7 @@ In v 1.2, there is a month name list at line 1041, and another at line
 1208.
 
 
-* Darker outlines for weekend days in planner.
+* Darker outlines for weekend days in planner.  DONE.
 
 
 * Address database.
