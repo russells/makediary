@@ -10,5 +10,16 @@ of packages.
 
 Everything else is ignored.
 
-$Id: VERSION 57 2003-01-04 05:15:52Z anonymous $
+*** When changing the version number here, don't forget to also change:
+
+- The version number in setup.py.
+
+- The version number in makediary/__init__.py.
+
+- The version numbers in ~/bin/make-makediary-www and
+  ~/bin/export-makediar-to-burst.
+
+
+
+$Id: VERSION 62 2003-01-05 11:54:16Z anonymous $
 
