@@ -3,7 +3,7 @@ makediary (0.1.2-1) unstable; urgency=low
   * Print release number in --version output.
   * Add option to print a week to an opening.
 
- -- Russell Steicke <russells@adelie.cx>  Thu, 17 Jul 2003 16:20:07 +0800
+ -- Russell Steicke <russells@adelie.cx>  Fri, 26 Dec 2003 13:39:00 +0800
 
 makediary (0.1.1-1) unstable; urgency=low
 
