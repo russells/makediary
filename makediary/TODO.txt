@@ -1,6 +1,6 @@
 -*- outline -*-
 
-* $Id: TODO.txt 63 2003-01-05 11:58:11Z anonymous $
+* $Id: TODO.txt 65 2003-01-07 02:44:59Z anonymous $
 
 * Margins  DONE
 
@@ -261,6 +261,13 @@ book with pstops.
 
 * Print reasonable version numbers.
 
-Make ``makediary --version'' print the version number (not the svn $Id: TODO.txt 63 2003-01-05 11:58:11Z anonymous $
-string.)
+Make ``makediary --version'' print the version number (not the svn
+dollar-Id-dollar string.)
 
+* Fix EPS.
+
+There is a problem with embedded images that confuses some processors.
+GhostGum gsview on windows thinks that the %%Page marker for the image is
+an incorrect %%Page marker for the document, and psselect thinks that the
+end of the image is the end of the surrounding page.  Fix up the EPS
+generation so that this does not happen.
