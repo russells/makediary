@@ -4,7 +4,7 @@
 
 # Print a year diary.
 
-# $Id: makediary.py 78 2003-09-29 16:18:04Z anonymous $
+# $Id: makediary.py 79 2003-11-25 09:50:56Z anonymous $
 
 versionNumber = "0.1.2pre"
 
@@ -52,6 +52,7 @@ class DiaryInfo:
                "page-registration-marks",
                "appointments",
                "appointment-width=",
+               "no-appointment-times",
                "moon",
                "help",
                "version"]
@@ -61,6 +62,7 @@ class DiaryInfo:
                   "  [--cover-image=file] [--address-pages=n] [--notes-pages=n]\n",
                   "  [--planner-years=n] [--line-spacing=mm] [--appointments]\n",
                   "  [--appointment-width=w] [--images] [--weeks-before] [--weeks-after]\n",
+                  "  [--no-appointment-times]\n",
                   "  [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
                   "  [--page-registration-marks] [--colour] [--moon]\n",
                   "  [--page-x-offset=Xmm] [--page-y-offset=Ymm]\n",
@@ -121,6 +123,7 @@ class DiaryInfo:
         self.nPlannerYears = 2          # 
         self.coverImage = None          # Pic for the cover page.
         self.appointments = 0           # Different "styles" for different people.
+        self.appointmentTimes = 1       # Print appointment times or not
         self.appointmentWidth = 0.35    # Width of appointments (as proportion)
         self.colour = 0                 # If true, print images in colour
         self.moon = 0                   # If true, print moon phases
@@ -184,6 +187,8 @@ class DiaryInfo:
                 self.pageRegistrationMarks = 1
             elif opt[0] == "--appointments":
                 self.appointments = 1
+            elif opt[0] == "--no-appointment-times":
+                self.appointmentTimes = 0
             elif opt[0] == "--appointment-width":
                 self.appointments = 1
                 self.appointmentWidth = self.floatOption("appointment-width",opt[1])
@@ -201,7 +206,7 @@ class DiaryInfo:
                 self.usage(sys.stdout)
             elif opt[0] == "--version":
                 print "makediary, version " + versionNumber
-                print "$Id: makediary.py 78 2003-09-29 16:18:04Z anonymous $"
+                print "$Id: makediary.py 79 2003-11-25 09:50:56Z anonymous $"
                 sys.exit(0)
             else:
                 print >>sys.stderr, "Unknown option: %s" % opt[0]
@@ -584,7 +589,7 @@ class VersionPage(PostscriptPage):
         linex = fontSize*6
         s=""
         versionString = self.postscriptEscape(
-            "Version: $Id: makediary.py 78 2003-09-29 16:18:04Z anonymous $")
+            "Version: $Id: makediary.py 79 2003-11-25 09:50:56Z anonymous $")
         dateString = self.postscriptEscape(DateTime.now() \
                                            .strftime("Generated at: %Y-%m-%dT%H:%M:%S%Z"))
         s = s + "% --- Version page\n" \
@@ -1409,7 +1414,7 @@ class DiaryPage(PostscriptPage):
             s = s + "%5.3f SLW %5.3f %5.3f M 0 %5.3f RL CP S %5.3f SLW M %5.3f 0 RL S " % \
                 (leftTh, self.appLeft, self.titleboxy-appheight*lineno,
                  -appheight, bottomTh, self.appWidth)
-            if appTimes[lineno] is not None:
+            if di.appointmentTimes and appTimes[lineno] is not None:
                 appx = self.appLeft + appheight*0.2
                 appy = self.titleboxy - appheight * (lineno+0.55)
                 s = s + " %5.3f %5.3f M (%s) SH\n" % \
@@ -1622,7 +1627,7 @@ class Diary:
                                                  DateTime.now().strftime("%Y-%m-%dT%H%M%S%Z")))
         p = p + "%%BeginProlog\n" \
             + "%%%%Creator: %s, by Russell Steicke, version: %s\n" % \
-            (self.di.myname,"$Id: makediary.py 78 2003-09-29 16:18:04Z anonymous $") \
+            (self.di.myname,"$Id: makediary.py 79 2003-11-25 09:50:56Z anonymous $") \
             + DateTime.now().strftime("%%%%CreationDate: %a, %d %b %Y %H:%M:%S %z\n")
         p = p + "%%DocumentNeededResources: font Times-Roman\n" \
             "%%+ font Times-Bold\n%%+ font Helvetica\n%%+ font Helvetica-Oblique\n" \
