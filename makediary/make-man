@@ -2,7 +2,7 @@
 
 # Make the makediary man page.
 
-# $Id: make-man 54 2003-01-01 07:14:15Z anonymous $
+# $Id: make-man 70 2003-01-13 17:24:07Z anonymous $
 
 
 pod2man  --center="User Commands" \

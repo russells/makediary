@@ -1,7 +1,7 @@
 # Setup for makediary.
 
 
-# $Id: setup.py 57 2003-01-04 05:15:52Z anonymous $
+# $Id: setup.py 70 2003-01-13 17:24:07Z anonymous $
 
 from distutils.core import setup
 

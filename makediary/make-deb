@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# $Id: make-deb 51 2002-12-31 17:26:16Z anonymous $
+# $Id: make-deb 70 2003-01-13 17:24:07Z anonymous $
 
 # Make the debian package.  This must be run from within the source
 # directory.

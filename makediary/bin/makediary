@@ -2,7 +2,7 @@
 
 # Run the diary program.
 
-# $Id: makediary 43 2002-12-30 17:09:39Z anonymous $
+# $Id: makediary 70 2003-01-13 17:24:07Z anonymous $
 
 from makediary import makediary
 import sys

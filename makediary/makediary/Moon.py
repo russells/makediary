@@ -4,7 +4,7 @@
 # translated from C into python.  I don't understand it at all.  This code generates the same
 # answers (days and phases) as the original C code, so that's good.
 
-# $Id: Moon.py 6 2002-12-22 07:01:29Z anonymous $
+# $Id: Moon.py 70 2003-01-13 17:24:07Z anonymous $
 
 import sys
 import math

@@ -3,7 +3,7 @@
 # Create the python module distribution.  This must be run from within
 # the makediary source directory.
 
-# $Id: make-dists 52 2002-12-31 17:41:50Z anonymous $
+# $Id: make-dists 70 2003-01-13 17:24:07Z anonymous $
 
 set -e -x
 
