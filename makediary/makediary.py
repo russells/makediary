@@ -1032,21 +1032,11 @@ class PlannerPage(PostscriptPage):
                                  se + "\n"
                             s = s + se 
 
-        # Do the month titles (top and bottom)
-        # Month name.  Needs to use locales.
-        if   month==1:  monthname="January"
-        elif month==2:  monthname="February"
-        elif month==3:  monthname="March"
-        elif month==4:  monthname="April"
-        elif month==5:  monthname="May"
-        elif month==6:  monthname="June"
-        elif month==7:  monthname="July"
-        elif month==8:  monthname="August"
-        elif month==9:  monthname="September"
-        elif month==10: monthname="October"
-        elif month==11: monthname="November"
-        elif month==12: monthname="December"
-        else:           monthname="Mon %d" % month
+        # Do the month titles (top and bottom). We attempt to make this localised, by using
+        # strftime(), but that doesn't appear to work, even with LANG and LC_TIME set in the
+        # environment.
+        monthname = DateTime.DateTime(2000,month).strftime("%B")
+
         for monthtb in (0.0, (self.lineheight*(self.nlines-1))):
             s = s + "0 %5.3f %5.3f %5.3f %5.3f %5.3f boxLBWHgray " % \
                 (monthtb,self.monthwidth,self.lineheight,self.titleboxThick,self.titlegray) \
@@ -1200,9 +1190,6 @@ class NotesPage(PostscriptPage):
 # ############################################################################################
 
 class ExpensePage(PostscriptPage):
-
-    monthnames = [ "January","February","March","April","May","June",
-                   "July","August","September","October","November","December"]
 
     inoutcolumnwidths = 0.2
 
