@@ -139,6 +139,12 @@ to 2, ie the diary year and the following year.
 
 Print the Unix shell reference page.
 
+=item --start-date=I<yyyy-mm-dd>
+
+Start the diary on the specified date.  The date must be in yyyy-mm-dd
+format.  If both B<--start-date> and B<--year> are both specified, the last
+one specified will take precedence.
+
 =item --unix-ref
 
 Print the Unix commands reference page.
@@ -170,7 +176,9 @@ Ensure that the diary covers I<N> complete weeks before the specified year.
 
 =item --year=I<year>
 
-Print a diary for that year.  Defaults to next year.
+Print a diary for that year.  Defaults to next year.  If both B<--year> and
+B<--start-date> are both specified, the last one specified will take
+precedence.
 
 =back
 

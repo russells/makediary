@@ -343,3 +343,5 @@ we wish to generate.  It should contain short (one line) descriptions of the
 page groups.
 
 
+* Allow starting the year on an arbitrary day.  DONE.
+
