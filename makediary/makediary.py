@@ -4,7 +4,7 @@
 
 # Print a year diary.
 
-versionNumber = "0.2.0"
+versionNumber = "0.2.1"
 
 import sys
 import getopt
@@ -62,6 +62,7 @@ class DiaryInfo:
                "paper-size=",
                "planner-years=",
                "sh-ref",
+               "start-date=",
                "unix-ref",
                "vim-ref",
                "week-to-opening",
@@ -73,7 +74,8 @@ class DiaryInfo:
 
     usageStrings = \
                  [
-                  "Usage: %s [--year=year] [--output-file=file]\n",
+                  "Usage: %s [--year=year | --start-date=yyyy-mm-dd]\n",
+                  "    [--output-file=file]\n",
                   "    [--address-pages=n] [--appointment-width=w] [--appointments]\n",
                   "    [--colour] [--cover-image=file] [--day-to-page]\n",
                   "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
@@ -115,8 +117,7 @@ class DiaryInfo:
         # first init the instance variables.
         self.pageNumber = 0             # Page number count
         self.currentJDaysLeft = -1      # Days left in year
-        self.dt = DateTime.DateTime(DateTime.now().year+1) # Adjusted time (next year)
-        self.year = self.dt.year        # Calendar year
+        self.setStartDate(DateTime.DateTime(DateTime.now().year+1)) # Adjusted time, next year
         wh = PaperSize.getPaperSize('a5') # Page sizes.  Default to a5.
         self.pageWidth = wh[0]
         self.pageHeight = wh[1]
@@ -251,6 +252,8 @@ class DiaryInfo:
                 sys.exit(0)
             elif opt[0] == "--sh-ref":
                 self.shRef = True
+            elif opt[0] == '--start-date':
+                self.setStartDate(DateTime.strptime(opt[1], '%Y-%m-%d'))
             elif opt[0] == "--unix-ref":
                 self.unixRef = True
             elif opt[0] == "--vim-ref":
@@ -262,8 +265,7 @@ class DiaryInfo:
             elif opt[0] == "--weeks-before":
                 self.nWeeksBefore = self.integerOption("weeks-before",opt[1])
             elif opt[0] == '--year':
-                self.year = self.integerOption("year",opt[1])
-                self.dt = DateTime.DateTime(self.year)
+                self.setStartDate(DateTime.DateTime(self.integerOption("year",opt[1])))
             else:
                 print >>sys.stderr, "Unknown option: %s" % opt[0]
                 self.usage()
@@ -281,6 +283,13 @@ class DiaryInfo:
         except ValueError,reason:
             sys.stderr.write("Error converting integer: " + str(reason) + "\n")
             self.usage()
+
+
+    def setStartDate(self,date):
+        self.dtbegin = DateTime.DateTime(date.year, date.month, date.day)
+        self.dt = DateTime.DateTime(date.year, date.month, date.day)
+        self.dtend = self.dt + DateTime.RelativeDateTime(years=1)
+
 
     def floatOption(self,name,s):
         """Convert an arg to a float."""
@@ -382,8 +391,8 @@ class DiaryInfo:
     def readDotCalendar(self):
         dc = DotCalendar.DotCalendar()
         years = []
-        for i in range(self.nPlannerYears+2):
-            years.append(self.year-1+i)
+        for i in range(self.nPlannerYears+4):
+            years.append(self.dtbegin.year-2+i)
         dc.setYears(years)
         dc.readCalendarFile()
         self.events = dc.datelist
@@ -420,7 +429,8 @@ class BasicPostscriptPage:
         self.preamble = self.preamble \
                         + "calendars begin\n" \
                         + "%%EndPageSetup\n" \
-                        + "%% This is for year %d, " % self.di.dt.year
+                        + "%% This is for year beginning %04d-%02d-%02d, " % \
+                        (self.di.dtbegin.year, self.di.dtbegin.month, self.di.dtbegin.day)
         if self.di.evenPage:
             self.preamble = self.preamble + "on an even page\n"
         else:
@@ -890,7 +900,7 @@ class CoverPage(PostscriptPage):
             (xleft,ybottom,xright,ytop,self.di.underlineThick) \
             + "/Times-Roman %d selectfont\n" % textheight \
             + "% find half of the width of the year string\n" \
-            + "(%d) dup SW pop 2 div\n" % self.di.year \
+            + "(%d) dup SW pop 2 div\n" % self.di.dtbegin.year \
             + "% move that far left of the centre\n" \
             + "%5.2f exch sub %5.2f M SH\n" % (textxcentre,textycentre)
         if self.di.coverImage==None:
@@ -954,7 +964,7 @@ class CalendarPage(PostscriptPage):
              + ("%5.3f %5.3f L " % (bleft,bbottom)) \
              + "gsave %5.3f setgray fill grestore S\n" % ((1.0+self.di.titleGray)/2.0,)
         s = s + bs
-        yr = self.di.dt.year
+        yr = self.di.dtbegin.year
         for yd in ((yr-1, left, bottom + yheight*2.0 + yvgap*2.5 ),
                    (yr,   left, bottom + yheight + yvgap*1.5),
                    (yr+1, left, bottom + yvgap*0.5)):
@@ -1025,7 +1035,7 @@ class HalfCalendarPage(PostscriptPage):
 
         # Make a list detailing where the months are to go.  The list contains tuples of (year,
         # month, row, column).
-        y = self.di.dt.year
+        y = self.di.dtbegin.year
         if self.di.evenPage:
             months = ( (y-1, 1, 0, 0), (y-1, 2, 0, 1), (y-1, 3, 0, 2),
                        (y-1, 7, 1, 0), (y-1, 8, 1, 1), (y-1, 9, 1, 2),
@@ -1163,7 +1173,7 @@ class PlannerPage(PostscriptPage):
     nondaygray = -1                     # Grey levels for day boxes
     weekendgray = -1
 
-    def __init__(self,year, startingmonth, nmonths, dinfo):
+    def __init__(self, year, startingmonth, nmonths, dinfo):
         PostscriptPage.__init__(self, dinfo)
         self.nondaygray = self.di.titleGray
         self.weekendgray = (1.0+self.di.titleGray)/2.0
@@ -1255,7 +1265,7 @@ class PlannerPage(PostscriptPage):
                     (self.di.subtitleFontName, self.fontsize,
                      self.textb, dayb+self.textb, days[n])
                 # Fill in the short calendar event names, for the current year only
-                if self.year == self.di.year:
+                if self.year == self.di.dtbegin.year:
                     if eventlist is not None:
                         #sys.stderr.write("planner: events for %s: %s\n" % (str(dd),eventlist))
                         se = ""             # event list string
@@ -1460,7 +1470,7 @@ class ExpensePage(PostscriptPage):
 
     def titleblock(self,month,ypos):
         s = "%% title block: month=%d ypos=%5.3f\n" % (month,ypos)
-        monthname = DateTime.DateTime(self.di.year,month).strftime("%B")
+        monthname = DateTime.DateTime(self.di.dtbegin.year,month).strftime("%B")
         if self.di.evenPage:
             titlex = self.pLeft + self.titleheight
             titley = ypos
@@ -2149,7 +2159,7 @@ class Diary:
         these calendars by calling scale before calling the calendar procedure"""
 
         p = self.di.sectionSep
-        y = self.di.year
+        y = self.di.dtbegin.year
         a7 = 142.86                     # 1000/7
         a8 = 125.0                      # 1000/8
         p = p + "/calendars 100 dict dup begin\n"
@@ -2218,9 +2228,9 @@ class Diary:
         if di.nPlannerYears > 0:
             if di.evenPage:
                 self.w( EmptyPage(di).page() )
-            w( FourPlannerPages(di.year, di).page() )
+            w( FourPlannerPages(di.dtbegin.year, di).page() )
             for i in range(1, di.nPlannerYears):
-                w( TwoPlannerPages(di.year+i, di).page() )
+                w( TwoPlannerPages(di.dtbegin.year+i, di).page() )
 
         for i in range(di.nAddressPages):
             w( AddressPage(di).page() )
@@ -2260,9 +2270,9 @@ class Diary:
             else:
                 w( EmptyPage(di).page() )
 
-        # Print diary pages until we see the next year
+        # Print diary pages until we see the end date
         while 1:
-            if di.dt.year == di.year+1:
+            if di.dt >= di.dtend:
                 break
             w( DiaryPage(di).page() )
 
