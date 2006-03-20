@@ -63,6 +63,7 @@ class DiaryInfo:
                "planner-years=",
                "sh-ref",
                "start-date=",
+               "title=",
                "unix-ref",
                "vim-ref",
                "week-to-opening",
@@ -75,7 +76,7 @@ class DiaryInfo:
     usageStrings = \
                  [
                   "Usage: %s [--year=year | --start-date=yyyy-mm-dd]\n",
-                  "    [--output-file=file]\n",
+                  "    [--output-file=file] [--title=TITLE]\n",
                   "    [--address-pages=n] [--appointment-width=w] [--appointments]\n",
                   "    [--colour] [--cover-image=file] [--day-to-page]\n",
                   "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
@@ -169,6 +170,7 @@ class DiaryInfo:
         self.unixRef = False
         self.imagePageImages = []
         self.epsPageFiles = []
+        self.title = None
 
     def parseOptions(self):
         args = self.opts
@@ -254,6 +256,8 @@ class DiaryInfo:
                 self.shRef = True
             elif opt[0] == '--start-date':
                 self.setStartDate(DateTime.strptime(opt[1], '%Y-%m-%d'))
+            elif opt[0] == "--title":
+                self.title = opt[1]
             elif opt[0] == "--unix-ref":
                 self.unixRef = True
             elif opt[0] == "--vim-ref":
@@ -894,13 +898,20 @@ class CoverPage(PostscriptPage):
         textycentre = (ytop-ybottom) * 0.66 + ybottom - textheight/2
         textxcentre = (xright-xleft)/2 + xleft
 
+        if self.di.title is not None:
+            title = self.di.title
+        elif self.di.dtbegin.month==1 and self.di.dtbegin.day==1:
+            title = "%d" % self.di.dtbegin.year
+        else:
+            title = "%04d-%02d" % (self.di.dtbegin.year, (self.di.dtbegin.year+1) % 100)
+
         s =   "% --- cover page\n" \
             + "% border around the cover page\n" \
             + "%5.3f %5.3f %5.3f %5.3f %5.3f boxLBRT\n" % \
             (xleft,ybottom,xright,ytop,self.di.underlineThick) \
             + "/Times-Roman %d selectfont\n" % textheight \
-            + "% find half of the width of the year string\n" \
-            + "(%d) dup SW pop 2 div\n" % self.di.dtbegin.year \
+            + "% find half of the width of the title string\n" \
+            + "(%s) dup SW pop 2 div\n" % self.postscriptEscape(title) \
             + "% move that far left of the centre\n" \
             + "%5.2f exch sub %5.2f M SH\n" % (textxcentre,textycentre)
         if self.di.coverImage==None:
