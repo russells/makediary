@@ -1,8 +1,9 @@
-makediary (0.2.1-1) unstable; urgency=low
+makediary (0.2.1-2) unstable; urgency=low
 
   * Allow starting the diary on an arbitrary day with --start-date.
+  * Allow an arbitrary title on the cover page.
 
- -- Russell Steicke <russells@adelie.cx>  Sun, 19 Mar 2005 20:34:18 +0800
+ -- Russell Steicke <russells@adelie.cx>  Mon, 20 Mar 2005 15:40:47 +0800
 
 makediary (0.2.0-1) unstable; urgency=low
 
