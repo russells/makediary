@@ -1173,7 +1173,7 @@ class PlannerPage(PostscriptPage):
     nondaygray = -1                     # Grey levels for day boxes
     weekendgray = -1
 
-    def __init__(self, year, startingmonth, nmonths, dinfo):
+    def __init__(self, year, startingmonth, nmonths, dinfo, doEvents):
         PostscriptPage.__init__(self, dinfo)
         self.nondaygray = self.di.titleGray
         self.weekendgray = (1.0+self.di.titleGray)/2.0
@@ -1188,6 +1188,7 @@ class PlannerPage(PostscriptPage):
         self.fontsize = self.lineheight * 0.7
         self.textb = self.lineheight * 0.2
         self.titleboxThick = self.di.underlineThick / 2.0
+        self.doEvents = doEvents
 
 
     def dayColumn(self,l,b):
@@ -1264,8 +1265,8 @@ class PlannerPage(PostscriptPage):
                 s = s + "/%s %5.3f selectfont %5.3f %5.3f M (%d) SH\n" % \
                     (self.di.subtitleFontName, self.fontsize,
                      self.textb, dayb+self.textb, days[n])
-                # Fill in the short calendar event names, for the current year only
-                if self.year == self.di.dtbegin.year:
+                # Fill in the short calendar event names, if requested
+                if self.doEvents:
                     if eventlist is not None:
                         #sys.stderr.write("planner: events for %s: %s\n" % (str(dd),eventlist))
                         se = ""             # event list string
@@ -1343,8 +1344,8 @@ class TwoPlannerPages:
         self.dinfo = dinfo
 
     def page(self):
-        return PlannerPage(self.year,1,6,self.dinfo).page() \
-               + PlannerPage(self.year,7,6,self.dinfo).page()
+        return PlannerPage(self.year,1,6,self.dinfo,False).page() \
+               + PlannerPage(self.year,7,6,self.dinfo,False).page()
 
 
 # ############################################################################################
@@ -1357,10 +1358,10 @@ class FourPlannerPages:
         self.dinfo = dinfo
 
     def page(self):
-        return PlannerPage(self.year,1,3,self.dinfo).page() \
-               + PlannerPage(self.year,4,3,self.dinfo).page() \
-               + PlannerPage(self.year,7,3,self.dinfo).page() \
-               + PlannerPage(self.year,10,3,self.dinfo).page()
+        return PlannerPage(self.year,1,3,self.dinfo,True).page() \
+               + PlannerPage(self.year,4,3,self.dinfo,True).page() \
+               + PlannerPage(self.year,7,3,self.dinfo,True).page() \
+               + PlannerPage(self.year,10,3,self.dinfo,True).page()
 
 
 # ############################################################################################
@@ -2229,8 +2230,14 @@ class Diary:
             if di.evenPage:
                 self.w( EmptyPage(di).page() )
             w( FourPlannerPages(di.dtbegin.year, di).page() )
-            for i in range(1, di.nPlannerYears):
-                w( TwoPlannerPages(di.dtbegin.year+i, di).page() )
+            if di.dtbegin.month==1 and di.dtbegin.day==1:
+                for i in range(1, di.nPlannerYears):
+                    w( TwoPlannerPages(di.dtbegin.year+i, di).page() )
+            else:
+                w( FourPlannerPages(di.dtbegin.year+1, di).page() )
+                for i in range(2, di.nPlannerYears):
+                    w( TwoPlannerPages(di.dtbegin.year+i, di).page() )
+
 
         for i in range(di.nAddressPages):
             w( AddressPage(di).page() )
