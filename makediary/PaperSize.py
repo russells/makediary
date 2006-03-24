@@ -2,9 +2,8 @@
 
 # Maintain a dictionary of paper sizes.
 
-# $Id: PaperSize.py 100 2003-12-26 04:01:35Z anonymous $
 
-__revision__ = """$Id: PaperSize.py 100 2003-12-26 04:01:35Z anonymous $"""
+__revision__ = """0.2.1"""
 
 
 _paperSizes = {
@@ -19,8 +18,9 @@ _paperSizes = {
     "a0"     : ( 841.02222, 1188.8611 ),
     "b5"     : ( 176.03611, 250.11944 ),
     "b5j"    : ( 182.03333, 257.175   ),
+    "filofax": ( 96.0, 172.0          ),
     "letter" : ( 215.9,     279.4     ),
-    "half-letter" : ( 139.7, 215.9    )
+    "half-letter" : ( 139.7, 215.9    ),
     }
 
 def getPaperSize(name):

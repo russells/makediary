@@ -4,9 +4,7 @@
 
 # Print a year diary.
 
-# $Id: makediary.py 100 2003-12-26 04:01:35Z anonymous $
-
-versionNumber = "0.1.2"
+versionNumber = "0.2.1"
 
 import sys
 import getopt
@@ -19,11 +17,16 @@ import PaperSize
 import Moon
 from mx import DateTime #import *
 from math import pow
+from os.path import join as path_join
+from os.path import exists as path_exists
+from os.path import basename
+from os import getcwd
+from errno import EPIPE
 
 # ############################################################################################
 
 class DiaryInfo:
-    
+
     """ This class holds configuration information for the rest of the program, parses command
     line args, prints the usage message."""
 
@@ -31,53 +34,75 @@ class DiaryInfo:
 
     sectionSep = "%-----------------\n" # Separator inside the postscript
 
-    options = ["year=",
-               "output-file=",
-               "cover-image=",
-               "images",
-               "colour",
+    options = [
                "address-pages=",
-               "notes-pages=",
-               "planner-years=",
+               "appointments",
+               "appointment-width=",
+               "colour",
+               "cover-image=",
+               "day-to-page",
+               "debug-boxes",
+               "debug-version",
+               "debug-whole-page-boxes",
+               "eps-page=",
+               "event-images",
+               "help",
+               "image-page=",
                "line-spacing=",
+               "margins-multiplier=",
+               "moon",
+               "no-appointment-times",
+               "no-smiley",
+               "notes-pages=",
+               "output-file=",
+               "page-registration-marks",
                "page-size=",
                "page-x-offset=",
                "page-y-offset=",
                "paper-size=",
+               "planner-years=",
+               "sh-ref",
+               "start-date=",
+               "title=",
+               "unix-ref",
+               "vim-ref",
+               "week-to-opening",
                "weeks-before=",
                "weeks-after=",
-               "debug-boxes",
-               "debug-version",
-               "debug-whole-page-boxes",
-               "page-registration-marks",
-               "appointments",
-               "appointment-width=",
-               "no-appointment-times",
-               "week-to-opening",
-               "moon",
-               "margins-multiplier=",
-               "help",
-               "version"]
+               "version",
+               "year=",
+               ]
 
     usageStrings = \
-                 ["Usage: %s [--year=year] [--output-file=file]\n",
-                  "  [--cover-image=file] [--address-pages=n] [--notes-pages=n]\n",
-                  "  [--planner-years=n] [--line-spacing=mm] [--appointments]\n",
-                  "  [--appointment-width=w] [--images] [--weeks-before=n] [--weeks-after=n]\n",
-                  "  [--week-to-opening] [--margins-multiplier=f]\n",
-                  "  [--no-appointment-times]\n",
-                  "  [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
-                  "  [--page-registration-marks] [--colour] [--moon]\n",
-                  "  [--page-x-offset=Xmm] [--page-y-offset=Ymm]\n",
-                  "  [--help] [--version]\n"]
+                 [
+                  "Usage: %s [--year=year | --start-date=yyyy-mm-dd]\n",
+                  "    [--output-file=file] [--title=TITLE]\n",
+                  "    [--address-pages=n] [--appointment-width=w] [--appointments]\n",
+                  "    [--colour] [--cover-image=file] [--day-to-page]\n",
+                  "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
+                  "    [--eps-page=epsfile] [--event-images] [--image-page=IMAGEFILE]\n",
+                  "    [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
+                  "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
+                  "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
+                  "    [--page-y-offset=Ymm] [--planner-years=n] \n",
+                  "    [--sh-ref] [--unix-ref] [--vim-ref]\n",
+                  "    [--weeks-before=n] [--weeks-after=n] [--week-to-opening]\n",
+                  "    [--help] [--version]\n",
+                  ]
     sizes = PaperSize.getPaperSizeNames()
     sizesString = ''
     for n in range(len(sizes)):
         s = sizes[n]
         if n == len(sizes)-1: sizesString = sizesString+s
         else:                 sizesString = sizesString+s+'|'
-    usageStrings.append("  [--page-size=%s]\n" % sizesString)
-    usageStrings.append("  [--paper-size=%s]\n" % sizesString)
+    usageStrings.append("    [--page-size=%s]\n" % sizesString)
+    usageStrings.append("    [--paper-size=%s]\n" % sizesString)
+    usageStrings.append("  Defaults:\n")
+    usageStrings.append("    year = next year          line-spacing = 6.0mm\n")
+    usageStrings.append("    page-size = a5            paper-size = a5\n")
+    usageStrings.append("    weeks-before = 0          weeks-after = 0\n")
+    usageStrings.append("    appointment-width = 0.35  planner-years = 2\n")
+    usageStrings.append("    address-pages = 6         notes-pages = 6\n")
 
     def usage(self, f=sys.stderr):
         for i in range(len(self.usageStrings)):
@@ -93,8 +118,7 @@ class DiaryInfo:
         # first init the instance variables.
         self.pageNumber = 0             # Page number count
         self.currentJDaysLeft = -1      # Days left in year
-        self.dt = DateTime.DateTime(DateTime.now().year+1) # Adjusted time (next year)
-        self.year = self.dt.year        # Calendar year
+        self.setStartDate(DateTime.DateTime(DateTime.now().year+1)) # Adjusted time, next year
         wh = PaperSize.getPaperSize('a5') # Page sizes.  Default to a5.
         self.pageWidth = wh[0]
         self.pageHeight = wh[1]
@@ -106,39 +130,47 @@ class DiaryInfo:
         self.translateXOffset = 0.0
         self.translateYOffset = 0.0
         self.iMargin = 12.0             # Page layout options
-        self.oMargin = 5.0              # 
-        self.bMargin = 5.0              # 
+        self.oMargin = 5.0              #
+        self.bMargin = 5.0              #
         self.tMargin = 5.0              #
-        self.coverTitleFontSize = 20.0  # 
-        self.titleFontSize = 7.0        # 
-        self.titleFontName = "Times-Bold" # 
-        self.subtitleFontSize = 4.0     # 
-        self.subtitleFontName = "Helvetica" # 
+        self.coverTitleFontSize = 20.0  #
+        self.titleFontSize = 7.0        #
+        self.titleFontName = "Times-Bold" #
+        self.subtitleFontSize = 4.0     #
+        self.subtitleFontName = "Helvetica" #
         self.titleY = -1                # Distance from bottom to title, calc from page size
-        self.titleLineY = -1            # 
+        self.titleLineY = -1            #
         self.titleGray = 0.8            # Background for titles on some pages
         self.underlineThick = 0.2       # Thickness of title lines etc
         self.lineSpacing = 6.0          # Spacing for writing lines
         self.evenPage = 0               # even and odd pages
         self.out = sys.stdout           # Output file
         self.nAddressPages = 6          # Default
-        self.nNotesPages = 6            # 
-        self.nPlannerYears = 2          # 
+        self.nNotesPages = 6            #
+        self.nPlannerYears = 2          #
         self.coverImage = None          # Pic for the cover page.
-        self.appointments = 0           # Different "styles" for different people.
-        self.appointmentTimes = 1       # Print appointment times or not
+        self.appointments = False       # Different "styles" for different people.
+        self.appointmentTimes = True    # Print appointment times or not
         self.appointmentWidth = 0.35    # Width of appointments (as proportion)
-        self.colour = 0                 # If true, print images in colour
-        self.moon = 0                   # If true, print moon phases
-        self.weekToOpening = 0          #
-        self.debugBoxes = 0             # If true, draw faint boxes around things for debugging
-        self.debugVersion = 0           # If true, print version info on inside cover.
-        self.debugWholePageBoxes = 0    # If true, draw faint boxes around all pages.
-        self.pageRegistrationMarks = 0  # Print marks to show where to cut.
+        self.colour = False             # If true, print images in colour
+        self.moon = False               # If true, print moon phases
+        self.weekToOpening = False      #
+        self.dayToPage = False          #
+        self.debugBoxes = False         # If true, draw faint boxes around things for debugging
+        self.debugVersion = False       # If true, print version info on inside cover.
+        self.debugWholePageBoxes = False# If true, draw faint boxes around all pages.
+        self.pageRegistrationMarks=False# Print marks to show where to cut.
         self.events = {}                # Events to draw on each page, from .calendar file.
-        self.drawImages = 0             # If true, draw event images
+        self.drawEventImages = False    # If true, draw event images
         self.nWeeksBefore = 0           # Print this number of weeks before the current year.
         self.nWeeksAfter = 0
+        self.smiley = True
+        self.shRef = False
+        self.vimRef = False
+        self.unixRef = False
+        self.imagePageImages = []
+        self.epsPageFiles = []
+        self.title = None
 
     def parseOptions(self):
         args = self.opts
@@ -153,9 +185,51 @@ class DiaryInfo:
             sys.stderr.write("Unknown arg: %s\n" % args[0] )
             self.usage()
         for opt in optlist:
-            if opt[0] == '--year':
-                self.year = self.integerOption("year",opt[1])
-                self.dt = DateTime.DateTime(self.year)
+            if 0:  # Make it easier to move options around
+                pass
+            elif opt[0] == "--address-pages":
+                self.nAddressPages = self.integerOption("address-pages",opt[1])
+            elif opt[0] == "--appointment-width":
+                self.appointments = True
+                self.appointmentWidth = self.floatOption("appointment-width",opt[1])
+            elif opt[0] == "--appointments":
+                self.appointments = True
+            elif opt[0] == "--colour":
+                self.colour = True
+            elif opt[0] == "--cover-image":
+                self.coverImage = opt[1]
+            elif opt[0] == "--day-to-page":
+                self.dayToPage = True
+            elif opt[0] == "--debug-boxes":
+                self.debugBoxes = 1
+            elif opt[0] == "--debug-whole-page-boxes":
+                self.debugWholePageBoxes = 1
+            elif opt[0] == "--debug-version":
+                self.debugVersion = True
+            elif opt[0] == "--eps-page":
+                self.epsPageFiles.append(opt[1])
+            elif opt[0] == "--event-images":
+                self.drawEventImages = True
+            elif opt[0] == "--help":
+                self.usage(sys.stdout)
+            elif opt[0] == "--image-page":
+                self.imagePageImages.append(opt[1])
+            elif opt[0] == "--line-spacing":
+                self.lineSpacing = self.floatOption("line-spacing",opt[1])
+            elif opt[0] == "--margins-multiplier":
+                multiplier = self.floatOption("margins-multiplier",opt[1])
+                self.tMargin = self.tMargin * multiplier
+                self.bMargin = self.bMargin * multiplier
+                self.iMargin = self.iMargin * multiplier
+                self.oMargin = self.oMargin * multiplier
+            elif opt[0] == "--moon":
+                self.moon = True
+            elif opt[0] == "--no-appointment-times":
+                self.appointmentTimes = False
+            elif opt[0] == "--no-smiley":
+                self.smiley = False
+            elif opt[0] == "--notes-pages":
+                self.nNotesPages = self.integerOption("notes-pages",opt[1])
             elif opt[0] == '--output-file':
                 try:
                     self.out = open(opt[1],'w')
@@ -163,66 +237,45 @@ class DiaryInfo:
                     sys.stderr.write(("Error opening '%s': " % opt[1]) \
                                      + str(reason) + "\n")
                     self.usage()
-            elif opt[0] == "--address-pages":
-                self.nAddressPages = self.integerOption("address-pages",opt[1])
-            elif opt[0] == "--notes-pages":
-                self.nNotesPages = self.integerOption("notes-pages",opt[1])
-            elif opt[0] == "--planner-years":
-                self.nPlannerYears = self.integerOption("planner-years",opt[1])
-            elif opt[0] == "--line-spacing":
-                self.lineSpacing = self.floatOption("line-spacing",opt[1])
+            elif opt[0] == "--page-registration-marks":
+                self.pageRegistrationMarks = True
             elif opt[0] == "--page-size":
                 self.setPageSize(opt[1])
-            elif opt[0] == "--paper-size":
-                self.setPaperSize(opt[1])
             elif opt[0] == "--page-x-offset":
                 self.pageXOffset = self.floatOption("page-x-offset", opt[1])
             elif opt[0] == "--page-y-offset":
                 self.pageYOffset = self.floatOption("page-y-offset", opt[1])
-            elif opt[0] == "--cover-image":
-                self.coverImage = opt[1]
-            elif opt[0] == "--debug-boxes":
-                self.debugBoxes = 1
-            elif opt[0] == "--debug-whole-page-boxes":
-                self.debugWholePageBoxes = 1
-            elif opt[0] == "--debug-version":
-                self.debugVersion = 1
-            elif opt[0] == "--page-registration-marks":
-                self.pageRegistrationMarks = 1
-            elif opt[0] == "--appointments":
-                self.appointments = 1
-            elif opt[0] == "--no-appointment-times":
-                self.appointmentTimes = 0
-            elif opt[0] == "--appointment-width":
-                self.appointments = 1
-                self.appointmentWidth = self.floatOption("appointment-width",opt[1])
-            elif opt[0] == "--week-to-opening":
-                self.weekToOpening = 1
-            elif opt[0] == "--images":
-                self.drawImages = 1
-            elif opt[0] == "--colour":
-                self.colour = 1
-            elif opt[0] == "--moon":
-                self.moon = 1
-            elif opt[0] == "--weeks-before":
-                self.nWeeksBefore = self.integerOption("weeks-before",opt[1])
-            elif opt[0] == "--weeks-after":
-                self.nWeeksAfter = self.integerOption("weeks-after",opt[1])
-            elif opt[0] == "--margins-multiplier":
-                multiplier = self.floatOption("margins-multiplier",opt[1])
-                self.tMargin = self.tMargin * multiplier
-                self.bMargin = self.bMargin * multiplier
-                self.iMargin = self.iMargin * multiplier
-                self.oMargin = self.oMargin * multiplier
-            elif opt[0] == "--help":
-                self.usage(sys.stdout)
+            elif opt[0] == "--paper-size":
+                self.setPaperSize(opt[1])
+            elif opt[0] == "--planner-years":
+                self.nPlannerYears = self.integerOption("planner-years",opt[1])
             elif opt[0] == "--version":
                 print "makediary, version " + versionNumber
-                print "$Id: makediary.py 100 2003-12-26 04:01:35Z anonymous $"
                 sys.exit(0)
+            elif opt[0] == "--sh-ref":
+                self.shRef = True
+            elif opt[0] == '--start-date':
+                self.setStartDate(DateTime.strptime(opt[1], '%Y-%m-%d'))
+            elif opt[0] == "--title":
+                self.title = opt[1]
+            elif opt[0] == "--unix-ref":
+                self.unixRef = True
+            elif opt[0] == "--vim-ref":
+                self.vimRef = True
+            elif opt[0] == "--week-to-opening":
+                self.weekToOpening = True
+            elif opt[0] == "--weeks-after":
+                self.nWeeksAfter = self.integerOption("weeks-after",opt[1])
+            elif opt[0] == "--weeks-before":
+                self.nWeeksBefore = self.integerOption("weeks-before",opt[1])
+            elif opt[0] == '--year':
+                self.setStartDate(DateTime.DateTime(self.integerOption("year",opt[1])))
             else:
                 print >>sys.stderr, "Unknown option: %s" % opt[0]
                 self.usage()
+        if self.weekToOpening and self.dayToPage:
+            print >>sys.stderr, "Can't specify both --week-to-opening and --day-to-page"
+            sys.exit(1)
         self.calcPageLayout()
         self.calcDateStuff()
 
@@ -234,6 +287,13 @@ class DiaryInfo:
         except ValueError,reason:
             sys.stderr.write("Error converting integer: " + str(reason) + "\n")
             self.usage()
+
+
+    def setStartDate(self,date):
+        self.dtbegin = DateTime.DateTime(date.year, date.month, date.day)
+        self.dt = DateTime.DateTime(date.year, date.month, date.day)
+        self.dtend = self.dt + DateTime.RelativeDateTime(years=1)
+
 
     def floatOption(self,name,s):
         """Convert an arg to a float."""
@@ -286,7 +346,7 @@ class DiaryInfo:
         self.oMargin *= marginMultiplier
 
     def calcPageLayout(self):
-        
+
         # This should only be called once, just after the page size has been determined.
         # self.titleY leaves a smaller gap than the font size because the font does not
         # completely fill the box.
@@ -335,8 +395,8 @@ class DiaryInfo:
     def readDotCalendar(self):
         dc = DotCalendar.DotCalendar()
         years = []
-        for i in range(self.nPlannerYears+2):
-            years.append(self.year-1+i)
+        for i in range(self.nPlannerYears+4):
+            years.append(self.dtbegin.year-2+i)
         dc.setYears(years)
         dc.readCalendarFile()
         self.events = dc.datelist
@@ -350,17 +410,17 @@ class BasicPostscriptPage:
 
     def __init__(self, dinfo):
         self.di = dinfo
-        self.pagenum = 0                # 
-        self.preamble = ""              # 
-        self.postamble = ""             # 
-        
+        self.pagenum = 0                #
+        self.preamble = ""              #
+        self.postamble = ""             #
+
         self.pLeft = 0                  # Page limits
-        self.pRight = 0                 # 
-        self.pTop = 0                   # 
-        self.pBottom = 0                # 
-        self.pWidth = 0                 # 
-        self.pHeight = 0                # 
-        
+        self.pRight = 0                 #
+        self.pTop = 0                   #
+        self.pBottom = 0                #
+        self.pWidth = 0                 #
+        self.pHeight = 0                #
+
         self.pagenum = self.di.getNextPageNumber()
         self.preamble =   self.di.sectionSep \
                         + ("%%%%Page: %d %d\n" % (self.pagenum,self.pagenum)) \
@@ -373,7 +433,8 @@ class BasicPostscriptPage:
         self.preamble = self.preamble \
                         + "calendars begin\n" \
                         + "%%EndPageSetup\n" \
-                        + "%% This is for year %d, " % self.di.dt.year
+                        + "%% This is for year beginning %04d-%02d-%02d, " % \
+                        (self.di.dtbegin.year, self.di.dtbegin.month, self.di.dtbegin.day)
         if self.di.evenPage:
             self.preamble = self.preamble + "on an even page\n"
         else:
@@ -413,7 +474,7 @@ class BasicPostscriptPage:
                                                               self.di.pageHeight-2) \
                             + "%5.3f 2 M 0 5 RL S\n" % (self.di.pageWidth,) \
                             + "%5.3f 0 M -5 0 RL S\n" % (self.di.pageWidth-2,)
-        
+
         self.postamble =   "end RE SP\n" \
                          + "%% End of page %d\n" % (self.pagenum)
         self.setMargins()
@@ -425,7 +486,7 @@ class BasicPostscriptPage:
             return self.preamble + self.body() + self.postamble
 
     def debugPageBox(self):
-        
+
         bottom = self.di.bMargin
         top = self.di.pageHeight - self.di.tMargin
         if self.di.evenPage:
@@ -436,7 +497,7 @@ class BasicPostscriptPage:
             right = self.di.pageWidth - self.di.oMargin
         #return "0 SLW %5.3f %5.3f %5.3f %5.3f 2 debugboxLBRTD\n" % (left,bottom,right,top)
         return "0 SLW %5.3f %5.3f %5.3f %5.3f debugboxLBRT\n" % (left,bottom,right,top)
-    
+
     def body(self):
         return "% Nothing here\n"
 
@@ -503,13 +564,13 @@ class BasicPostscriptPage:
             + "% end smiley\n"
         return s
 
-    
+
     def postscriptEscape(self,s):
         """Replace occurrences of PostScript special characters in a string.  The ones we
         replace are: '\' -> '\\', '(' -> '\(', ')' -> '\)'.  Note that the backslashes have to
         be done first, or they will be matched by the backslashes used to escape '(' and
         ')'."""
-        
+
         s2 = re.sub( r"\\", r"\\\\", s )
         s3 = re.sub( r"\(", r"\(", s2 )
         s4 = re.sub( r"\)", r"\)", s3 )
@@ -519,10 +580,10 @@ class BasicPostscriptPage:
 # ############################################################################################
 
 class PostscriptPage(BasicPostscriptPage):
-    """Basic PostScript page with images."""
+    """Basic PostScript page with images and embedded Postscript objects."""
 
     def image(self,file,x,y,xmaxsize,ymaxsize):
-        
+
         """Print an image on the page.  The image will be scaled so it will fit within a box at
         (x,y), with size (xmaxsize,ymaxsize), and centred inside that box."""
 
@@ -548,7 +609,7 @@ class PostscriptPage(BasicPostscriptPage):
                 scale = rawxscale
                 xpos = x
                 ypos = y + (ymaxsize - (ysize * scale))/2.0
-        
+
         s = s + self.di.sectionSep + "% Begin EPS image:\n"
         if self.di.debugBoxes:
             if rawxscale > rawyscale:
@@ -580,6 +641,205 @@ class PostscriptPage(BasicPostscriptPage):
         return s
 
 
+    def embedEPS(self, filename, x, y, maxwidth, maxheight):
+        '''Embed an EPS file within the diary.'''
+
+        try:
+            epsfile = open(filename, 'r')
+        except IOError, reason:
+            print >>sys.stderr, "Can't open %s: %s" % (filename, str(reason))
+            return "%% +++ Error opening %s: %s\n" % (filename, str(reason))
+        # Search for the BoundingBox comment, must be in the first 20 lines.
+        boundingboxfound  = False
+        for i in range(0,20):
+            line = epsfile.readline()
+            if line.startswith("%%BoundingBox:"):
+                list = line.split()
+                if len(list) != 5:
+                    print >>sys.stderr, "EPS file %s: can't split \"%s\"" % \
+                             (filename, line.strip())
+                    return "%% +++ EPS file %s\n%% +++ Can't split \"%s\"\n" % \
+                             (filename, line.strip())
+                epsx1_pt = float(list[1])
+                epsy1_pt = float(list[2])
+                epsx2_pt = float(list[3])
+                epsy2_pt = float(list[4])
+                epsx1 = epsx1_pt/self.di.points_mm
+                epsy1 = epsy1_pt/self.di.points_mm
+                epsx2 = epsx2_pt/self.di.points_mm
+                epsy2 = epsy2_pt/self.di.points_mm
+                epswidth  = epsx2 - epsx1
+                epsheight = epsy2 - epsy1
+                boundingboxfound = True
+                break
+        if not boundingboxfound:
+            print >>sys.stderr, "No %%%%BoundingBox in %s\n" % filename
+            return "%% +++ Error reading %%%%BoundingBox comment in %s\n" % filename
+
+        s = self.di.sectionSep + "%% Beginning embedded PS file: %s\n" % filename
+        s = s + "%% x=%5.3f y=%5.3f maxwidth=%5.3f maxheight=%5.3f\n" % \
+                (x,y,maxwidth,maxheight)
+        s = s + "%% epsx1_pt=%7.3f   epsy1_pt=%7.3f   epsx2_pt=%7.3f   epsy2_pt=%7.3f\n" % \
+                (epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt)
+        s = s + "%% epsx1   =%7.3f   epsy1   =%7.3f   epsx2   =%7.3f   epsy2   =%7.3f\n" % \
+                (epsx1, epsy1, epsx2, epsy2)
+
+        # Move to the required origin for the EPS
+        s = s + "%5.3f %5.3f M\n" % (x,y)
+
+        # Find out which of the x or y axes has to be adjusted.
+        rawxscale = maxwidth / epswidth
+        rawyscale = maxheight / epsheight
+        if rawxscale == rawyscale:
+            scale = rawxscale
+            xadj = 0
+            yadj = 0
+        elif rawxscale < rawyscale:
+            scale = rawxscale
+            xadj = 0
+            yadj = (maxheight - (epsheight * scale))/2.0
+        else:
+            scale = rawyscale
+            xadj = (maxwidth - (epswidth * scale))/2.0
+            yadj = 0
+        s = s + "% Results from scaling:\n"
+        s = s + "%% rawxscale=%5.3f rawyscale=%5.3f scale=%5.3f xadj=%5.3f yadj=%5.3f\n" % \
+                (rawxscale,rawyscale,scale,xadj,yadj)
+        xadj -= epsx1*scale
+        yadj -= epsy1*scale
+        s = s + "%% Then, xadj=%5.3f yadj=%5.3f\n" % (xadj,yadj)
+        # Now go there
+        s = s + "SA %5.3f %5.3f RM %5.3f %5.3f SC CP TR\n" % (xadj,yadj,scale,scale)
+
+        # Redefine showpage so the EPS file doesn't muck up our page count, save the graphics
+        # state, and scale so the EPS measurements in points are the correct size in our world
+        # of millimetres.
+        s = s + "5 dict begin /showpage { } bind def SA %5.6f %5.6f SC\n" % \
+                (1.0/self.di.points_mm, 1.0/self.di.points_mm)
+        s = s + "%%%%BeginDocument: %s\n" % filename
+
+        epsfile.seek(0)
+        for line in epsfile.readlines():
+            s = s + line
+        epsfile.close()
+
+        s = s + "\n%%EndDocument\nRE end RE\n"
+        # Now draw a box so we can see where the image should be.
+        #s = s + "%5.3f %5.3f %5.3f %5.3f 0 boxLBWH\n" % (x,y,maxwidth,maxheight)
+        return s
+
+    def searchfor(self, path, type, filename):
+        '''Look for a file in the python search path, with a couple of optional prefixes.'''
+        #print >>sys.stderr, "searchfor  (%s, %s)" % (path,filename)
+        p = path_join(path, filename)
+        pe = path_join(path, type, filename)
+        pme = path_join(path, 'makediary', type, filename)
+        #print >>sys.stderr, "Looking for %s, cwd is %s" % (p, getcwd())
+        if path_exists(pme):
+            #print "Found %s" % pme
+            return pme
+        elif path_exists(pe):
+            #print "Found %s" % pe
+            return pe
+        elif path_exists(p):
+            #print "Found %s" % p
+            return p
+        else:
+            return None
+
+
+# ############################################################################################
+
+# A page whose content is made up of an image file.
+
+class ImageFilePage(PostscriptPage):
+
+    def __init__(self, dinfo, imgfilename, epstitle=None):
+        PostscriptPage.__init__(self, dinfo)
+        self.imgfilename = imgfilename
+        self.epstitle = epstitle
+
+    def body(self):
+        imgfilepathname = None
+        # If we are given a full or relative-to-pwd path to the file, use that.
+        if self.imgfilename.startswith('/') or self.imgfilename.startswith('./') \
+               or self.imgfilename.startswith('../'):
+            imgfilepathname = self.imgfilename
+        else:
+            # Otherwise, construct the full path to the file.  If we are running from the
+            # development directory, or otherwise not from a full path name, look at relative
+            # locations first.
+            if sys.argv[0].startswith('.'):
+                searchpath = ['.', '..', '../..']
+                for p in sys.path:
+                    searchpath.append(p)
+            else:
+                searchpath = sys.path
+            #print >>sys.stderr, "searchpath is %s" % str(searchpath)
+            for path in searchpath:
+                imgfilepathname = self.searchfor(path, 'image', self.imgfilename)
+                if imgfilepathname:
+                    break
+        if imgfilepathname:
+            inset = self.pWidth / 200.0
+            imgp = self.image(imgfilepathname,
+                                 self.pLeft+inset, self.pBottom+inset,
+                                 self.pWidth-2*inset, self.pHeight-2*inset)
+            if self.epstitle:
+                return self.title(self.epstitle) + imgp
+            else:
+                return imgp
+        else:
+            print >>sys.stderr, "Can't find %s" % self.imgfilename
+            return "%% -- Can't find %s\n" % self.imgfilename
+
+
+# ############################################################################################
+
+# A page whose content is made up of an EPS file.
+
+class EPSFilePage(PostscriptPage):
+
+    def __init__(self, dinfo, epsfilename, epstitle=None):
+        PostscriptPage.__init__(self, dinfo)
+        self.epsfilename = epsfilename
+        self.epstitle = epstitle
+
+    def body(self):
+        epsfilepathname = None
+        # If we are given a full or relative-to-pwd path to the file, use that.
+        if self.epsfilename.startswith('/') or self.epsfilename.startswith('./') \
+               or self.epsfilename.startswith('../'):
+            epsfilepathname = self.epsfilename
+        else:
+            # Otherwise, construct the full path to the file.  If we are running from the
+            # development directory, or otherwise not from a full path name, look at relative
+            # locations first.
+            if sys.argv[0].startswith('.'):
+                searchpath = ['.', '..', '../..']
+                for p in sys.path:
+                    searchpath.append(p)
+            else:
+                searchpath = sys.path
+            #print >>sys.stderr, "searchpath is %s" % str(searchpath)
+            for path in searchpath:
+                epsfilepathname = self.searchfor(path, 'eps', self.epsfilename)
+                if epsfilepathname:
+                    break
+        if epsfilepathname:
+            inset = self.pWidth / 200.0
+            epsp = self.embedEPS(epsfilepathname,
+                                 self.pLeft+inset, self.pBottom+inset,
+                                 self.pWidth-2*inset, self.pHeight-2*inset)
+            if self.epstitle:
+                return self.title(self.epstitle) + epsp
+            else:
+                return epsp
+        else:
+            print >>sys.stderr, "Can't find %s" % self.epsfilename
+            return "%% -- Can't find %s\n" % self.epsfilename
+
+
 # ############################################################################################
 
 # An empty page.
@@ -594,11 +854,10 @@ class EmptyPage(PostscriptPage):
 
 class VersionPage(PostscriptPage):
     def body(self):
-        fontSize = 2.4*self.di.pageHeight/210.0
+        fontSize = 2.2*self.di.pageHeight/210.0
         linex = fontSize*6
         s=""
-        versionString = self.postscriptEscape(
-            "Version: $Id: makediary.py 100 2003-12-26 04:01:35Z anonymous $")
+        versionString = self.postscriptEscape(versionNumber)
         dateString = self.postscriptEscape(DateTime.now() \
                                            .strftime("Generated at: %Y-%m-%dT%H:%M:%S%Z"))
         s = s + "% --- Version page\n" \
@@ -638,26 +897,34 @@ class CoverPage(PostscriptPage):
         picyprop = 0.8
         textycentre = (ytop-ybottom) * 0.66 + ybottom - textheight/2
         textxcentre = (xright-xleft)/2 + xleft
-        
+
+        if self.di.title is not None:
+            title = self.di.title
+        elif self.di.dtbegin.month==1 and self.di.dtbegin.day==1:
+            title = "%d" % self.di.dtbegin.year
+        else:
+            title = "%04d-%02d" % (self.di.dtbegin.year, (self.di.dtbegin.year+1) % 100)
+
         s =   "% --- cover page\n" \
             + "% border around the cover page\n" \
             + "%5.3f %5.3f %5.3f %5.3f %5.3f boxLBRT\n" % \
             (xleft,ybottom,xright,ytop,self.di.underlineThick) \
             + "/Times-Roman %d selectfont\n" % textheight \
-            + "% find half of the width of the year string\n" \
-            + "(%d) dup SW pop 2 div\n" % self.di.year \
+            + "% find half of the width of the title string\n" \
+            + "(%s) dup SW pop 2 div\n" % self.postscriptEscape(title) \
             + "% move that far left of the centre\n" \
             + "%5.2f exch sub %5.2f M SH\n" % (textxcentre,textycentre)
         if self.di.coverImage==None:
-            smileysize = self.di.coverTitleFontSize
-            smileyycentre = ((ytop-ybottom) * 0.33) + ybottom
-            smileyxcentre = textxcentre
-            s = s \
-                + "% a big smiley face\n" \
-                + ("%5.2f %5.2f M SA %5.2f dup SC\n" % \
-                   (smileyxcentre,smileyycentre,smileysize)) \
-                + self.smiley() \
-                + "RE\n"
+            if self.di.smiley:
+                smileysize = self.di.coverTitleFontSize
+                smileyycentre = ((ytop-ybottom) * 0.33) + ybottom
+                smileyxcentre = textxcentre
+                s = s \
+                    + "% a big smiley face\n" \
+                    + ("%5.2f %5.2f M SA %5.2f dup SC\n" % \
+                       (smileyxcentre,smileyycentre,smileysize)) \
+                    + self.smiley() \
+                    + "RE\n"
         else:
             picxsize = (xright-xleft) * picxprop
             picysize = (xright-xleft) * picyprop
@@ -708,7 +975,7 @@ class CalendarPage(PostscriptPage):
              + ("%5.3f %5.3f L " % (bleft,bbottom)) \
              + "gsave %5.3f setgray fill grestore S\n" % ((1.0+self.di.titleGray)/2.0,)
         s = s + bs
-        yr = self.di.dt.year
+        yr = self.di.dtbegin.year
         for yd in ((yr-1, left, bottom + yheight*2.0 + yvgap*2.5 ),
                    (yr,   left, bottom + yheight + yvgap*1.5),
                    (yr+1, left, bottom + yvgap*0.5)):
@@ -779,7 +1046,7 @@ class HalfCalendarPage(PostscriptPage):
 
         # Make a list detailing where the months are to go.  The list contains tuples of (year,
         # month, row, column).
-        y = self.di.dt.year
+        y = self.di.dtbegin.year
         if self.di.evenPage:
             months = ( (y-1, 1, 0, 0), (y-1, 2, 0, 1), (y-1, 3, 0, 2),
                        (y-1, 7, 1, 0), (y-1, 8, 1, 1), (y-1, 9, 1, 2),
@@ -834,8 +1101,8 @@ class PersonalInformationPage(PostscriptPage):
 
     def __init__(self, dinfo):
         PostscriptPage.__init__(self, dinfo)
-        self.linenum = 1                # 
-        self.linespacing = 0            # 
+        self.linenum = 1                #
+        self.linespacing = 0            #
         self.minlines = 20              # Required no of lines to fit in all our info
 
     def body(self):
@@ -855,7 +1122,7 @@ class PersonalInformationPage(PostscriptPage):
         s = s + "SA %5.3f %5.3f TR\n" % (self.pLeft,self.pBottom)
         fontsize = self.linespacing * 0.5
         s = s + "/%s %5.3f selectfont\n" % (self.di.subtitleFontName,fontsize)
-        
+
         s = s \
             + self.do1line("Name"              ,None       ,0) \
             + self.do1line("Phone"             ,"Mobile"   ,0) \
@@ -878,7 +1145,7 @@ class PersonalInformationPage(PostscriptPage):
 
         while self.linenum < nlines:
             s = s + self.do1line(None,None,0)
-        
+
         s = s + "RE\n"
         return s
 
@@ -917,7 +1184,7 @@ class PlannerPage(PostscriptPage):
     nondaygray = -1                     # Grey levels for day boxes
     weekendgray = -1
 
-    def __init__(self,year, startingmonth, nmonths, dinfo):
+    def __init__(self, year, startingmonth, nmonths, dinfo, doEvents):
         PostscriptPage.__init__(self, dinfo)
         self.nondaygray = self.di.titleGray
         self.weekendgray = (1.0+self.di.titleGray)/2.0
@@ -932,6 +1199,7 @@ class PlannerPage(PostscriptPage):
         self.fontsize = self.lineheight * 0.7
         self.textb = self.lineheight * 0.2
         self.titleboxThick = self.di.underlineThick / 2.0
+        self.doEvents = doEvents
 
 
     def dayColumn(self,l,b):
@@ -1008,8 +1276,8 @@ class PlannerPage(PostscriptPage):
                 s = s + "/%s %5.3f selectfont %5.3f %5.3f M (%d) SH\n" % \
                     (self.di.subtitleFontName, self.fontsize,
                      self.textb, dayb+self.textb, days[n])
-                # Fill in the short calendar event names, for the current year only
-                if self.year == self.di.year:
+                # Fill in the short calendar event names, if requested
+                if self.doEvents:
                     if eventlist is not None:
                         #sys.stderr.write("planner: events for %s: %s\n" % (str(dd),eventlist))
                         se = ""             # event list string
@@ -1020,37 +1288,31 @@ class PlannerPage(PostscriptPage):
                                     font = self.di.subtitleFontName + "-Oblique"
                                 else:
                                     font = self.di.subtitleFontName
+                                if event.has_key("small"):
+                                    eventFontSize = self.fontsize*0.3
+                                else:
+                                    eventFontSize = self.fontsize*0.6
                                 if len(se)==0:
                                     se = "/%s %5.3f selectfont (%s) SH " % \
-                                         (font, self.fontsize*0.6,
+                                         (font, eventFontSize,
                                           self.postscriptEscape(event["short"]))
                                 else: se = se + \
                                            "/%s %5.3f selectfont (, ) SH " % \
                                            (self.di.subtitleFontName, self.fontsize*0.6) + \
                                            "/%s %5.3f selectfont (%s) SH " % \
-                                           (font, self.fontsize*0.6,
+                                           (font, eventFontSize,
                                             self.postscriptEscape(event["short"]))
-                            
+
                         if len(se) != 0:
                             se = "%5.3f %5.3f M " %(self.lineheight*1.1, dayb+self.textb) + \
                                  se + "\n"
-                            s = s + se 
+                            s = s + se
 
-        # Do the month titles (top and bottom)
-        # Month name.  Needs to use locales.
-        if   month==1:  monthname="January"
-        elif month==2:  monthname="February"
-        elif month==3:  monthname="March"
-        elif month==4:  monthname="April"
-        elif month==5:  monthname="May"
-        elif month==6:  monthname="June"
-        elif month==7:  monthname="July"
-        elif month==8:  monthname="August"
-        elif month==9:  monthname="September"
-        elif month==10: monthname="October"
-        elif month==11: monthname="November"
-        elif month==12: monthname="December"
-        else:           monthname="Mon %d" % month
+        # Do the month titles (top and bottom). We attempt to make this localised, by using
+        # strftime(), but that doesn't appear to work, even with LANG and LC_TIME set in the
+        # environment.
+        monthname = DateTime.DateTime(2000,month).strftime("%B")
+
         for monthtb in (0.0, (self.lineheight*(self.nlines-1))):
             s = s + "0 %5.3f %5.3f %5.3f %5.3f %5.3f boxLBWHgray " % \
                 (monthtb,self.monthwidth,self.lineheight,self.titleboxThick,self.titlegray) \
@@ -1093,8 +1355,8 @@ class TwoPlannerPages:
         self.dinfo = dinfo
 
     def page(self):
-        return PlannerPage(self.year,1,6,self.dinfo).page() \
-               + PlannerPage(self.year,7,6,self.dinfo).page()
+        return PlannerPage(self.year,1,6,self.dinfo,False).page() \
+               + PlannerPage(self.year,7,6,self.dinfo,False).page()
 
 
 # ############################################################################################
@@ -1107,10 +1369,10 @@ class FourPlannerPages:
         self.dinfo = dinfo
 
     def page(self):
-        return PlannerPage(self.year,1,3,self.dinfo).page() \
-               + PlannerPage(self.year,4,3,self.dinfo).page() \
-               + PlannerPage(self.year,7,3,self.dinfo).page() \
-               + PlannerPage(self.year,10,3,self.dinfo).page()
+        return PlannerPage(self.year,1,3,self.dinfo,True).page() \
+               + PlannerPage(self.year,4,3,self.dinfo,True).page() \
+               + PlannerPage(self.year,7,3,self.dinfo,True).page() \
+               + PlannerPage(self.year,10,3,self.dinfo,True).page()
 
 
 # ############################################################################################
@@ -1147,7 +1409,7 @@ class AddressPage(PostscriptPage):
         for par in (("Name",self.left+self.namewidth/2.0),
                     ("Address",self.left+self.namewidth+self.addrwidth/2.0),
                     ("Telephone",self.left+self.namewidth+self.addrwidth+self.telewidth/2.0)):
-            
+
             s = s + "(%s) dup exch SWP2D %5.3f exch sub %5.3f M SH\n" % \
                 (par[0],par[1], titley)
         return s
@@ -1205,9 +1467,6 @@ class NotesPage(PostscriptPage):
 
 class ExpensePage(PostscriptPage):
 
-    monthnames = [ "January","February","March","April","May","June",
-                   "July","August","September","October","November","December"]
-
     inoutcolumnwidths = 0.2
 
     def __init__(self,month1,nmonths,dinfo):
@@ -1223,7 +1482,7 @@ class ExpensePage(PostscriptPage):
 
     def titleblock(self,month,ypos):
         s = "%% title block: month=%d ypos=%5.3f\n" % (month,ypos)
-        monthname = DateTime.DateTime(self.di.year,month).strftime("%B")
+        monthname = DateTime.DateTime(self.di.dtbegin.year,month).strftime("%B")
         if self.di.evenPage:
             titlex = self.pLeft + self.titleheight
             titley = ypos
@@ -1323,6 +1582,9 @@ class DiaryPage(PostscriptPage):
 
         if di.weekToOpening:
             self.dheight = self.pHeight_diary/4.0
+        elif di.dayToPage:
+            self.dheight = self.pHeight_diary * 0.9
+            self.bottomcalheight = self.pHeight_diary - self.dheight
         else:
             self.dheight = self.pHeight_diary/2.0
         self.dwidth = self.pWidth
@@ -1338,6 +1600,7 @@ class DiaryPage(PostscriptPage):
 
         # These are the settings that have the most effect on the layout of a day.
         if di.weekToOpening:
+            # Smaller boxes when we cram a week into two pages
             self.titleboxsize = di.lineSpacing * 1.2
         else:
             self.titleboxsize = di.lineSpacing * 1.4
@@ -1352,14 +1615,14 @@ class DiaryPage(PostscriptPage):
 
 
     def diaryDay(self):
-        
-        """Print a diary day in half a page.  At the point this is called, the graphics state
-        has already been translated so we can just draw straight into our patch."""
+
+        """Print a diary day in part of a page.  At the point this is called, the graphics
+        state has already been translated so we can just draw straight into our patch."""
 
         di = self.di
         dt = di.dt
 
-        s = "%%--- diary page half for %d-%02d-%02d\n" % (dt.year,dt.month,dt.day)
+        s = "%%--- diary day for %d-%02d-%02d\n" % (dt.year,dt.month,dt.day)
 
         # Find out if this is a holiday.
         dd = DateTime.DateTime(dt.year, dt.month, dt.day)
@@ -1381,7 +1644,7 @@ class DiaryPage(PostscriptPage):
             s = s + "0 %5.3f %5.3f %5.3f %5.3f boxLBWH\n" % \
                 (self.titleboxy, self.dwidth, self.titleboxsize, di.underlineThick)
 
-        # Print the day name as the half page header.
+        # Print the day name as the diary day header.
         s = s + "10 10 M /%s %5.2f selectfont " % (di.titleFontName, self.titlefontsize)
         dtext = dt.strftime("%A, %e %B") # %e seems to be undocumented
         if di.evenPage:
@@ -1428,7 +1691,7 @@ class DiaryPage(PostscriptPage):
         return s
 
     def drawAppointments(self):
-        """Draw the appointments box on the diary half-page."""
+        """Draw the appointments box on the diary day."""
         di = self.di
         s = ""
         # Adding and removing entries from this list will automatically adjust the number
@@ -1478,7 +1741,7 @@ class DiaryPage(PostscriptPage):
 
         # First find out whether we are printing any images for this day.  If so, move all the
         # text to the right, out of the way of the images.
-        if di.drawImages:
+        if di.drawEventImages:
             for i in range(nevents):
                 event = eventlist[i]
                 if event.has_key('image') \
@@ -1489,15 +1752,22 @@ class DiaryPage(PostscriptPage):
         for i in range(nevents):
             event = eventlist[i]
             # Print an image, unless this is a warning event.
-            if event.has_key('image') and di.drawImages \
+            if event.has_key('image') and di.drawEventImages \
                     and not (event.has_key('_warning') and event['_warning']):
                 s = s + self.image(event['image'],
                                    picx + 0.1*di.lineSpacing, y - yspace + 0.1*di.lineSpacing,
                                    1.8*yspace, 1.8*yspace)
-            if event.has_key('personal'):
-                s = s + '/%s-Oblique %5.3f selectfont\n' % (di.subtitleFontName, yspace*0.6)
+                imageDrawn = True
             else:
-                s = s + '/%s %5.3f selectfont\n' % (di.subtitleFontName, yspace*0.6)
+                imageDrawn = False
+            if event.has_key('small'):
+                eventFontSize = yspace*0.3
+            else:
+                eventFontSize = yspace*0.6
+            if event.has_key('personal'):
+                s = s + '/%s-Oblique %5.3f selectfont\n' % (di.subtitleFontName, eventFontSize)
+            else:
+                s = s + '/%s %5.3f selectfont\n' % (di.subtitleFontName, eventFontSize)
 
             if event.has_key('grey')  and  event['grey']:
                 s = s + "0.5 setgray "
@@ -1506,7 +1776,10 @@ class DiaryPage(PostscriptPage):
             s = s + "%5.3f %5.3f M" % (textx, y+(yspace*0.25))
             st = self.postscriptEscape(event['text'])
             s = s + ' (%s) SH 0 setgray\n' % st
-            y = y - yspace
+            if imageDrawn:
+                y = y - 2*yspace
+            else:
+                y = y - yspace
         return s
 
 
@@ -1574,7 +1847,14 @@ class DiaryPage(PostscriptPage):
             + "RE\n"
         return s
 
-    def calendarsAtTop(self):
+    def largeDayOnPage(self):
+        s = "% -- Day\n" \
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+self.bottomcalheight)) \
+            + self.diaryDay() \
+            + "RE\n"
+        return s
+
+    def titleAndThreeMonthsAtTop(self):
         """Print three calendars on the top half of a page."""
         di = self.di
         s = "%--- three calendars\n"
@@ -1582,7 +1862,7 @@ class DiaryPage(PostscriptPage):
         s = s + self.title(di.dt.strftime("%B %Y"),
                            "Week %d" % di.dt.iso_week[1])
         # Calculate the area we have for drawing.
-        if di.weekToOpening:
+        if di.weekToOpening or di.dayToPage:
             b = di.bMargin + self.pHeight_diary*0.75
         else:
             b = di.bMargin + self.pHeight_diary*0.5
@@ -1614,26 +1894,7 @@ class DiaryPage(PostscriptPage):
         s = s + "%% c_bottom=%5.3f c_height=%5.3f c_width=%5.3f c_totalwidth=%5.3f c_gutter=%5.3f\n" % \
               (c_bottom,c_height,c_width,c_totalwidth,c_gutter)
         for i in (-1,0,1):
-            # We hack around with the number of days we add or subtract to get into the next
-            # month depending on how far into the month we are.  The problem is that any fixed
-            # offset in days is going to be wrong for some day in some month.  Consider the
-            # case where Jan 31 is on a Monday, and therefore the calendars are being printed
-            # at the point where di.dt==Jan 31.  If we subtract less than a whole month's worth
-            # of days we will still be in January and will not print December's calendar, but
-            # if we add a whole month's worth of days, we will be in March.  So with a fixed
-            # number of days we have the choice of printing (Dec,Jan,Mar) or (Jan,Jan,Feb).
-            # Therefore we need to adjust the number of days for printing calendars at
-            # different parts of the month.
-            if di.dt.day < 10:
-                if    i==-1: c_d = di.dt - 15 * DateTime.oneDay
-                elif  i== 1: c_d = di.dt + 45 * DateTime.oneDay
-                else:        c_d = di.dt
-            elif di.dt.day < 20:
-                c_d = di.dt + 30 * DateTime.oneDay * i
-            else: # di.dt.day >= 20
-                if    i==-1: c_d = di.dt - 45 * DateTime.oneDay
-                elif  i== 1: c_d = di.dt + 15 * DateTime.oneDay
-                else:        c_d = di.dt
+            c_d = self.getOffsetMonth(self.di.dt, i)
             c_left = c_indent + (i+1)*(c_width+c_gutter)
             s = s +"%5.3f %5.3f M SA %5.3f %5.3f SC " % \
                 (c_left,c_bottom,c_width,c_height) \
@@ -1655,6 +1916,50 @@ class DiaryPage(PostscriptPage):
         return s
 
 
+    def getOffsetMonth(self, dt, offset):
+        '''Return a DateTime object corresponding to some time in the month indicated by the
+        integer offset from the current month.'''
+
+        if offset==0:
+            return dt
+        else:
+            # Base this from the middle of the month, so we don't get strange month skip
+            # effects when the current day is near the beginning or end of the month.
+            return DateTime.DateTime(dt.year, dt.month, 15) + 30.5 * DateTime.oneDay * offset
+
+
+    def sixMonthsAtBottom(self):
+        '''Print six months at the bottom of the page, Jan-Jun on the left (even) pages, and
+        Jul-Dec on the right (odd) pages.'''
+
+        if self.di.evenPage:
+            month = 1
+            s = "% -- Bottom calendars, months 1-6\n"
+        else:
+            month = 7
+            s = "% -- Bottom calendars, months 7-12\n"
+
+        # Find the year to print calendars for.  Consider what would happen when December 31 is
+        # on a left (even) page.  If we printed calendars for the current year on the bottom of
+        # the page, then the left page would have calendars for Jan-Jun in one year, and the
+        # right page would have calendars for Jul-Dec in the following year.  So normalise
+        # this, and always print calendars for the later year.
+        dty = self.di.dt + DateTime.oneDay
+
+        # Proportion of the month box to fill.
+        monthprop = 0.90
+
+        for i in range(0,6):
+            s = s + "%5.3f %5.3f M SA %5.3f %5.3f SC %s RE\n" % \
+                    (self.pLeft+(self.dwidth/6.0)*(i+((1.0-monthprop)/2.0)),
+                     self.pBottom + self.bottomcalheight*(1.0-monthprop)/2.0,
+                     (self.dwidth/6.0)*monthprop,
+                     self.bottomcalheight*monthprop,
+                     DateTime.DateTime(dty.year, month).strftime('%b%Y') )
+            month += 1
+        return s
+
+
     def drawMoon(self, x, y, size):
 
         """Draw a moon at (x,y), with the given size."""
@@ -1662,7 +1967,7 @@ class DiaryPage(PostscriptPage):
         di = self.di
         if not di.moon:
             return ""
-        
+
         # Calculate the current phase, and the previous and next day's phases
         dt = di.dt
         dty = di.dt - DateTime.oneDay
@@ -1686,7 +1991,7 @@ class DiaryPage(PostscriptPage):
 
         # In the southern hemisphere, a first quarter moon is light on the left, and a third
         # quarter moon is light on the right.
-        
+
         if quarter == self.mooncalc.MOON_NM:
             s = s + "%5.3f %5.3f %5.3f 0 360 arc fill %% new moon\n" % (x,y,radius) \
                 + "%5.3f %5.3f M (New) SH %5.3f %5.3f M (Moon) SH\n" % \
@@ -1709,14 +2014,16 @@ class DiaryPage(PostscriptPage):
 
     def body(self):
         s = ""
-        if self.di.dt.day_of_week == DateTime.Monday:
+        if self.di.dayToPage:
+            s = self.sixMonthsAtBottom() + self.largeDayOnPage()
+        elif self.di.dt.day_of_week == DateTime.Monday:
             if self.di.weekToOpening:
-                s = self.calendarsAtTop() +  \
+                s = self.titleAndThreeMonthsAtTop() +  \
                     self.printMondayWTO() + \
                     self.printTuesdayWTO() + \
                     self.printWednesdayWTO()
             else:
-                s = self.calendarsAtTop() + self.bottomHalf();
+                s = self.titleAndThreeMonthsAtTop() + self.bottomHalf();
         else:
             if self.di.weekToOpening:
                 s = self.printThursdayWTO() + \
@@ -1746,7 +2053,7 @@ class Diary:
                                                  DateTime.now().strftime("%Y-%m-%dT%H%M%S%Z")))
         p = p + "%%BeginProlog\n" \
             + "%%%%Creator: %s, by Russell Steicke, version: %s\n" % \
-            (self.di.myname,"$Id: makediary.py 100 2003-12-26 04:01:35Z anonymous $") \
+            (self.di.myname,versionNumber) \
             + DateTime.now().strftime("%%%%CreationDate: %a, %d %b %Y %H:%M:%S %z\n")
         p = p + "%%DocumentNeededResources: font Times-Roman\n" \
             "%%+ font Times-Bold\n%%+ font Helvetica\n%%+ font Helvetica-Oblique\n" \
@@ -1862,9 +2169,9 @@ class Diary:
         names will print the corresponding calendar with its bottom left corner at
         currentpoint.  The calendar will be 1 unit high and 1 unit wide.  Change the size of
         these calendars by calling scale before calling the calendar procedure"""
-        
+
         p = self.di.sectionSep
-        y = self.di.year
+        y = self.di.dtbegin.year
         a7 = 142.86                     # 1000/7
         a8 = 125.0                      # 1000/8
         p = p + "/calendars 100 dict dup begin\n"
@@ -1921,14 +2228,27 @@ class Diary:
         else:
             w( EmptyPage(di).page() )
         w( PersonalInformationPage(di).page() )
+
+        # Print image pages, if there are any, and end on a new opening.
+        for imagePageImage in di.imagePageImages:
+            w( ImageFilePage(di, imagePageImage, basename(imagePageImage)).page() )
+        if di.evenPage:
+            self.w( EmptyPage(di).page() )
+
         w( TwoCalendarPages(di).page() )
         # Ensure that the planner pages are on facing pages.
         if di.nPlannerYears > 0:
             if di.evenPage:
                 self.w( EmptyPage(di).page() )
-            w( FourPlannerPages(di.year, di).page() )
-            for i in range(1, di.nPlannerYears):
-                w( TwoPlannerPages(di.year+i, di).page() )
+            w( FourPlannerPages(di.dtbegin.year, di).page() )
+            if di.dtbegin.month==1 and di.dtbegin.day==1:
+                for i in range(1, di.nPlannerYears):
+                    w( TwoPlannerPages(di.dtbegin.year+i, di).page() )
+            else:
+                w( FourPlannerPages(di.dtbegin.year+1, di).page() )
+                for i in range(2, di.nPlannerYears):
+                    w( TwoPlannerPages(di.dtbegin.year+i, di).page() )
+
 
         for i in range(di.nAddressPages):
             w( AddressPage(di).page() )
@@ -1936,12 +2256,23 @@ class Diary:
         # Ensure we start the expense pages on an even page
         if di.evenPage:
             if di.nAddressPages != 0:
-                w( AddressPAge(di).page() )
+                w( AddressPage(di).page() )
             else:
                 w( EmptyPage(di).page() )
 
         w( TwoExpensePages().page(di) )
         #self.w( FourExpensePages().page(di) )
+
+        if di.vimRef:
+            w( EPSFilePage(di, "vi-ref/vi-ref.eps", "Vi reference").page() )
+            w( EPSFilePage(di, "vi-ref/vi-back.eps", "Vim extensions").page() )
+        if di.unixRef:
+            w( EPSFilePage(di, "unix-ref.eps", "Unix reference").page() )
+        if di.shRef:
+            w( EPSFilePage(di, "sh-ref.eps", "Shell and utility reference").page() )
+        for epsPageFile in di.epsPageFiles:
+            w( EPSFilePage(di, epsPageFile, '').page() )
+
         for i in range(di.nNotesPages):
             w( NotesPage(di).page() )
 
@@ -1957,9 +2288,9 @@ class Diary:
             else:
                 w( EmptyPage(di).page() )
 
-        # Print diary pages until we see the next year
+        # Print diary pages until we see the end date
         while 1:
-            if di.dt.year == di.year+1:
+            if di.dt >= di.dtend:
                 break
             w( DiaryPage(di).page() )
 
@@ -1995,7 +2326,14 @@ def go(myname, opts):
     d.diary()
 
 if __name__=='__main__':
-    go(sys.argv[0], sys.argv[1:])
+    try:
+        go(sys.argv[0], sys.argv[1:])
+    except IOError, reason:
+        if reason.errno == EPIPE:
+            sys.exit(1)
+        else:
+            raise
+
 
 # This section is for emacs.
 # Local variables: ***

@@ -1,7 +1,5 @@
 #!/bin/sh
 
-# $Id: make-deb 73 2003-06-07 09:52:09Z  $
-
 # Make the debian package.  This must be run from within the source
 # directory.
 
@@ -29,12 +27,23 @@ mkdir -p $_DEB_BUILD_DIR
 find .    -name '{arch}' -prune \
        -o -name .arch-ids -prune \
        -o -name ',*' -prune \
+       -o -name dist -prune \
+       -o -name dist-deb -prune \
        -o -type f -print0 \
    | tar cf - -T - --null \
    | ( cd $_DEB_BUILD_DIR  &&  tar xvf - )
 
 cd $_DEB_BUILD_DIR
 ./make-man
+
+cd eps
+./compile-unix-ref
+./compile-sh-ref
+cd vi-ref
+./compile-vi-ref
+./compile-vi-back
+cd ../..
+
 fakeroot dpkg-buildpackage -uc -us
 
 cd $_SRC_DIR

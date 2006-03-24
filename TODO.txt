@@ -267,7 +267,7 @@ that really does use rpm.
 There doesn't appear to be a bdist_deb distutils target.  Bummer.
 
 
-* Add "halfletter" page size.
+* Add "halfletter" page size.  DONE.
 
 This could be useful for people wanting to print two pages on letter sized
 paper.  (This is not necessary for A or B series sizes, as each of those is
@@ -279,10 +279,10 @@ exactly half the size of the previous size in the same series.)
 Plain examples with use of the options.
 
 An example using "halfletter" paper size, then arranging the pages into a
-book with pstops.
+book with pstops.  DONE.
 
 
-* Print reasonable version numbers.
+* Print reasonable version numbers.  DONE.
 
 Make ``makediary --version'' print the version number (not the svn
 dollar-Id-dollar string.)
@@ -342,4 +342,6 @@ At runtime, specify a file that contains a description of the diary layout that
 we wish to generate.  It should contain short (one line) descriptions of the
 page groups.
 
+
+* Allow starting the year on an arbitrary day.  DONE.
 

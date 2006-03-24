@@ -1,0 +1,200 @@
+\documentclass{article}
+% Copyright 2002-2004 Donald Bindner
+% Copyright      2004 Russell Steicke
+% Permission is granted to copy, distribute and/or modify this
+% document under the terms of the GNU Free Documentation License,
+% Version 1.1 or any later version published by the Free Software
+% Foundation.
+
+\usepackage{multicol}
+
+\setlength{\textheight}{11 in}
+\setlength{\textwidth}{7.5 in}
+\setlength{\hoffset}{-2 in}
+\setlength{\voffset}{-1 in}
+\setlength{\footskip}{12 pt}
+\setlength{\oddsidemargin}{1.5 in}
+\setlength{\evensidemargin}{1.5 in}
+\setlength{\topmargin}{13 pt}
+\setlength{\headheight}{12 pt}
+\setlength{\headsep}{0 in}
+
+\setlength{\parindent}{0 in}
+
+\ifx \pdfpagewidth \undefined
+\else
+ \pdfpagewidth=11in    % page width of PDF output
+ \pdfpageheight=8.5in  % page height of PDF output
+\fi
+
+\newcommand{\ctrl}{C-}
+
+\begin{document}
+\thispagestyle{empty}
+\fontsize{9}{10}\selectfont
+
+\newcommand{\cmd}[2]{#1 \hfill \texttt{#2}\par}
+\newcommand{\head}[1]{{\large\textbf{#1}}\\}
+
+\begin{multicols}{2}
+%{\Large Unix commands}
+
+%\vskip 15pt
+
+\vbox{\head{Getting help}
+Yes, there is help available.\par
+\vskip 5pt
+\cmd{Search the man pages for a keyword}{man -k {\it word}}
+\cmd{Read the man page for a subject}{man {\it subject}}
+\cmd{Read a man page in a particular section}{man {\it n} {\it subject}}
+\cmd{(Man sections: 1=User~commands 2=System~calls 3=Functions 5=File~formats
+8=Admin~commands)}{}
+\cmd{Info system (mostly for programs from the GNU project)\par}%
+{info {\it subject}}
+\cmd{Many programs take a {\tt -h} or {\tt --help} option.}{}
+}
+
+\vskip 10pt
+
+\vbox{\head{Directory navigation}
+Moving around the file system.\par
+\vskip 5pt
+\cmd{Where am I?}{pwd}
+\cmd{Change directory}{cd {\it dir}}
+\cmd{Go to home directory}{cd}
+\cmd{Up one level}{cd ..}
+\cmd{Return to prev dir}{cd -}
+}
+
+\vskip 10pt
+
+\vbox{\head{Directory listing}
+Listing files in your file system.\par
+\vskip 5pt
+\cmd{Basic file listing}{ls}
+\cmd{File listing including hidden (dot) files}{ls -a}
+\cmd{Long listing (includes time, owner, etc)}{ls -l}
+\cmd{List including char for file type}{ls -F}
+\cmd{View directory, not its contents}{ls -d}
+}
+
+\vskip 10pt
+
+\vbox{\head{Finding files}
+Finding files and operating on the files you do find.\par
+\vskip 5pt
+\cmd{Find files named {\it pattern}}{find {\it dir} -name {\it pattern}}
+\cmd{Find files, run command on them\par}%
+{find {\it dir} -name {\it pattern} | xargs {\it command}}
+}
+
+\vskip 10pt
+
+\vbox{\head{Date and time}
+Find and set the current date and time, and get run time of commands.\par
+\vskip 5pt
+\cmd{Show the current date and time}{date}
+\cmd{Show the current date and time in UTC}{date -u}
+\cmd{Show date and time in RFC822 format}{date -R}
+\cmd{Show date and time in specified format}{date +{\it spec}}
+\cmd{}{date +\%Y\%m\%d {$=>$} 20041004}
+\cmd{Set the system date and time (root only)}{date -s {\it datespec}}
+\cmd{Show run time summary when command completes\par}{time {\it command}}
+}
+
+\vskip 10pt
+
+\vbox{\head{Managing free space}
+Commands to find out how much space is used or free.\par
+\vskip 5pt
+\cmd{List space used on mounted file systems}{df}
+\cmd{List space used on one file system}{df \it filesystem}
+\cmd{List space used in human-readable format}{df -h}
+\cmd{List space used in a directory}{du \it dir}
+\cmd{Summary of space used in a directory}{du -s \it dir}
+\cmd{Summary in human-readable format}{du -hs \it dir}
+}
+
+\vskip 10pt
+
+\vbox{\head{File system management}
+Commands to mount, unmount and check file systems.\par
+\vskip 5pt
+\cmd{Mount a file system listed in fstab}{mount \it filesystem}
+\cmd{}{mount \it device}
+\cmd{Mount a file system}{mount -t {\it fstype} {\it device} {\it dir}}
+\cmd{Unmount a mounted file system}{umount \it filesystem}
+\cmd{Check an unmounted file system}{fsck -t {\it type} {\it device}}
+\cmd{Create a file system on a device}{mkfs -t {\it type} {\it device}}
+\cmd{List space used in human-readable format}{df -h}
+\cmd{List space used in a directory}{du \it dir}
+\cmd{Summary of space used in a directory}{du -s \it dir}
+}
+
+\vskip 10pt
+
+\vbox{\head{Managing users}
+Commands to manage users and passwords.\par
+\vskip 5pt
+\cmd{Change your own password}{passwd}
+\cmd{Change password for a user (root only)}{passwd \it username}
+\cmd{Change user id}{su \it username}
+\cmd{Change user id, run login shell}{su - \it username}
+\cmd{Change user id to root}{su}
+\cmd{Run single command as root}{sudo \it command}
+\cmd{Run single command, with shell redirection (your shell is running as you,
+so it may not be able to open some files to do redirections)\par}%
+{sudo sh -c '{\it command} > {\it f}'}
+}
+
+\vskip 10pt
+
+\vbox{\head{Editors}
+Text editors.\par
+\vskip 5pt
+\cmd{Visual editor, available everywhere}{vi [{\it filename}]}
+\cmd{Vi IMproved, on most GNU/Linux systems}{vim}
+\cmd{Emacs, has a kitchen sink and also a text editor}{emacs}
+\cmd{Simpler text editor, from pine}{pico}
+\cmd{Pico clone}{nano}
+}
+
+\vskip 10pt
+
+\vbox{\head{Archiving}
+Commands to archive files and directories.\par
+\vskip 5pt
+\cmd{Create a tar archive}{tar cf {\it archivefile.tar} {\it dirs}}
+\cmd{Extract contents of a tar archive}{tar xf {\it archivefile.tar}}
+\cmd{Create a compressed tar archive}{tar czf {\it archivefile.tar.gz} {\it dirs}}
+\cmd{Copy a directory tree\par}%
+{( cd {\it src} \&\& tar cf - . ) | ( cd {\it dest} \&\& tar xf -)}
+}
+
+\vskip 10pt
+
+\vbox{\head{Mail}
+Commands to send and read mail.  The Unix facilities for reading mail are
+surprisingly rich, and often much more convenient than graphical mail
+readers.\par
+\vskip 5pt
+\cmd{Send mail from command line}{mail -s {\it subject} {\it recipients}}
+\cmd{}{{\it commands} | mail -s {\it subject} {\it recipients}}
+\cmd{Popular text mode mail reader}{mutt}
+\cmd{Send mail with mutt from command line\par}%
+{echo hello | mutt -x -s {\it subject} [-a {\it file}] {\it recipients}}
+\cmd{Older (non-free) text mode mail reader}{pine}
+}
+
+\vskip 10pt
+
+\end{multicols}
+
+\vspace{\fill}
+\copyright 2002-2004 Donald J.\ Bindner,
+\copyright 2004 Russell Steicke
+-- licensed under the terms of the GNU
+Free Documentation License version 1.1 or later.
+\end{document}
+
+

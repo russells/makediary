@@ -8,27 +8,7 @@ B<makediary --help>
 
 B<makediary --version>
 
-B<makediary>
-B<[--address-pages=I<n>>]>
-B<[--colour]>
-B<[--cover-image=I<imagefile>]>
-B<[--debug-boxes]>
-B<[--debug-version]>
-B<[--debug-whole-page-boxes]>
-B<[--line-spacing=I<d>]>
-B<[--moon]>
-B<[--notes-pages=I<n>]>
-B<[--output-file=I<filename>]>
-B<[--page-size=I<pagesize>]>
-B<[--page-registration-marks]>
-B<[--page-x-offset=I<x>]>
-B<[--page-y-offset=I<y>]>
-B<[--paper-size=I<papersize>]>
-B<[--planner-years=I<n>]>
-B<[--week-to-opening]>
-B<[--weeks-after=I<N>]>
-B<[--weeks-before=I<N>]>
-B<[--year=I<year>]>
+B<makediary> I<[options]>
 
 =head1 DESCRIPTION
 
@@ -61,7 +41,13 @@ When printing images, output colour PostScript.
 =item --cover-image=I<imagefile>
 
 Print I<imagefile> on the cover of the diary, centred and below the year.
-The image will be scaled to fit inside a box across the page.
+The image will be scaled to fit inside a box across the page, and will replace
+the smiley.
+
+=item --day-to-page
+
+Print one day to each page.  A year's worth of month calendars will be printed
+across the bottom of each opening in the day pages.
 
 =item --debug-boxes
 
@@ -78,9 +64,20 @@ version number.
 
 Around each diary page (not each sheet of paper), draw a faint box.
 
+=item --event-images
+
+Print images next to events, where they are specified.  If this is not
+specified, the events will be printed without images.
+
 =item --help
 
 Display a usage message and exit.
+
+=item --image-page=IMAGE
+
+Display an image maximised onto a page.  This can be specified multiple times.
+The images specified will be printed on consecutive pages immediately after the
+personal information page.
 
 =item --line-spacing=I<d>
 
@@ -90,6 +87,11 @@ floating point number.
 =item --moon
 
 Print pictures of phases of the moon in the title of the day at each phase.
+
+=item --no-smiley
+
+Don't print the smiley on the front cover.  The smiley also won't be printed if
+a cover image is specified.
 
 =item --notes-pages=I<n>
 
@@ -133,9 +135,27 @@ paper sizes.
 Print I<n> two-page planner years, starting with the diary year.  Defaults
 to 2, ie the diary year and the following year.
 
+=item --sh-ref
+
+Print the Unix shell reference page.
+
+=item --start-date=I<yyyy-mm-dd>
+
+Start the diary on the specified date.  The date must be in yyyy-mm-dd
+format.  If both B<--start-date> and B<--year> are both specified, the last
+one specified will take precedence.
+
+=item --unix-ref
+
+Print the Unix commands reference page.
+
 =item --version
 
 Output version information and exit.
+
+=item --vim-ref
+
+Print the vi and vim reference pages.
 
 =item --week-to-opening
 
@@ -156,13 +176,15 @@ Ensure that the diary covers I<N> complete weeks before the specified year.
 
 =item --year=I<year>
 
-Print a diary for that year.  Defaults to next year.
+Print a diary for that year.  Defaults to next year.  If both B<--year> and
+B<--start-date> are both specified, the last one specified will take
+precedence.
 
 =back
 
 =head1 PCAL(1) F<.calendar> FILE
 
-B<makediary> finds a F<.calendar> file, it is parsed to find events to
+If B<makediary> finds a F<.calendar> file, it is parsed to find events to
 print on particular days.  The file is in the same format as used by
 pcal(1), with some extensions.
 
@@ -221,8 +243,8 @@ extension format specified below.
 =item B<<<< #<<warn:I<n>I<day(s)>|I<week(s)>|I<month(s)>>> >>>>
 
 Print a warning in lighter text, I<n> days, weeks or months before the
-event.  The text printed will be prefixed by "\fBWarning:\fP", and suffixed
-by the date of the event.
+event.  The text printed will be surrounded by parentheses and suffixed
+by the date of the event, ie I<(Erin's 12th birthday -- Mar 07)>.
 
 =back
 
@@ -233,9 +255,59 @@ B<%>-sequences.  The following sequences are available:
 
 =over
 
+=item B<%A>
+
+Week day name (same as strftime(3)).
+
+=item B<%a>
+
+Abbreviated week day name (same as strftime(3)).
+
+=item B<%B>
+
+Full month name (same as strftime(3)).
+
+=item B<%b>
+
+Abbreviated month name (same as strftime(3)).
+
+=item B<%d>
+
+Day of month, 1 to 31.  If preceded by B<0>, ie B<%0d>, the month is printed as
+01 to 31, same as strftime(3).
+
+=item B<%j>
+
+Day of year as decimal number (same as strftime(3)).  Three digits if B<%0j>.
+
+=item B<%l>
+
+Days remaining in the year.  Three digits if B<%0l>.
+
+=item B<%m>
+
+Month number, 01 to 12 (same as strftime(3)).
+
 =item B<%N>
 
-Substitute the number of years since the event.
+The number of years since the event.  If preceded by B<o>, ie B<%oN>, the
+number will be printed as an ordinal, ie B<14th> instead of B<14>.
+
+=item B<%U>
+
+The week number of the current week (same as strftime(3)).
+
+=item B<%Y>
+
+Four digit year (same as strftime(3)).
+
+=item B<%y>
+
+Two digit year (same as strfimte(3)).
+
+=item B<%%>
+
+Literal %.
 
 =back
 
@@ -245,7 +317,8 @@ Substitute the number of years since the event.
 
 =item *
 
- 1-1 Joe Bloggs' %oN birthday #<<image:joebloggs.jpg>> #<<year:1872>>
+ 1-1 Joe Bloggs' %oN birthday #<<image:joebloggs.jpg>> \
+                              #<<year:1872>>
 
 Print Joe's birthday, with a picture of Joe, and substitute his age, as an
 ordinal.  In 2001, this will say "Joe Bloggs' 129th birthday".
@@ -258,34 +331,37 @@ ordinal.  In 2001, this will say "Joe Bloggs' 129th birthday".
 
 =item Two pages on letter paper
 
- makediary --page-size=half-letter | psselect -p2- | \
-    pstops -p letter '2:0L(8.5in,0)+1L(8.5in,5.5in)'  > out.ps
+ makediary --page-size=half-letter | \
+ psselect -p2- | \
+ pstops -p letter '2:0L(8.5in,0)+1L(8.5in,5.5in)'  \
+ > out.ps
 
 =back
 
 =head1 BUGS
 
-The F<.calendar> format is really ugly.  It should really have a better way
-of specifying events etc.  The backward compatibility with pcal(1) is not
-as useful as I imagined it would be.  Two ideas are to use a simple
-database format (perhaps nosql(1)), or use the user's palm data, exported
-from evolution(1) or somewhere.
+The extensions to the F<.calendar> format are really ugly.  There should really
+be a better way of specifying events etc.  The backward compatibility with
+pcal(1) is not as useful as I imagined it would be.  Two ideas are to use a
+simple database format (perhaps nosql(1)), or use the user's palm data,
+exported from evolution(1) or somewhere.
 
 =head1 AUTHOR
 
-Written by Russell Steicke <russells@adelie.cx>
+Russell Steicke <russells@adelie.cx>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2002 Russell Steicke.  Released under the terms of the GNU
-General Public License.
+Copyright (C) 2002-2004 Russell Steicke.  Released under the terms of the GNU
+General Public License, but dedicated to the public domain at the beginning of
+the tenth calendar year after publishing (ie the start of 2016 for version 0.2.1).
 
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 =head1 VERSION
 
-$Id: makediary.pod 87 2003-11-30 14:27:06Z anonymous $
+0.2.1
 
 =head1 SEE ALSO
 

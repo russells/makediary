@@ -1,0 +1,167 @@
+\documentclass{article}
+% Copyright 2002-2004 Donald Bindner
+% Copyright      2004 Russell Steicke
+% Permission is granted to copy, distribute and/or modify this
+% document under the terms of the GNU Free Documentation License,
+% Version 1.1 or any later version published by the Free Software
+% Foundation.
+
+\usepackage{multicol}
+
+\setlength{\textheight}{11 in}
+\setlength{\textwidth}{7.5 in}
+\setlength{\hoffset}{-2 in}
+\setlength{\voffset}{-1 in}
+\setlength{\footskip}{12 pt}
+\setlength{\oddsidemargin}{1.5 in}
+\setlength{\evensidemargin}{1.5 in}
+\setlength{\topmargin}{13 pt}
+\setlength{\headheight}{12 pt}
+\setlength{\headsep}{0 in}
+
+\setlength{\parindent}{0 in}
+
+\ifx \pdfpagewidth \undefined
+\else
+ \pdfpagewidth=11in    % page width of PDF output
+ \pdfpageheight=8.5in  % page height of PDF output
+\fi
+
+\newcommand{\ctrl}{C-}
+
+\begin{document}
+\thispagestyle{empty}
+\fontsize{9}{10}\selectfont
+
+\newcommand{\cmd}[2]{#1 \hfill \texttt{#2}\par}
+\newcommand{\head}[1]{{\large\textbf{#1}}\\}
+
+\begin{multicols}{2}
+%{\Large Unix commands}
+
+%\vskip 15pt
+
+\vbox{\head{Environment variables}
+Setting and using environment variables.  The shell keeps these internally,
+unless you export them, in which case they are then also available to child
+processes.\par
+\vskip 5pt
+\cmd{Setting a variable.  {\it value} must be quoted if it contains white space
+or shell metachars.}{VAR={\it value}}
+\cmd{Getting a variable's value}{\$VAR {\rm or} "\$VAR"}
+\cmd{Export a varialbe to sub-processes}{export VAR}
+\cmd{Expand shell script arguments separately}{"\$@"}
+\cmd{Substitute default value if {\tt VAR} is unset}{\$\{VAR:-{\it default}\}}
+\cmd{Assign substitute value if {\tt VAR} is unset}{\$\{VAR:={\it default}\}}
+\cmd{Assign shell variable array}{A=({\it element1} {\it element2} ...)}
+\cmd{Subscript shell array}{\$\{A[{\it n}]\}}
+\cmd{Expand entire array}{\$\{A[*]\}}
+\cmd{Expand array, quoting each element separately}{"\$\{A[@]\}"}
+}
+
+\vskip 10pt
+
+\vbox{\head{Shell settings}
+Ways to change the behaviour of the shell.
+\vskip 5pt
+\cmd{Make shell exit if any command exits non-0}{set -e}
+\cmd{Echo every command before executing it}{set -x}
+\cmd{Enable vi-like or emacs-like command line editing\par}%
+{set -o vi{\rm , } set -o emacs}
+\cmd{Set command line args (useful in shell scripts in combination with
+{\it getopt(1)} or the getopts builtin)}{set -- {\it args}}
+}
+
+\vskip 10pt
+
+\vbox{\head{Shell hints}
+Hints for using the shell.  Here are some of the constructs that let you create
+powerful shell programs, and they can all be used on the command line.\par
+\vskip 5pt
+\cmd{Run command in background}{{\it command} \&}
+\cmd{Redirect output}{{\it command} > {\it file}}
+\cmd{Redirect input}{{\it command} < {\it file}}
+\cmd{Redirect output and error output}{{\it command} >{\it file} 2>\&1}
+\cmd{Run command2 only if command1 succeeds (0 exit status)\par}%
+{{\it command1} \&\& {\it command2}}
+\cmd{Run command2 only if command1 fails (non-0 exit status)\par}%
+{{\it command1} || {\it command2}}
+\cmd{Force a command to succeed}{{\it command} || :}
+\cmd{Run commands in subshell}{( {\it commands} )}
+\cmd{Pipe between two subshells}{( {\it commands} ) | ( {\it commands} )}
+\cmd{Substitute command output}{` {\it command} ` {\rm or} \$( {\it command} )}
+\cmd{Shell arithmetic}{\$((3*4))}
+\cmd{}{p=7 ; echo \$((p+9))}
+}
+
+\vskip 10pt
+
+\vbox{\head{Shell programming}
+More shell programming constructs.  These are mostly useful in scripts, but
+they can also be used on the command line.  (PS Don't use the C shell for shell
+programming.)
+\vskip 5pt
+\cmd{Conditional code with test\par}%
+{if [ {\it test} ] ; then {\it commands} ; fi}
+\cmd{Tests:}{}
+\cmd{Name exists and is a file}{-f {\it name}}
+\cmd{File or directory is readable}{-r {\it file}}
+\cmd{File or directory is writable}{-w {\it file}}
+\cmd{Name exists and is a directory}{-d {\it name}}
+\cmd{String is zero length}{-z {\it string}}
+\cmd{String is non-zero length}{-n {\it string}}
+\cmd{String comparison, case sensitive (Use {\tt [ "x\$FOO" == "xBAR" ]}
+in case a string starts with '{\tt -}')}%
+{{\it string1} == {\it string2}}
+\cmd{}{{\it string1} != {\it string2}}
+\cmd{Number comparison}{{\it number1} -eq {\it number2}}
+\cmd{\ \ and also}{-ne -lt -gt -le -ge}
+\cmd{Looping}{while {\it test} ; do {\it commands} ; done}
+\cmd{Selecting alternatives\par}%
+{case {\it word} in {\it words} ; {\it pattern}) {\it commands} ;; esac}
+}
+
+\vskip 10pt
+
+\vbox{\head{Awk}
+Like perl, only smaller and faster.
+\vskip 5pt
+\cmd{Print the {\it n}th word on every line}{awk '\{print \${\it n}\}'}
+}
+
+\vskip 10pt
+
+\vbox{\head{Sed}
+The stream editor.  Performs operations on its input stream, transforms to its
+output stream.
+\vskip 5pt
+\cmd{Substitute first occurrence of {\it text1} with {\it text2} on each
+line\par}{sed 's/{\it text1}/{\it text2}/'}
+}
+
+\end{multicols}
+
+\vbox{\head{Examples}
+Some examples of shell script fragments.  In these examples, '{\tt ;}' can be
+replaced with newline in your own scripts.
+\vskip 5pt
+\cmd{Find all files newer than one day that contain a particular word}%
+{find . -type f -mtime -1 -print0 | xargs -0 grep {\it word}}
+\cmd{Print your {\tt \$PATH} variable readably}%
+{echo \$PATH |awk -F : '\{for (i=1;i<=NF;i++)print \$i\}'}
+\cmd{Print the environment variables for a particular process (specific to
+Linux kernel with /proc filesystem)\par}%
+{< /proc/{\it pid}/environ xargs -0 -n 1 echo}
+\cmd{Output a single quote in a single-quoted string}{'abc'"'"'def'}
+\cmd{Output a double quote in a double-quoted string}%
+{"abc$\backslash$"def" {\rm or} "abc"'"'"def"}
+}
+
+\vspace{\fill}
+\copyright 2002-2004 Donald J.\ Bindner,
+\copyright 2004 Russell Steicke
+-- licensed under the terms of the GNU
+Free Documentation License version 1.1 or later.
+\end{document}
+
+

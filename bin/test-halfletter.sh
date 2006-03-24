@@ -4,8 +4,6 @@
 # letter sized page, and post-processed with pstops so it prints like
 # a book.
 
-# $Id: test-halfletter.sh 70 2003-01-13 17:24:07Z anonymous $
-
 # This expects to be run from the makediary source directory, ie you
 # run 'bin/test-halfletter.sh'.
 
