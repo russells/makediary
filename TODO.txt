@@ -304,6 +304,10 @@ and then runs makediary and sends the output somewhere?
 
 This is a bit bigger than some of the other todo items in here... :)
 
+An idea: make a wxPython (or wxgtk) app, perhaps a tab panel.  Allow the user
+to select lots of diary parameters in the tabs, and have a "go" button at the
+bottom.  At go, we generate the diary and run gv on the output.
+
 
 * Remove the duplicate list of month names.
 
@@ -344,4 +348,11 @@ page groups.
 
 
 * Allow starting the year on an arbitrary day.  DONE.
+
+
+* Add options to position the page on the paper.
+
+This will make it easier to print small pages on larger paper, by allowing the
+position of the pages to be specified in advance, and not having to move them
+around later with pstops.
 
