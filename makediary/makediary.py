@@ -4,7 +4,7 @@
 
 # Print a year diary.
 
-versionNumber = "0.2.1"
+versionNumber = "0.2.2"
 
 import sys
 import getopt
@@ -48,6 +48,7 @@ class DiaryInfo:
                "event-images",
                "help",
                "image-page=",
+               "large-planner",
                "line-spacing=",
                "margins-multiplier=",
                "moon",
@@ -81,7 +82,7 @@ class DiaryInfo:
                   "    [--colour] [--cover-image=file] [--day-to-page]\n",
                   "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
                   "    [--eps-page=epsfile] [--event-images] [--image-page=IMAGEFILE]\n",
-                  "    [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
+                  "    [--large-planner] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
                   "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
                   "    [--page-y-offset=Ymm] [--planner-years=n] \n",
@@ -148,6 +149,7 @@ class DiaryInfo:
         self.nAddressPages = 6          # Default
         self.nNotesPages = 6            #
         self.nPlannerYears = 2          #
+        self.largePlanner = False       # Default: no large planner
         self.coverImage = None          # Pic for the cover page.
         self.appointments = False       # Different "styles" for different people.
         self.appointmentTimes = True    # Print appointment times or not
@@ -214,6 +216,8 @@ class DiaryInfo:
                 self.usage(sys.stdout)
             elif opt[0] == "--image-page":
                 self.imagePageImages.append(opt[1])
+            elif opt[0] == "--large-planner":
+                self.largePlanner = True
             elif opt[0] == "--line-spacing":
                 self.lineSpacing = self.floatOption("line-spacing",opt[1])
             elif opt[0] == "--margins-multiplier":
@@ -1377,6 +1381,21 @@ class FourPlannerPages:
 
 # ############################################################################################
 
+class TwelvePlannerPages:
+    """Print twelve planner pages (one for each month) for one year."""
+
+    def __init__(self, year, dinfo):
+        self.year = year
+        self.dinfo = dinfo
+
+    def page(self):
+        page = ""
+        for month in range(1,13): # month numbers are one based
+            page += PlannerPage(self.year,month,1,self.dinfo,True).page()
+        return page
+
+# ############################################################################################
+
 class AddressPage(PostscriptPage):
 
     naddresses = 10                     # Per page
@@ -2240,7 +2259,10 @@ class Diary:
         if di.nPlannerYears > 0:
             if di.evenPage:
                 self.w( EmptyPage(di).page() )
-            w( FourPlannerPages(di.dtbegin.year, di).page() )
+            if di.largePlanner:
+                w( TwelvePlannerPages(di.dtbegin.year, di).page() )
+            else:
+                w( FourPlannerPages(di.dtbegin.year, di).page() )
             if di.dtbegin.month==1 and di.dtbegin.day==1:
                 for i in range(1, di.nPlannerYears):
                     w( TwoPlannerPages(di.dtbegin.year+i, di).page() )
