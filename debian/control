@@ -2,12 +2,12 @@ Source: makediary
 Section: utilities
 Priority: optional
 Maintainer: Russell Steicke <russells@adelie.cx>
-Build-Depends-Indep: debhelper (>> 3.0.0), python-dev (>= 2.3), perl
+Build-Depends-Indep: debhelper (>> 3.0.0), python-dev (>= 2.4), perl
 Standards-Version: 3.5.2
 
 Package: makediary
 Architecture: all
-Depends: ${shlibs:Depends}, python (>= 2.3),
+Depends: ${shlibs:Depends}, python (>= 2.4),
  python-egenix-mxdatetime, python-imaging
 Suggests: psutils
 Description: Program to generate PostScript year diaries
