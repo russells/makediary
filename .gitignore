@@ -2,6 +2,7 @@ dist
 dist-deb
 build
 MANIFEST
+pod2*.tmp
 tmp
 *.bak
 *.pyc
