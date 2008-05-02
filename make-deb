@@ -15,7 +15,8 @@ set -e -x
 _VERSION="$(head -1 VERSION)"
 
 _SRC_DIR="$(pwd)"
-_DEB_BUILD_DIR=$_SRC_DIR/,tmp/deb/makediary-$_VERSION
+_TMP_DIR=$_SRC_DIR/tmp
+_DEB_BUILD_DIR=$_TMP_DIR/deb/makediary-$_VERSION
 
 # These gymnastics are to ensure that the parent directory exists, but
 # the directory itself does not.
@@ -43,4 +44,4 @@ fakeroot dpkg-buildpackage -uc -us
 
 cd $_SRC_DIR
 mkdir -p dist-deb
-cp -pv $_SRC_DIR/,tmp/deb/makediary_* dist-deb/
+cp -pv $_TMP_DIR/deb/makediary_* dist-deb/
