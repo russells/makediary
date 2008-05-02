@@ -12,23 +12,6 @@ set -e -x
 [ -f setup.py ]
 [ -d makediary ]
 
-_VERSION="$(head -1 VERSION)"
-
-set +e
-Changes="$( tla changes > /dev/null ; echo $? )"
-set -e
-
-case $Changes in
-  0) Modified=""    ; break ;;
-  1) Modified=" (Modified)" ; break ;;
-  *)
-    echo Error from '`tla changes`' 1>&2
-    exit $Changes
-    break ;;
-esac
-
-TlaVersion=$(tla tree-version)--$(tla logs | tail -1)"$Modified"
-
 ./make-man
 
 cd eps
