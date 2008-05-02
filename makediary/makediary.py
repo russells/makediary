@@ -1665,7 +1665,10 @@ class DiaryPage(PostscriptPage):
 
         # Print the day name as the diary day header.
         s = s + "10 10 M /%s %5.2f selectfont " % (di.titleFontName, self.titlefontsize)
-        dtext = dt.strftime("%A, %e %B") # %e seems to be undocumented
+        daynumber = dt.strftime("%d")
+        if daynumber[0] == '0':
+            daynumber = ' ' + daynumber[1]
+        dtext = dt.strftime("%A, " + daynumber + " %B") # %e seems to be undocumented
         if di.evenPage:
             s = s + "%5.3f %5.3f M (%s) SH\n" % (self.titlefontgap,self.titlefonty,dtext)
         else:
