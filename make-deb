@@ -22,9 +22,7 @@ _DEB_BUILD_DIR=$_TMP_DIR/deb/makediary-$_VERSION
 # the directory itself does not.
 rm -rf $_DEB_BUILD_DIR
 mkdir -p $_DEB_BUILD_DIR
-#rmdir $_DEB_BUILD_DIR
 
-#svn export $_SRC_DIR $_DEB_BUILD_DIR
 git ls-tree -z --name-only -r HEAD \
    | tar cf - -T - --null \
    | ( cd $_DEB_BUILD_DIR  &&  tar xvf - )
