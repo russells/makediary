@@ -24,11 +24,7 @@ mkdir -p $_DEB_BUILD_DIR
 #rmdir $_DEB_BUILD_DIR
 
 #svn export $_SRC_DIR $_DEB_BUILD_DIR
-find .    -name '.git*' -prune \
-       -o -name ',*' -prune \
-       -o -name dist -prune \
-       -o -name dist-deb -prune \
-       -o -type f -print0 \
+git ls-tree -z --name-only -r HEAD \
    | tar cf - -T - --null \
    | ( cd $_DEB_BUILD_DIR  &&  tar xvf - )
 
