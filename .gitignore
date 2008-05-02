@@ -1,0 +1,10 @@
+dist
+dist-deb
+build
+MANIFEST
+,tmp
+*.bak
+*.pyc
+*.pyo
+*~
+.*.swp
