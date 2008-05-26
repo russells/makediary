@@ -357,6 +357,12 @@ position of the pages to be specified in advance, and not having to move them
 around later with pstops.
 
 
+* Output PDF
+
+Probably requires a re-structure to abstract out the presentation stuff,
+then add PDF as another type of presentation.
+
+
 * Make makediary run as a web service.
 
 Suggested by Ben.  Run it as a CGI, perhaps, and have its output be a PDF file
