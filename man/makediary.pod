@@ -130,6 +130,11 @@ Specify the size of the paper that you are printing on.  This is not the
 same as the size of the diary pages.  Do B<makediary --help> for a list of
 paper sizes.
 
+=item --pdf
+
+Generate PDF instead of PostScript.  Requires that ps2pdf be installed and in
+your $PATH.  Untested on Windows.
+
 =item --planner-years=I<n>
 
 Print I<n> two-page planner years, starting with the diary year.  Defaults
