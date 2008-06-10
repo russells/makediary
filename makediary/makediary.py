@@ -22,6 +22,7 @@ from os.path import exists as path_exists
 from os.path import basename
 from os import getcwd
 from errno import EPIPE
+import subprocess
 
 # ############################################################################################
 
@@ -61,6 +62,7 @@ class DiaryInfo:
                "page-x-offset=",
                "page-y-offset=",
                "paper-size=",
+               "pdf",
                "planner-years=",
                "sh-ref",
                "start-date=",
@@ -85,7 +87,7 @@ class DiaryInfo:
                   "    [--large-planner] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
                   "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
-                  "    [--page-y-offset=Ymm] [--planner-years=n] \n",
+                  "    [--page-y-offset=Ymm] [--pdf] [--planner-years=n] \n",
                   "    [--sh-ref] [--unix-ref] [--vim-ref]\n",
                   "    [--weeks-before=n] [--weeks-after=n] [--week-to-opening]\n",
                   "    [--help] [--version]\n",
@@ -120,7 +122,8 @@ class DiaryInfo:
         self.pageNumber = 0             # Page number count
         self.currentJDaysLeft = -1      # Days left in year
         self.setStartDate(DateTime.DateTime(DateTime.now().year+1)) # Adjusted time, next year
-        wh = PaperSize.getPaperSize('a5') # Page sizes.  Default to a5.
+        self.paperSize = 'a5'            # Page sizes.  Default to a5.
+        wh = PaperSize.getPaperSize(self.paperSize)
         self.pageWidth = wh[0]
         self.pageHeight = wh[1]
         self.paperWidth = wh[0]
@@ -146,6 +149,7 @@ class DiaryInfo:
         self.lineSpacing = 6.0          # Spacing for writing lines
         self.evenPage = 0               # even and odd pages
         self.out = sys.stdout           # Output file
+        self.outName = '-'              # Output file name
         self.nAddressPages = 6          # Default
         self.nNotesPages = 6            #
         self.nPlannerYears = 2          #
@@ -173,6 +177,7 @@ class DiaryInfo:
         self.imagePageImages = []
         self.epsPageFiles = []
         self.title = None
+        self.pdf = False
 
     def parseOptions(self):
         args = self.opts
@@ -235,22 +240,21 @@ class DiaryInfo:
             elif opt[0] == "--notes-pages":
                 self.nNotesPages = self.integerOption("notes-pages",opt[1])
             elif opt[0] == '--output-file':
-                try:
-                    self.out = open(opt[1],'w')
-                except IOError, reason:
-                    sys.stderr.write(("Error opening '%s': " % opt[1]) \
-                                     + str(reason) + "\n")
-                    self.usage()
+                self.outName = opt[1]
             elif opt[0] == "--page-registration-marks":
                 self.pageRegistrationMarks = True
             elif opt[0] == "--page-size":
-                self.setPageSize(opt[1])
+                self.pageSize = opt[1]
+                self.setPageSize(self.pageSize)
             elif opt[0] == "--page-x-offset":
                 self.pageXOffset = self.floatOption("page-x-offset", opt[1])
             elif opt[0] == "--page-y-offset":
                 self.pageYOffset = self.floatOption("page-y-offset", opt[1])
+            elif opt[0] == "--pdf":
+                self.pdf = True
             elif opt[0] == "--paper-size":
-                self.setPaperSize(opt[1])
+                self.paperSize = opt[1]
+                self.setPaperSize(self.paperSize)
             elif opt[0] == "--planner-years":
                 self.nPlannerYears = self.integerOption("planner-years",opt[1])
             elif opt[0] == "--version":
@@ -280,6 +284,22 @@ class DiaryInfo:
         if self.weekToOpening and self.dayToPage:
             print >>sys.stderr, "Can't specify both --week-to-opening and --day-to-page"
             sys.exit(1)
+        if self.pdf:
+            # If we are doing PDF output, let ps2pdf open the output file.
+            pdfArgs = ( 'ps2pdf',
+                        '-dAutoRotatePages=/None', # pdf2ps rotates some pages without this
+                        '-sPAPERSIZE='+self.paperSize,
+                        '-', self.outName)
+            #print >>sys.stderr, "Running "+str(pdfArgs)
+            self.pdfProcess = subprocess.Popen(pdfArgs, stdin=subprocess.PIPE)
+            self.out = self.pdfProcess.stdin
+        elif self.outName != '-':
+            try:
+                self.out = open(self.outName,'w')
+            except IOError, reason:
+                sys.stderr.write(("Error opening '%s': " % self.outName) \
+                                 + str(reason) + "\n")
+                self.usage()
         self.calcPageLayout()
         self.calcDateStuff()
 
@@ -2349,6 +2369,10 @@ def go(myname, opts):
     #sys.stderr.write("%s\n" % dinfo.events)
     d = Diary(dinfo)
     d.diary()
+    if dinfo.pdf:
+        # If we don't close the pipe to the pdf2ps process, it waits forever for more input.
+        dinfo.pdfProcess.stdin.close()
+        dinfo.pdfProcess.wait()
 
 if __name__=='__main__':
     try:
