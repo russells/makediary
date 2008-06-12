@@ -148,8 +148,9 @@ class DiaryInfo:
         self.underlineThick = 0.2       # Thickness of title lines etc
         self.lineSpacing = 6.0          # Spacing for writing lines
         self.evenPage = 0               # even and odd pages
-        self.out = sys.stdout           # Output file
-        self.outName = '-'              # Output file name
+        self.out = None                 # Output file
+        self.outName = 'diary.ps'       # Output file name
+        self.outNameSet = False         # True if the output name set by command line opt.
         self.nAddressPages = 6          # Default
         self.nNotesPages = 6            #
         self.nPlannerYears = 2          #
@@ -241,6 +242,7 @@ class DiaryInfo:
                 self.nNotesPages = self.integerOption("notes-pages",opt[1])
             elif opt[0] == '--output-file':
                 self.outName = opt[1]
+                self.outNameSet = True
             elif opt[0] == "--page-registration-marks":
                 self.pageRegistrationMarks = True
             elif opt[0] == "--page-size":
@@ -285,6 +287,10 @@ class DiaryInfo:
             print >>sys.stderr, "Can't specify both --week-to-opening and --day-to-page"
             sys.exit(1)
         if self.pdf:
+            # If the name is still diary.ps and it was not set by command line option, change
+            # it to diary.pdf.
+            if (not self.outNameSet) and self.outName == 'diary.ps':
+                self.outName = 'diary.pdf'
             # If we are doing PDF output, let ps2pdf open the output file.
             pdfArgs = ( 'ps2pdf',
                         '-dAutoRotatePages=/None', # pdf2ps rotates some pages without this
@@ -293,13 +299,17 @@ class DiaryInfo:
             #print >>sys.stderr, "Running "+str(pdfArgs)
             self.pdfProcess = subprocess.Popen(pdfArgs, stdin=subprocess.PIPE)
             self.out = self.pdfProcess.stdin
-        elif self.outName != '-':
-            try:
-                self.out = open(self.outName,'w')
-            except IOError, reason:
-                sys.stderr.write(("Error opening '%s': " % self.outName) \
-                                 + str(reason) + "\n")
-                self.usage()
+        else:
+            if self.outName == '-':
+                self.out = sys.stdout
+            else:
+                try:
+                    self.out = open(self.outName,'w')
+                except IOError, reason:
+                    sys.stderr.write(("Error opening '%s': " % self.outName) \
+                                     + str(reason) + "\n")
+                    #self.usage()
+                    sys.exit(1)
         self.calcPageLayout()
         self.calcDateStuff()
 
