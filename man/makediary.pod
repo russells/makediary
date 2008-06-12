@@ -100,8 +100,9 @@ Print I<n> notes pages at the beginning and end of the diary.  Defaults to
 
 =item --output-file=I<filename>
 
-Output PostScript code to I<filename>.  Defaults to standard output.  A
-lone 'B<->' also means standard output.
+Output PostScript code to I<filename>.  Defaults to F<diary.ps> if generating
+PostScript, or F<diary.pdf> if generating PDF.  A lone 'B<->' means standard
+output.
 
 =item --page-size=I<size>
 
