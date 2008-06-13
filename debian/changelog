@@ -1,8 +1,14 @@
+makediary (0.2.3-1) unstable; urgency=low
+
+  * Generate PDF natively.
+
+ -- Russell Steicke <russells@adelie.cx>  Sat, 14 Jun 2008 00:10:00 +0800
+
 makediary (0.2.2-1) unstable; urgency=low
 
   * Add option for large planner pages.  Patch from Alfredo Pironti.
 
- -- Russell Steicke <russells@adelie.cx>  Tur,  9 Jan 2007 10:13:00 +0900
+ -- Russell Steicke <russells@adelie.cx>  Tue,  9 Jan 2007 10:13:00 +0900
 
 makediary (0.2.1-2) unstable; urgency=low
 

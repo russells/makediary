@@ -3,7 +3,7 @@
 # Maintain a dictionary of paper sizes.
 
 
-__revision__ = """0.2.1"""
+__revision__ = """0.2.3"""
 
 
 _paperSizes = {
