@@ -901,6 +901,8 @@ class VersionPage(PostscriptPage):
         liney = self.di.pageHeight*0.8
         s = s + "%5.3f %5.3f M (Command:) SH\n" % (linex, liney)
         liney = liney - fontSize*1.25
+        s = s + "%5.3f %5.3f M (   %s) SH\n" % (linex, liney, sys.argv[0])
+        liney = liney - fontSize*1.25
         for i in range(len(self.di.opts)):
             s = s + "%5.3f %5.3f M (   %s) SH\n" % (linex, liney,
                                                     self.postscriptEscape(self.di.opts[i]))
