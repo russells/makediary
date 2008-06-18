@@ -369,3 +369,12 @@ Suggested by Ben.  Run it as a CGI, perhaps, and have its output be a PDF file
 that can be viewed and printed directly by the user.
 
 
+* Print dates of the solstices and equinoxes.
+
+Dates: http://aa.usno.navy.mil/data/docs/EarthSeasons.php
+
+Make a solstice.py module with these dates, perhaps?
+
+Print the solstice and equinox information in the same place as the moon phase
+information.
+
