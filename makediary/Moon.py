@@ -148,6 +148,9 @@ class MoonCalc:
                
 
 if __name__=='__main__':
+    if len(sys.argv) != 4:
+        print >>sys.stderr, "Usage: %s year month day" % sys.argv[0]
+        sys.exit(1)
     mc = MoonCalc()
     y = atoi(sys.argv[1])
     m = atoi(sys.argv[2])
