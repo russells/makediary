@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python
 
 # Calculate moon phases.  This code is copied from moonphas.c in the pcal source, and
 # translated from C into python.  I don't understand it at all.  This code generates the same
