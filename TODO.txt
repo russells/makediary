@@ -378,3 +378,10 @@ Make a solstice.py module with these dates, perhaps?
 Print the solstice and equinox information in the same place as the moon phase
 information.
 
+
+* Allow printing EPS files across two pages.
+
+This will allow things like full page maps.  I should be able to print the
+whole EPS file one each page, scaled and clipped so it appears as a single map
+that spans the pages.
+
