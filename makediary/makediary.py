@@ -675,14 +675,7 @@ class PostscriptPage(BasicPostscriptPage):
         return s
 
 
-    def embedEPS(self, filename, x, y, maxwidth, maxheight):
-        '''Embed an EPS file within the diary.'''
-
-        try:
-            epsfile = open(filename, 'r')
-        except IOError, reason:
-            print >>sys.stderr, "Can't open %s: %s" % (filename, str(reason))
-            return "%% +++ Error opening %s: %s\n" % (filename, str(reason))
+    def findBoundingBoxInEPS(self, epsfilename, epsfile):
         # Search for the BoundingBox comment, must be in the first 20 lines.
         boundingboxfound  = False
         for i in range(0,20):
@@ -692,21 +685,40 @@ class PostscriptPage(BasicPostscriptPage):
                 if len(list) != 5:
                     print >>sys.stderr, "EPS file %s: can't split \"%s\"" % \
                              (filename, line.strip())
-                    return "%% +++ EPS file %s\n%% +++ Can't split \"%s\"\n" % \
-                             (filename, line.strip())
+                    return False
                 epsx1_pt = float(list[1])
                 epsy1_pt = float(list[2])
                 epsx2_pt = float(list[3])
                 epsy2_pt = float(list[4])
-                epsx1 = epsx1_pt/self.di.points_mm
-                epsy1 = epsy1_pt/self.di.points_mm
-                epsx2 = epsx2_pt/self.di.points_mm
-                epsy2 = epsy2_pt/self.di.points_mm
-                epswidth  = epsx2 - epsx1
-                epsheight = epsy2 - epsy1
                 boundingboxfound = True
                 break
-        if not boundingboxfound:
+        if boundingBoxFound:
+            return (epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt)
+        else:
+            print >>sys.stderr, "Cannot find %%%%BoundingBox in %s" % epsfilename
+            return False
+
+
+
+    def embedEPS(self, filename, x, y, maxwidth, maxheight):
+        '''Embed an EPS file within the diary.'''
+
+        try:
+            epsfile = open(filename, 'r')
+        except IOError, reason:
+            print >>sys.stderr, "Can't open %s: %s" % (filename, str(reason))
+            return "%% +++ Error opening %s: %s\n" % (filename, str(reason))
+        # Search for the BoundingBox comment, must be in the first 20 lines.
+        boundingbox = self.findBoundingBoxInEPS(filename, epsfile)
+        if boundingbox:
+            epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt = boundingbox
+            epsx1 = epsx1_pt/self.di.points_mm
+            epsy1 = epsy1_pt/self.di.points_mm
+            epsx2 = epsx2_pt/self.di.points_mm
+            epsy2 = epsy2_pt/self.di.points_mm
+            epswidth  = epsx2 - epsx1
+            epsheight = epsy2 - epsy1
+        else:
             print >>sys.stderr, "No %%%%BoundingBox in %s\n" % filename
             return "%% +++ Error reading %%%%BoundingBox comment in %s\n" % filename
 
