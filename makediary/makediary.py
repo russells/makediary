@@ -692,7 +692,7 @@ class PostscriptPage(BasicPostscriptPage):
                 epsy2_pt = float(list[4])
                 boundingboxfound = True
                 break
-        if boundingBoxFound:
+        if boundingboxfound:
             return (epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt)
         else:
             print >>sys.stderr, "Cannot find %%%%BoundingBox in %s" % epsfilename
