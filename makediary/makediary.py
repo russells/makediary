@@ -868,13 +868,13 @@ class EPSFilePage(PostscriptPage):
         else:
             # Otherwise, construct the full path to the file.  If we are running from the
             # development directory, or otherwise not from a full path name, look at relative
-            # locations first.
+            # locations first.  In any case, we search the current directory first.
             if sys.argv[0].startswith('.'):
                 searchpath = ['.', '..', '../..']
-                for p in sys.path:
-                    searchpath.append(p)
             else:
-                searchpath = sys.path
+                searchpath = ['.']
+            for p in sys.path:
+                searchpath.append(p)
             #print >>sys.stderr, "searchpath is %s" % str(searchpath)
             for path in searchpath:
                 epsfilepathname = self.searchfor(path, 'eps', self.epsfilename)
