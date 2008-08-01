@@ -692,7 +692,7 @@ class PostscriptPage(BasicPostscriptPage):
                 epsy2_pt = float(list[4])
                 boundingboxfound = True
                 break
-        if boundingBoxFound:
+        if boundingboxfound:
             return (epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt)
         else:
             print >>sys.stderr, "Cannot find %%%%BoundingBox in %s" % epsfilename
@@ -729,6 +729,10 @@ class PostscriptPage(BasicPostscriptPage):
                 (epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt)
         s = s + "%% epsx1   =%7.3f   epsy1   =%7.3f   epsx2   =%7.3f   epsy2   =%7.3f\n" % \
                 (epsx1, epsy1, epsx2, epsy2)
+
+        # Make a clipping region.
+        s = s + "% Clipping path to contain the EPS file.\n"
+        s = s + "gsave newpath %.3f %.3f %.3f %.3f rectclip\n" % (x, y, maxwidth, maxheight)
 
         # Move to the required origin for the EPS
         s = s + "%5.3f %5.3f M\n" % (x,y)
@@ -770,6 +774,10 @@ class PostscriptPage(BasicPostscriptPage):
         epsfile.close()
 
         s = s + "\n%%EndDocument\nRE end RE\n"
+
+        # Remove the clipping region
+        s = s + "grestore\n"
+
         # Now draw a box so we can see where the image should be.
         #s = s + "%5.3f %5.3f %5.3f %5.3f 0 boxLBWH\n" % (x,y,maxwidth,maxheight)
         return s
