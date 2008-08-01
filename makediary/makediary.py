@@ -676,7 +676,10 @@ class PostscriptPage(BasicPostscriptPage):
 
 
     def findBoundingBoxInEPS(self, epsfilename, epsfile):
-        # Search for the BoundingBox comment, must be in the first 20 lines.
+        '''Search for the BoundingBox comment, must be in the first 20 lines.'''
+
+        filepos = epsfile.tell()
+
         boundingboxfound  = False
         for i in range(0,20):
             line = epsfile.readline()
@@ -692,6 +695,10 @@ class PostscriptPage(BasicPostscriptPage):
                 epsy2_pt = float(list[4])
                 boundingboxfound = True
                 break
+
+        # Return the file to where we found it.
+        epsfile.seek(filepos)
+
         if boundingboxfound:
             return (epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt)
         else:
@@ -768,7 +775,6 @@ class PostscriptPage(BasicPostscriptPage):
                 (1.0/self.di.points_mm, 1.0/self.di.points_mm)
         s = s + "%%%%BeginDocument: %s\n" % filename
 
-        epsfile.seek(0)
         for line in epsfile.readlines():
             s = s + line
         epsfile.close()
