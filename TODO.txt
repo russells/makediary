@@ -191,3 +191,8 @@ Perhaps --eps-file=file.eps,x=X,y=Y,scale=n%,rotate=right
 
 With similar parameters as specified for EPS inclusion above.
 
+
+* Allow putting a comic on each page.
+
+Just for fun.
+
