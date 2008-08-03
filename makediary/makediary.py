@@ -702,71 +702,17 @@ class PostscriptPage(BasicPostscriptPage):
         if boundingboxfound:
             return (epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt)
         else:
-            print >>sys.stderr, "Cannot find %%%%BoundingBox in %s" % epsfilename
             return False
 
 
+    def embedEPS(self, filename, epsfile):
+        '''Embed an EPS file within the diary.
 
-    def embedEPS(self, filename, x, y, maxwidth, maxheight):
-        '''Embed an EPS file within the diary.'''
+        filename - name of file we are embedding, for error messages
+        epsfile - file-like object that contains EPS
+        '''
 
-        try:
-            epsfile = open(filename, 'r')
-        except IOError, reason:
-            print >>sys.stderr, "Can't open %s: %s" % (filename, str(reason))
-            return "%% +++ Error opening %s: %s\n" % (filename, str(reason))
-        # Search for the BoundingBox comment, must be in the first 20 lines.
-        boundingbox = self.findBoundingBoxInEPS(filename, epsfile)
-        if boundingbox:
-            epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt = boundingbox
-            epsx1 = epsx1_pt/self.di.points_mm
-            epsy1 = epsy1_pt/self.di.points_mm
-            epsx2 = epsx2_pt/self.di.points_mm
-            epsy2 = epsy2_pt/self.di.points_mm
-            epswidth  = epsx2 - epsx1
-            epsheight = epsy2 - epsy1
-        else:
-            print >>sys.stderr, "No %%%%BoundingBox in %s\n" % filename
-            return "%% +++ Error reading %%%%BoundingBox comment in %s\n" % filename
-
-        s = self.di.sectionSep + "%% Beginning embedded PS file: %s\n" % filename
-        s = s + "%% x=%5.3f y=%5.3f maxwidth=%5.3f maxheight=%5.3f\n" % \
-                (x,y,maxwidth,maxheight)
-        s = s + "%% epsx1_pt=%7.3f   epsy1_pt=%7.3f   epsx2_pt=%7.3f   epsy2_pt=%7.3f\n" % \
-                (epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt)
-        s = s + "%% epsx1   =%7.3f   epsy1   =%7.3f   epsx2   =%7.3f   epsy2   =%7.3f\n" % \
-                (epsx1, epsy1, epsx2, epsy2)
-
-        # Make a clipping region.
-        s = s + "% Clipping path to contain the EPS file.\n"
-        s = s + "gsave newpath %.3f %.3f %.3f %.3f rectclip\n" % (x, y, maxwidth, maxheight)
-
-        # Move to the required origin for the EPS
-        s = s + "%5.3f %5.3f M\n" % (x,y)
-
-        # Find out which of the x or y axes has to be adjusted.
-        rawxscale = maxwidth / epswidth
-        rawyscale = maxheight / epsheight
-        if rawxscale == rawyscale:
-            scale = rawxscale
-            xadj = 0
-            yadj = 0
-        elif rawxscale < rawyscale:
-            scale = rawxscale
-            xadj = 0
-            yadj = (maxheight - (epsheight * scale))/2.0
-        else:
-            scale = rawyscale
-            xadj = (maxwidth - (epswidth * scale))/2.0
-            yadj = 0
-        s = s + "% Results from scaling:\n"
-        s = s + "%% rawxscale=%5.3f rawyscale=%5.3f scale=%5.3f xadj=%5.3f yadj=%5.3f\n" % \
-                (rawxscale,rawyscale,scale,xadj,yadj)
-        xadj -= epsx1*scale
-        yadj -= epsy1*scale
-        s = s + "%% Then, xadj=%5.3f yadj=%5.3f\n" % (xadj,yadj)
-        # Now go there
-        s = s + "SA %5.3f %5.3f RM %5.3f %5.3f SC CP TR\n" % (xadj,yadj,scale,scale)
+        s = ''
 
         # Redefine showpage so the EPS file doesn't muck up our page count, save the graphics
         # state, and scale so the EPS measurements in points are the correct size in our world
@@ -777,7 +723,6 @@ class PostscriptPage(BasicPostscriptPage):
 
         for line in epsfile.readlines():
             s = s + line
-        epsfile.close()
 
         s = s + "\n%%EndDocument\nRE end RE\n"
 
@@ -787,6 +732,7 @@ class PostscriptPage(BasicPostscriptPage):
         # Now draw a box so we can see where the image should be.
         #s = s + "%5.3f %5.3f %5.3f %5.3f 0 boxLBWH\n" % (x,y,maxwidth,maxheight)
         return s
+
 
     def searchfor(self, path, type, filename):
         '''Look for a file in the python search path, with a couple of optional prefixes.'''
@@ -865,7 +811,8 @@ class EPSFilePage(PostscriptPage):
         self.epsfilename = epsfilename
         self.epstitle = epstitle
 
-    def body(self):
+
+    def findEPSFile(self, epsfilename):
         epsfilepathname = None
         # If we are given a full or relative-to-pwd path to the file, use that.
         if self.epsfilename.startswith('/') or self.epsfilename.startswith('./') \
@@ -886,18 +833,90 @@ class EPSFilePage(PostscriptPage):
                 epsfilepathname = self.searchfor(path, 'eps', self.epsfilename)
                 if epsfilepathname:
                     break
-        if epsfilepathname:
-            inset = self.pWidth / 200.0
-            epsp = self.embedEPS(epsfilepathname,
-                                 self.pLeft+inset, self.pBottom+inset,
-                                 self.pWidth-2*inset, self.pHeight-2*inset)
-            if self.epstitle:
-                return self.title(self.epstitle) + epsp
-            else:
-                return epsp
-        else:
+        return epsfilepathname
+
+
+    def body(self):
+        s = ''
+
+        epsfilepathname = self.findEPSFile(self.epsfilename)
+        if not epsfilepathname:
             print >>sys.stderr, "Can't find %s" % self.epsfilename
             return "%% -- Can't find %s\n" % self.epsfilename
+
+        try:
+            epsfile = open(epsfilepathname, 'r')
+        except IOError, reason:
+            print >>sys.stderr, "Can't open %s: %s" % (epsfilepathname, str(reason))
+            return "%% +++ Error opening %s: %s\n" % (epsfilepathname, str(reason))
+
+        boundingbox = self.findBoundingBoxInEPS(epsfilepathname, epsfile)
+        if not boundingbox:
+            print >>sys.stderr, "%s: no %%%%BoundingBox in %s" % (sys.argv[0], filename)
+            return "%% +++ Error reading %%%%BoundingBox comment in %s\n" % filename
+
+        epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt = boundingbox
+        epsx1 = epsx1_pt/self.di.points_mm
+        epsy1 = epsy1_pt/self.di.points_mm
+        epsx2 = epsx2_pt/self.di.points_mm
+        epsy2 = epsy2_pt/self.di.points_mm
+        epswidth  = epsx2 - epsx1
+        epsheight = epsy2 - epsy1
+
+        # Some space for layout.
+        inset = self.pWidth / 200.0
+
+        if self.epstitle:
+            s = s + self.title(self.epstitle)
+
+        x = self.pLeft+inset
+        y = self.pBottom+inset
+        maxwidth = self.pWidth-2*inset
+        maxheight = self.pHeight-2*inset
+
+        s = s + self.di.sectionSep + "%% Beginning embedded PS file: %s\n" % epsfilepathname
+        s = s + "%% x=%5.3f y=%5.3f maxwidth=%5.3f maxheight=%5.3f\n" % \
+                (x,y,maxwidth,maxheight)
+        s = s + "%% epsx1_pt=%7.3f   epsy1_pt=%7.3f   epsx2_pt=%7.3f   epsy2_pt=%7.3f\n" % \
+                (epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt)
+        s = s + "%% epsx1   =%7.3f   epsy1   =%7.3f   epsx2   =%7.3f   epsy2   =%7.3f\n" % \
+                (epsx1, epsy1, epsx2, epsy2)
+
+        # Make a clipping region.
+        s = s + "% Clipping path to contain the EPS file.\n"
+        s = s + "gsave newpath %.3f %.3f %.3f %.3f rectclip\n" % (x, y, maxwidth, maxheight)
+
+        # Move to the required origin for the EPS
+        s = s + "%5.3f %5.3f M\n" % (x, y) #(x+xoffset,y+yoffset)
+
+        # Find out which of the x or y axes has to be adjusted.
+        rawxscale = maxwidth / epswidth
+        rawyscale = maxheight / epsheight
+        if rawxscale == rawyscale:
+            scale = rawxscale
+            xadj = 0
+            yadj = 0
+        elif rawxscale < rawyscale:
+            scale = rawxscale
+            xadj = 0
+            yadj = (maxheight - (epsheight * scale))/2.0
+        else:
+            scale = rawyscale
+            xadj = (maxwidth - (epswidth * scale))/2.0
+            yadj = 0
+
+        s = s + "% Results from scaling:\n"
+        s = s + "%% rawxscale=%5.3f rawyscale=%5.3f scale=%5.3f xadj=%5.3f yadj=%5.3f\n" % \
+                (rawxscale,rawyscale,scale,xadj,yadj)
+        xadj -= epsx1*scale
+        yadj -= epsy1*scale
+        s = s + "%% Then, xadj=%5.3f yadj=%5.3f\n" % (xadj,yadj)
+        # Now go there
+        s = s + "SA %5.3f %5.3f RM %5.3f %5.3f SC CP TR\n" % (xadj,yadj,scale,scale)
+
+        epsp = self.embedEPS(epsfilepathname, epsfile)
+        epsfile.close()
+        return s + epsp
 
 
 # ############################################################################################
