@@ -18,6 +18,12 @@ class MoonCalc:
     MOON_3Q = 3
     MOON_OTHER = -1
 
+    moonPhaseNames = { MOON_NM:"New moon",
+                       MOON_1Q:"First quarter",
+                       MOON_FM:"Full moon",
+                       MOON_3Q:"Third quarter",
+                       MOON_OTHER:"(Not a phase we care about)" }
+
     epoch = 2444238.5                   # 1980 January 0.0 
     elonge = 278.833540                 # ecliptic longitude of the Sun at epoch 1980.0
     elongp = 282.596403                 # ecliptic longitude of the Sun at perigee
@@ -157,8 +163,8 @@ if __name__=='__main__':
     d = atoi(sys.argv[3])
     phase = mc.calc_phase(y, m, d)
     quarter = mc.is_quarter(mc.calc_phase(y,m,d-1), phase, mc.calc_phase(y,m,d+1))
-    print "day = %04d-%02d-%02d, phase = %6.5f, quarter = %d" % \
-          (y,m,d, phase, quarter)
+    print "day = %04d-%02d-%02d, phase = %6.5f, quarter = %d [%s]" % \
+          (y,m,d, phase, quarter, mc.moonPhaseNames[quarter])
 
 
 # This section is for emacs.
