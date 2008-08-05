@@ -175,7 +175,7 @@ class DiaryInfo:
         self.shRef = False
         self.vimRef = False
         self.unixRef = False
-        self.imagePageImages = []
+        self.imagePages = []
         self.epsPageFiles = []
         self.title = None
         self.pdf = False
@@ -221,7 +221,12 @@ class DiaryInfo:
             elif opt[0] == "--help":
                 self.usage(sys.stdout)
             elif opt[0] == "--image-page":
-                self.imagePageImages.append(opt[1])
+                commaindex = opt[1].find(",")
+                if commaindex != -1:
+                    self.imagePages.append( { "fileName":opt[1][0:commaindex],
+                                              "title":opt[1][commaindex+1:] } )
+                else:
+                    self.imagePages.append( { "fileName":opt[1], "title":"" } )
             elif opt[0] == "--large-planner":
                 self.largePlanner = True
             elif opt[0] == "--line-spacing":
@@ -760,10 +765,10 @@ class PostscriptPage(BasicPostscriptPage):
 
 class ImageFilePage(PostscriptPage):
 
-    def __init__(self, dinfo, imgfilename, epstitle=None):
+    def __init__(self, dinfo, imgfilename, imagetitle=None):
         PostscriptPage.__init__(self, dinfo)
         self.imgfilename = imgfilename
-        self.epstitle = epstitle
+        self.imagetitle = imagetitle
 
     def body(self):
         imgfilepathname = None
@@ -791,8 +796,8 @@ class ImageFilePage(PostscriptPage):
             imgp = self.image(imgfilepathname,
                                  self.pLeft+inset, self.pBottom+inset,
                                  self.pWidth-2*inset, self.pHeight-2*inset)
-            if self.epstitle:
-                return self.title(self.epstitle) + imgp
+            if self.imagetitle:
+                return self.title(self.imagetitle) + imgp
             else:
                 return imgp
         else:
@@ -2329,8 +2334,8 @@ class Diary:
         w( PersonalInformationPage(di).page() )
 
         # Print image pages, if there are any, and end on a new opening.
-        for imagePageImage in di.imagePageImages:
-            w( ImageFilePage(di, imagePageImage, basename(imagePageImage)).page() )
+        for imagePage in di.imagePages:
+            w( ImageFilePage(di, imagePage["fileName"], imagePage["title"]).page() )
         if di.evenPage:
             self.w( EmptyPage(di).page() )
 
