@@ -88,6 +88,11 @@ floating point number.
 
 Print pictures of phases of the moon in the title of the day at each phase.
 
+=item --northern-hemisphere-moon
+
+Print pictures of phases of the moon as seen from the Northern Hemisphere,
+instead of from the Southern Hemisphere.  Implies B<--mooon>.
+
 =item --no-smiley
 
 Don't print the smiley on the front cover.  The smiley also won't be printed if

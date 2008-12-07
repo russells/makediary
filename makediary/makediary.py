@@ -53,6 +53,7 @@ class DiaryInfo:
                "line-spacing=",
                "margins-multiplier=",
                "moon",
+               "northern-hemisphere-moon",
                "no-appointment-times",
                "no-smiley",
                "notes-pages=",
@@ -85,6 +86,7 @@ class DiaryInfo:
                   "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
                   "    [--eps-page=epsfile] [--event-images] [--image-page=IMAGEFILE]\n",
                   "    [--large-planner] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
+                  "    [--northern-hemisphere-moon]\n",
                   "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
                   "    [--page-y-offset=Ymm] [--pdf] [--planner-years=n] \n",
@@ -161,6 +163,7 @@ class DiaryInfo:
         self.appointmentWidth = 0.35    # Width of appointments (as proportion)
         self.colour = False             # If true, print images in colour
         self.moon = False               # If true, print moon phases
+        self.northernHemisphereMoon = False # If true, print northern hemisphere moon phases
         self.weekToOpening = False      #
         self.dayToPage = False          #
         self.debugBoxes = False         # If true, draw faint boxes around things for debugging
@@ -239,6 +242,9 @@ class DiaryInfo:
                 self.oMargin = self.oMargin * multiplier
             elif opt[0] == "--moon":
                 self.moon = True
+            elif opt[0] == "--northern-hemisphere-moon":
+                self.moon = True
+                self.northernHemisphereMoon = True
             elif opt[0] == "--no-appointment-times":
                 self.appointmentTimes = False
             elif opt[0] == "--no-smiley":
@@ -2103,19 +2109,41 @@ class DiaryPage(PostscriptPage):
                 + "%5.3f %5.3f M (New) SH %5.3f %5.3f M (Moon) SH\n" % \
                 (linex,line1y, linex,line2y)
         elif quarter == self.mooncalc.MOON_1Q:
-            s = s + "%5.3f %5.3f %5.3f 270 90 arc 0 %5.3f RL fill %% 1st q\n" % \
-                (x,y,radius,-size) \
-                + "%5.3f %5.3f M (First) SH %5.3f %5.3f M (Quarter) SH\n" % \
+            if self.di.northernHemisphereMoon:
+                s = s + self.drawMoonRightWhite(x, y, radius, size)
+            else:
+                s = s + self.drawMoonLeftWhite(x, y, radius, size)
+            s = s + "%5.3f %5.3f M (First) SH %5.3f %5.3f M (Quarter) SH\n" % \
                 (linex,line1y, linex,line2y)
         elif quarter == self.mooncalc.MOON_FM:
             s = s + "%5.3f %5.3f M (Full) SH %5.3f %5.3f M (Moon) SH\n" % \
                 (linex,line1y, linex,line2y)
         elif quarter == self.mooncalc.MOON_3Q:
-            s = s + "%5.3f %5.3f %5.3f 90 270 arc 0 %5.3f RL fill %% 3rd q\n" % \
-                (x,y,radius,size) \
-                + "%5.3f %5.3f M (Third) SH %5.3f %5.3f M (Quarter) SH\n" % \
+            if self.di.northernHemisphereMoon:
+                s = s + self.drawMoonLeftWhite(x, y, radius, size)
+            else:
+                s = s + self.drawMoonRightWhite(x, y, radius, size)
+            s = s + "%5.3f %5.3f M (Third) SH %5.3f %5.3f M (Quarter) SH\n" % \
                 (linex,line1y, linex,line2y)
 
+        return s
+
+    def drawMoonLeftWhite(self, x, y, radius, size):
+        s = "%5.3f %5.3f %5.3f 270 90 arc 0 %5.3f RL fill %% white left, " % \
+            (x,y,radius,-size)
+        if self.di.northernHemisphereMoon:
+            s = s + "third quarter in northern hemisphere\n"
+        else:
+            s = s + "first quarter in southern hemisphere\n"
+        return s
+
+    def drawMoonRightWhite(self, x, y, radius, size):
+        s = "%5.3f %5.3f %5.3f 90 270 arc 0 %5.3f RL fill %% white right, " % \
+            (x,y,radius,size)
+        if self.di.northernHemisphereMoon:
+            s = s + "first quarter in northern hemisphere\n"
+        else:
+            s = s + "third quarter in southern hemisphere\n"
         return s
 
     def body(self):
