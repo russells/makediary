@@ -944,10 +944,12 @@ class VersionPage(PostscriptPage):
         versionString = self.postscriptEscape(versionNumber)
         dateString = self.postscriptEscape(DateTime.now() \
                                            .strftime("Generated at: %Y-%m-%dT%H:%M:%S%Z"))
+        urlString = "http://adelie.cx/makediary/"
         s = s + "% --- Version page\n" \
             + "/Courier %5.3f selectfont " % fontSize \
             + "%5.3f %5.3f M (%s) SH\n" % (linex, fontSize*12, versionString) \
-            + "%5.3f %5.3f M (%s) SH\n" % (linex, fontSize*10, dateString)
+            + "%5.3f %5.3f M (%s) SH\n" % (linex, fontSize*10, dateString) \
+            + "%5.3f %5.3f M (%s) SH\n" % (linex, fontSize*8, urlString)
         liney = self.di.pageHeight*0.8
         s = s + "%5.3f %5.3f M (Command:) SH\n" % (linex, liney)
         liney = liney - fontSize*1.25
