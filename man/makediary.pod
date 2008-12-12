@@ -64,6 +64,11 @@ version number.
 
 Around each diary page (not each sheet of paper), draw a faint box.
 
+=item --eps-page=I<epsfilename>
+
+Include a page whose content is I<epsfilename>, without a title or any other
+decoration.  This could be useful for including maps, for instance.
+
 =item --event-images
 
 Print images next to events, where they are specified.  If this is not
