@@ -341,6 +341,45 @@ ordinal.  In 2001, this will say "Joe Bloggs' 129th birthday".
 
 =back
 
+=head1 F<.makediaryrc> file
+
+B<makediary> will read a file called F<.makediaryrc> if it exists.
+F<.makediaryrc> must be in ini-file format, and it must contain a section
+called "Personal Information".  The key-value pairs in that section are used to
+populate the Personal Information page.  The defined keys are:
+
+=over
+
+=item Name
+
+=item Phone
+
+=item Mobile (or Cell)
+
+=item Email (or Email address)
+
+=item Address
+
+=item Work phone
+
+=item Work fax
+
+=item Work address
+
+=item Emergency Contact 1
+
+=item Emergency Contact 2
+
+=item Emergency Contact 3
+
+=item Emergency Contact 4
+
+=back
+
+(It is intended that F<.makediaryrc> will one day hold all of the
+information needed by B<makediary>, including that now kept in the
+F<.calendar> file.)
+
 =head1 EXAMPLES
 
 =over

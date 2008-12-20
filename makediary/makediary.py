@@ -23,6 +23,7 @@ from os.path import basename
 from os import getcwd
 from errno import EPIPE
 import subprocess
+from ConfigParser import SafeConfigParser as ConfigParser
 
 # ############################################################################################
 
@@ -144,6 +145,7 @@ class DiaryInfo:
         self.titleFontName = "Times-Bold" #
         self.subtitleFontSize = 4.0     #
         self.subtitleFontName = "Helvetica" #
+        self.personalinfoFontName = "Times-Bold" #
         self.titleY = -1                # Distance from bottom to title, calc from page size
         self.titleLineY = -1            #
         self.titleGray = 0.8            # Background for titles on some pages
@@ -182,6 +184,10 @@ class DiaryInfo:
         self.epsPageFiles = []
         self.title = None
         self.pdf = False
+
+        self.configOptions = ConfigParser()
+        self.configOptions.read( (".makediaryrc",) )
+
 
     def parseOptions(self):
         args = self.opts
@@ -1217,42 +1223,62 @@ class PersonalInformationPage(PostscriptPage):
         fontsize = self.linespacing * 0.5
         s = s + "/%s %5.3f selectfont\n" % (self.di.subtitleFontName,fontsize)
 
+        co = self.di.configOptions
+        if not co.has_section("Personal Information"):
+            co.add_section("Personal Information")
         s = s \
-            + self.do1line("Name"              ,None       ,0) \
-            + self.do1line("Phone"             ,"Mobile"   ,0) \
-            + self.do1line("Email"             ,None       ,0) \
-            + self.do1line("Address"           ,None       ,0) \
-            + self.do1line(None                ,None       ,0) \
-            + self.do1line(None                ,None       ,1) \
-            + self.do1line("Work"              ,None       ,0) \
-            + self.do1line("Phone"             ,"Fax"      ,0) \
-            + self.do1line("Email"             ,None       ,0) \
-            + self.do1line("Address"           ,None       ,0) \
-            + self.do1line(None                ,None       ,0) \
-            + self.do1line(None                ,None       ,1) \
-            + self.do1line("Emergency Contacts",None       ,0) \
-            + self.do1line(None                ,None       ,0) \
-            + self.do1line(None                ,None       ,0) \
-            + self.do1line(None                ,None       ,0) \
-            + self.do1line(None                ,None       ,1) \
-            + self.do1line("Other Information" ,None       ,0)
+            + self.do1line( co, [ ("Name"   , ("Name",),        ),        ] ,0) \
+            + self.do1line( co, [ ("Phone"  , ("Phone",)        ),
+                                  ("Mobile" , ("Mobile","Cell") ),        ] ,0) \
+            + self.do1line( co, [ ("Email"  , ("Email",
+                                               "Email address") ),        ] ,0) \
+            + self.do1line( co, [ ("Address", ("Address", )     ),        ] ,0) \
+            + self.do1line( co, [                                         ] ,0) \
+            + self.do1line( co, [                                         ] ,0) \
+            + self.do1line( co, [ ("Work"   , (             )   ),        ] ,0) \
+            + self.do1line( co, [ ("Phone"  , ("Work phone",)   ),
+                                  ("Fax"    , ("Work fax",)     ),        ] ,0) \
+            + self.do1line( co, [ ("Email"  , ("Work email",)   ),        ] ,0) \
+            + self.do1line( co, [ ("Address", ("Work address",) ),        ] ,0) \
+            + self.do1line( co, [                                         ] ,0) \
+            + self.do1line( co, [                                         ] ,0) \
+            + self.do1line( co, [ ("Emergency Contacts", ()     ),        ] ,0) \
+            + self.do1line( co, [ ("", ("Emergency Contact 1",),),        ] ,0) \
+            + self.do1line( co, [ ("", ("Emergency Contact 2",),),        ] ,0) \
+            + self.do1line( co, [ ("", ("Emergency Contact 3",),),        ] ,0) \
+            + self.do1line( co, [ ("", ("Emergency Contact 4",),),        ] ,0) \
+            + self.do1line( co, [ ("Other Information" , ()     ),        ] ,0)
 
         while self.linenum < nlines:
-            s = s + self.do1line(None,None,0)
+            s = s + self.do1line( co, [ ] ,0)
 
         s = s + "RE\n"
         return s
 
-    def do1line(self,title1,title2,linethick):
+    def do1line(self, config, title_info_pairs, linethick):
         """Do one line of the personal information page."""
         s = ""
         texty = self.pHeight - self.linenum*self.linespacing + 0.2*self.linespacing
-        if title1 is not None:
-            title1 = self.postscriptEscape(title1)
-            s = s + "0 %5.3f M (%s) SH\n" % (texty,title1)
-        if title2 is not None:
-            title2 = self.postscriptEscape(title2)
-            s = s + "%5.3f %5.3f M (%s) SH\n" % (self.pWidth/2,texty,title2)
+        fontsize = self.linespacing * 0.5
+        infofontsize = fontsize * 1.1 # Times font appears smaller than helvetica
+        nelements = len(title_info_pairs)
+        thiselement = 0
+        for title_info in title_info_pairs:
+            title = self.postscriptEscape(title_info[0])
+            s = s + "/%s %5.3f selectfont\n" % (self.di.subtitleFontName,fontsize)
+            s = s + "%5.3f %5.3f M (%s) SH \n" % (self.pWidth * thiselement / nelements, texty,
+                                                  title)
+            for info_name in title_info[1]:
+                if config.has_option("Personal Information", info_name):
+                    info_raw = config.get("Personal Information", info_name)
+                    # This is deliberately printed in the previous font.
+                    s = s + "( - ) SH\n"
+                    info = self.postscriptEscape(info_raw)
+                    s = s + "/%s %5.3f selectfont\n" % (self.di.personalinfoFontName,
+                                                        infofontsize)
+                    s = s + "(%s) SH\n" % info
+                    break
+            thiselement += 1
         liney = self.pHeight - self.linenum * self.linespacing
         if linethick:
             s = s + "%5.2f SLW " % self.di.underlineThick
