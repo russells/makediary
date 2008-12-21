@@ -1761,7 +1761,8 @@ class DiaryPage(PostscriptPage):
 
     def __init__(self,dinfo):
         PostscriptPage.__init__(self,dinfo)
-        self.weekendgray = (1.0+self.di.titleGray)/2.0
+        self.otherdaygray = (1.0+self.di.titleGray)/2.0
+        self.weekendgray = self.di.titleGray
 
 
     def setMargins(self):
@@ -1830,12 +1831,11 @@ class DiaryPage(PostscriptPage):
 
         # Draw the box around the title
         if isholiday or dd.day_of_week==DateTime.Saturday or dd.day_of_week==DateTime.Sunday:
-            s = s + "0 %5.3f %5.3f %5.3f %5.3f %5.3f boxLBWHgray\n" % \
-                (self.titleboxy, self.dwidth, self.titleboxsize, di.underlineThick, \
-                self.weekendgray)
+            gr = self.weekendgray
         else:
-            s = s + "0 %5.3f %5.3f %5.3f %5.3f boxLBWH\n" % \
-                (self.titleboxy, self.dwidth, self.titleboxsize, di.underlineThick)
+            gr = self.otherdaygray
+        s = s + "0 %5.3f %5.3f %5.3f %5.3f %5.3f boxLBWHgray\n" % \
+            (self.titleboxy, self.dwidth, self.titleboxsize, di.underlineThick, gr)
 
         # Print the day name as the diary day header.
         s = s + "10 10 M /%s %5.2f selectfont " % (di.titleFontName, self.titlefontsize)
