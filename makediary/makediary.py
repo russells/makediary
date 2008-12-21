@@ -1893,7 +1893,7 @@ class DiaryPage(PostscriptPage):
         # Adding and removing entries from this list will automatically adjust the number
         # of appointment lines, and the size of the lines.  Entries that are None result in
         # a line without a label.
-        tempAppTimes = ["7","8","9","10","11","12","1","2","3","4","5","6","7"]
+        tempAppTimes = ["9","10","11","12","1","2","3","4","5","6","7"]
         appTimes = [ ]
         while len(appTimes) < self.nlines:
             if len(appTimes) < len(tempAppTimes):
