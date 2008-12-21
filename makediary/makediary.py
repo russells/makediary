@@ -50,6 +50,7 @@ class DiaryInfo:
                "event-images",
                "help",
                "image-page=",
+               "image-2page=",
                "large-planner",
                "line-spacing=",
                "margins-multiplier=",
@@ -85,7 +86,8 @@ class DiaryInfo:
                   "    [--address-pages=n] [--appointment-width=w] [--appointments]\n",
                   "    [--colour] [--cover-image=file] [--day-to-page]\n",
                   "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
-                  "    [--eps-page=epsfile] [--event-images] [--image-page=IMAGEFILE]\n",
+                  "    [--eps-page=epsfile] [--event-images]\n",
+                  "    [--image-page=IMAGEFILE[,title]] [--image-2page=IMAGEFILE[,title]]\n",
                   "    [--large-planner] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
                   "    [--northern-hemisphere-moon]\n",
                   "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
@@ -230,12 +232,9 @@ class DiaryInfo:
             elif opt[0] == "--help":
                 self.usage(sys.stdout)
             elif opt[0] == "--image-page":
-                commaindex = opt[1].find(",")
-                if commaindex != -1:
-                    self.imagePages.append( { "fileName":opt[1][0:commaindex],
-                                              "title":opt[1][commaindex+1:] } )
-                else:
-                    self.imagePages.append( { "fileName":opt[1], "title":"" } )
+                self.imagePageOption(opt[1], 1)
+            elif opt[0] == "--image-2page":
+                self.imagePageOption(opt[1], 2)
             elif opt[0] == "--large-planner":
                 self.largePlanner = True
             elif opt[0] == "--line-spacing":
@@ -344,6 +343,18 @@ class DiaryInfo:
         self.dtbegin = DateTime.DateTime(date.year, date.month, date.day)
         self.dt = DateTime.DateTime(date.year, date.month, date.day)
         self.dtend = self.dt + DateTime.RelativeDateTime(years=1)
+
+
+    def imagePageOption(self, option, npages):
+        commaindex = option.find(",")
+        if commaindex != -1:
+            self.imagePages.append( { "fileName" : option[0:commaindex],
+                                      "title"    : option[commaindex+1:],
+                                      "pages"    : npages } )
+        else:
+            self.imagePages.append( { "fileName" : option,
+                                      "title"    : "",
+                                      "pages"    : npages } )
 
 
     def floatOption(self,name,s):
@@ -777,10 +788,17 @@ class PostscriptPage(BasicPostscriptPage):
 
 class ImageFilePage(PostscriptPage):
 
-    def __init__(self, dinfo, imgfilename, imagetitle=None):
+    class Side:
+        full  = "FULL"
+        left  = "LEFT"
+        right = "RIGHT"
+
+    def __init__(self, dinfo, imgfilename, imagetitle=None, side=Side.full):
         PostscriptPage.__init__(self, dinfo)
         self.imgfilename = imgfilename
         self.imagetitle = imagetitle
+        self.side = side
+
 
     def body(self):
         imgfilepathname = None
@@ -805,16 +823,56 @@ class ImageFilePage(PostscriptPage):
                     break
         if imgfilepathname:
             inset = self.pWidth / 200.0
-            imgp = self.image(imgfilepathname,
-                                 self.pLeft+inset, self.pBottom+inset,
-                                 self.pWidth-2*inset, self.pHeight-2*inset)
+            if self.side == self.Side.full:
+                sclip = ''
+            elif self.side == self.Side.left or self.side == self.Side.right:
+                sclip = "newpath %5.3f %5.3f %5.3f %5.3f rectclip\n" % \
+                        (self.pLeft, self.pBottom, self.pWidth, self.pHeight)
+            if self.side == self.Side.full:
+                x = self.pLeft + inset
+                y = self.pBottom + inset
+                w = self.pWidth - 2*inset
+                h = self.pHeight - 2*inset
+            elif self.side == self.Side.left:
+                x = self.pLeft    + inset
+                y = self.pBottom  + inset
+                w = self.pWidth*2 - 2*inset
+                h = self.pHeight  - 2*inset
+            elif self.side == self.Side.right:
+                x = self.pLeft - self.pWidth + inset
+                y = self.pBottom             + inset
+                w = self.pWidth*2            - 2*inset
+                h = self.pHeight             - 2*inset
+
+            imgp = self.image(imgfilepathname, x, y, w, h)
             if self.imagetitle:
-                return self.title(self.imagetitle) + imgp
+                return self.title(self.imagetitle) + sclip + imgp
             else:
-                return imgp
+                return sclip + imgp
         else:
             print >>sys.stderr, "Can't find %s" % self.imgfilename
             return "%% -- Can't find %s\n" % self.imgfilename
+
+
+# ############################################################################################
+
+# Two pages whose content is made up of two halves of one image file.
+
+class TwoImageFilePages:
+
+    def __init__(self, dinfo, imgfilename, imagetitle=None):
+        self.dinfo = dinfo
+        self.imgfilename = imgfilename
+        self.imagetitle = imagetitle
+
+
+    def page(self):
+        s = ''
+        s = s + ImageFilePage(self.dinfo, self.imgfilename, self.imagetitle,
+                              ImageFilePage.Side.left).page()
+        s = s + ImageFilePage(self.dinfo, self.imgfilename, self.imagetitle,
+                              ImageFilePage.Side.right).page()
+        return s
 
 
 # ############################################################################################
@@ -2391,7 +2449,18 @@ class Diary:
 
         # Print image pages, if there are any, and end on a new opening.
         for imagePage in di.imagePages:
-            w( ImageFilePage(di, imagePage["fileName"], imagePage["title"]).page() )
+            npages = imagePage["pages"]
+            if npages == 1:
+                w( ImageFilePage(di, imagePage["fileName"], imagePage["title"] ).page() )
+            elif npages == 2:
+                if di.evenPage:
+                    self.w( NotesPage(di).page() )
+                w( TwoImageFilePages(di, imagePage["fileName"], imagePage["title"]).page() )
+            else:
+                print >>sys.stderr, "makediary: internal error:"
+                print >>sys.stderr, "-- image file (%s): imagePage['pages'] == %d" \
+                      % (imagePage['fileName'], npages)
+                sys.exit(1)
         if di.evenPage:
             self.w( EmptyPage(di).page() )
 

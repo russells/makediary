@@ -78,11 +78,18 @@ specified, the events will be printed without images.
 
 Display a usage message and exit.
 
-=item --image-page=IMAGE
+=item --image-page=IMAGEFILENAME[,title]
 
 Display an image maximised onto a page.  This can be specified multiple times.
 The images specified will be printed on consecutive pages immediately after the
-personal information page.
+personal information page.  The optional title will be used as the page title.
+
+=item --image-2page=IMAGEFILENAME[,title]
+
+Display an image maximised across two pages.  The optional title will be
+printed on both pages.  A notes page will be inserted immediately before the
+first page, if necessary, to ensure the image is printed on facing left and
+right pages.
 
 =item --line-spacing=I<d>
 
