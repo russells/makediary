@@ -29,14 +29,7 @@ git ls-tree -z --name-only -r HEAD \
 
 cd $_DEB_BUILD_DIR
 ./make-man
-
-cd eps
-./compile-unix-ref
-./compile-sh-ref
-cd vi-ref
-./compile-vi-ref
-./compile-vi-back
-cd ../..
+./make-eps
 
 fakeroot dpkg-buildpackage -uc -us
 

@@ -13,14 +13,7 @@ set -e -x
 [ -d makediary ]
 
 ./make-man
-
-cd eps
-./compile-unix-ref
-./compile-sh-ref
-cd vi-ref
-./compile-vi-ref
-./compile-vi-back
-cd ../..
+./make-eps
 
 rm -rf dist build MANIFEST
 

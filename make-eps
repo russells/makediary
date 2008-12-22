@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Create the EPS files.  This must be run from within
+# the makediary source directory.
+
+set -e -x
+
+# Check for things that indicat we are in the makediary source
+# directory.
+[ -f VERSION ]
+[ -f PAPER.txt ]
+[ -f setup.py ]
+[ -d makediary ]
+
+cd eps
+./compile-unix-ref
+./compile-sh-ref
+cd vi-ref
+./compile-vi-ref
+./compile-vi-back
+
