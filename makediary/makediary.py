@@ -109,7 +109,7 @@ class DiaryInfo:
     usageStrings.append("    year = next year          line-spacing = 6.0mm\n")
     usageStrings.append("    page-size = a5            paper-size = a5\n")
     usageStrings.append("    weeks-before = 0          weeks-after = 0\n")
-    usageStrings.append("    appointment-width = 0.35  planner-years = 2\n")
+    usageStrings.append("    appointment-width = 35%   planner-years = 2\n")
     usageStrings.append("    address-pages = 6         notes-pages = 6\n")
 
     def usage(self, f=sys.stderr):
@@ -210,7 +210,15 @@ class DiaryInfo:
                 self.nAddressPages = self.integerOption("address-pages",opt[1])
             elif opt[0] == "--appointment-width":
                 self.appointments = True
-                self.appointmentWidth = self.floatOption("appointment-width",opt[1])
+                if opt[1][-1] == '%':
+                    optstr = opt[1][0:-1] # Strip an optional trailing '%'
+                else:
+                    optstr = opt[1]
+                self.appointmentWidth = self.floatOption("appointment-width",optstr)
+                if self.appointmentWidth < 0 or self.appointmentWidth > 100:
+                    sys.stderr.write("%s: appointment width must be >=0 and <=100\n" %
+                                     self.myname)
+                    sys.exit(1)
             elif opt[0] == "--appointments":
                 self.appointments = True
             elif opt[0] == "--colour":
@@ -1783,11 +1791,12 @@ class DiaryPage(PostscriptPage):
             self.dheight = self.pHeight_diary/2.0
         self.dwidth = self.pWidth
 
-        self.appProportion = self.di.appointmentWidth # Proportion of width in appointments
-        self.appLeft = self.dwidth * (1.0 - self.appProportion)
-        self.appRight = self.dwidth
-        self.appWidth = self.appRight - self.appLeft
+        # In here, "app" is short for appointment.
         if di.appointments:
+            self.appProportion = self.di.appointmentWidth /100.0 # Proportion of page width
+            self.appLeft = self.dwidth * (1.0 - self.appProportion)
+            self.appRight = self.dwidth
+            self.appWidth = self.appRight - self.appLeft
             self.dwidthLines = self.appLeft - 0.2*di.lineSpacing
         else:
             self.dwidthLines = self.pWidth
@@ -1857,12 +1866,14 @@ class DiaryPage(PostscriptPage):
         else:
             s = s + "%5.3f %5.3f M (%s) SH\n" % (self.titlefontgap,self.titlefonty,jtext)
 
-        # Draw all the writing lines.
-        s = s + "0 SLW "
-        for lineno in range(self.nlines):
-            liney = self.titleboxy-(1+lineno)*di.lineSpacing
-            s = s + "0 %5.3f M %5.3f 0 RL S " % (liney,self.dwidthLines)
-        s = s + "\n"
+        # Draw all the writing lines, but if the appointments take up the whole width, don't
+        # print the writing lines.
+        if self.di.appointmentWidth != 100:
+            s = s + "0 SLW "
+            for lineno in range(self.nlines):
+                liney = self.titleboxy-(1+lineno)*di.lineSpacing
+                s = s + "0 %5.3f M %5.3f 0 RL S " % (liney,self.dwidthLines)
+            s = s + "\n"
 
         # Put in the events for this day
         eventstr = self.drawEvents(0, self.titleboxy - di.lineSpacing, di.lineSpacing)

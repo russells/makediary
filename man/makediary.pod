@@ -29,10 +29,11 @@ Print I<n> address pages.  Defaults to 6.
 
 Print a column of appointment times on the right side of each day.
 
-=item --appointment-width=I<N%>
+=item --appointment-width=I<N>[%]
 
-Specify the width of the appointment times column as a proportion of the
-width of the day.  Defaults to 35%.
+Specify the width of the appointment times column as a percentage of the width
+of the day.  Defaults to 35%.  The '%' sign is optional.  Implies
+B<--appointments>.
 
 =item --colour
 
