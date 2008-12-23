@@ -169,6 +169,10 @@ Start the diary on the specified date.  The date must be in yyyy-mm-dd
 format.  If both B<--start-date> and B<--year> are both specified, the last
 one specified will take precedence.
 
+=item --units-ref
+
+Print the Units reference page.
+
 =item --unix-ref
 
 Print the Unix commands reference page.
