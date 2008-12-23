@@ -1,0 +1,295 @@
+\documentclass{article}
+% Copyright 2002-2004 Donald Bindner
+% Copyright 2004-2008 Russell Steicke
+% Permission is granted to copy, distribute and/or modify this
+% document under the terms of the GNU Free Documentation License,
+% Version 1.1 or any later version published by the Free Software
+% Foundation.
+
+
+
+\if 0
+
+----- README -----
+
+This latex file is processed by an awk script that runs the units program
+on data read from each line starting with ``do-convert''.
+
+There can be either two or four arguments after do-convert.  If there are
+two, they are used as both the input to units and the names for the typeset
+output.  If there are four, the first and third are used as input for
+units, and the second and fourth are used as names for the typeset output.
+
+For example, with two arguments:
+
+  do-convert metre feet
+
+runs
+
+  units -t 'metre' 'feet'
+
+and the awk script produces a line like this:
+
+  1 metre~~\dotfill~~$3.2808399$~feet\par
+
+and with four arguments:
+
+  do-convert metre 1~metre angstrom \r{A}ngstr\"{o}ms
+
+runs
+
+  units -t 'metre' 'angstrom'
+
+and produces
+
+  1~metre~~\dotfill~~$1\times10^{10}$~\r{A}ngstr\"{o}ms\par
+
+Note how the arguments to units are quoted.  Occasionally we need to supply
+shell-special characters as input (eg "(1/9)span") and quoting the input
+makes this possible.
+
+If spaces are necessary in any of the arguments, use ~ instead.  LaTeX will
+typeset that as a non-breaking space and everything will work.
+
+With two arguments, the awk script prefixes the first argument with "1~",
+but with four arguments you need to put that in yourself.
+
+There is also a macro do-convert-nosp, with omits the ~ between the units
+output (the number) and the typeset output unit name.  I have used this
+mainly for typesetting temperature conversions where we don't want a space
+before the degree symbol.
+
+When units tells us things like 1.234e+08, the awk script converts this to
+1.234^{8}.  It also puts the number inside a math environment with dollar
+signs.
+
+Beware that this README block is actually processed by latex.  It is
+between \if0 and \fi, but things like unmatched dollare signs will still
+cause latex to barf.
+
+----- END OF README -----
+
+\fi
+
+
+
+\usepackage{multicol}
+
+\setlength{\textheight}{11 in}
+\setlength{\textwidth}{7.5 in}
+\setlength{\hoffset}{-2 in}
+\setlength{\voffset}{-1 in}
+\setlength{\footskip}{12 pt}
+\setlength{\oddsidemargin}{1.5 in}
+\setlength{\evensidemargin}{1.5 in}
+\setlength{\topmargin}{13 pt}
+\setlength{\headheight}{12 pt}
+\setlength{\headsep}{0 in}
+
+\setlength{\parindent}{0 in}
+
+\ifx \pdfpagewidth \undefined
+\else
+ \pdfpagewidth=11in    % page width of PDF output
+ \pdfpageheight=8.5in  % page height of PDF output
+\fi
+
+\newcommand{\ctrl}{C-}
+
+\begin{document}
+\thispagestyle{empty}
+\fontsize{9}{10}\selectfont
+
+\newcommand{\cmd}[2]{#1 \hfill \texttt{#2}\par}
+\newcommand{\head}[1]{{\large\textbf{#1}}\par
+\vskip 2pt
+\hrule
+\vskip 4pt}
+\newcommand{\conversion}[2]{#1 $=$ \hfill{}#2\par}
+
+\begin{multicols}{2}
+
+\vbox{\head{Length and speed}
+do-convert metre feet
+do-convert metre ~ inches inches
+do-convert metre 1~metre angstrom \r{A}ngstr\"{o}ms
+do-convert inch 1~inch mm mm~(exact)
+do-convert foot metres
+do-convert foot ~ inches inches
+do-convert yard feet
+do-convert yard 1~yard metres metres~(exact)
+do-convert fathom feet
+do-convert mile feet
+do-convert mile ~ kilometres kilometres
+do-convert mile ~ metres metres
+do-convert mile ~ furlongs furlongs
+do-convert chain feet
+do-convert chain ~ metres metres
+% A span comes out at 8.9999844 inches because of rounding error.
+do-convert span 1~span (1/9)span inches
+do-convert span ~ (1/228.6)span mm
+do-convert nauticalmile 1~nautical~mile feet feet
+do-convert nauticalmile ~               kilometres kilometres
+do-convert knot kilometres/hour
+do-convert kilometre/hour knots
+do-convert league miles
+do-convert league ~ nauticalmiles nautical~miles
+do-convert lightyear 1~light~year kilometres kilometres
+do-convert lightyear ~ miles miles
+do-convert lightyear ~ parsecs parsecs
+do-convert lightsecond 1~light~second km kilometres
+do-convert lightsecond/1000000 1~light~$\mu$second m metres
+do-convert lightsecond/2000000 1~radar~$\mu$second m metres
+do-convert au 1~Astronomical~unit~(Earth~to~Sun) km km
+do-convert au/lightsecond Light~time~from~Sun 1 seconds
+do-convert au/lightsecond/60 ~ 1 minutes
+do-convert km lightyear
+do-convert parsec 1~parsec~(parallel~second) km km
+do-convert parsec ~ lightyear light~years
+do-convert km/hr m/s
+do-convert m/s km/hr
+do-convert furlong chains
+do-convert furlong ~ rods rods
+do-convert furlong ~ feet feet
+do-convert furlong ~ metres metres
+do-convert furlong/fortnight km/hr
+do-convert km/hr furlongs/fortnight
+do-convert angstrom 1~\r{A}ngstr\"{o}m metres metres
+do-convert angstrom/year 1~\r{A}ngstr\"{o}m~per~year km/hr km/hr
+%do-convert arcminute nauticalmile
+}
+
+\vskip 10pt
+
+\vbox{\head{Weight and mass}
+do-convert kilogram grams
+do-convert kilogram ~ pounds pounds
+do-convert kilogram ~ grains grains
+do-convert kilogram ~ ounces ounces
+do-convert pound ounces
+do-convert pound ~ kilograms kilograms
+do-convert pound ~ grams grams
+do-convert ounce grams
+do-convert brhundredweight 1~hundredweight pounds pounds
+do-convert ushundredweight 1~US~hundredweight pounds pounds
+do-convert kilogram 1~kilogram ounce ounces
+do-convert tonne kilograms
+do-convert tonne ~ quintals quintals
+do-convert tonne ~ brton tons
+do-convert tonne ~ uston US~tons
+do-convert stone pounds
+do-convert stone ~ kilograms kilograms
+do-convert solarmass 1~Solar~mass tonne tonnes
+}
+
+\vskip 10pt
+
+\vbox{\head{Pressure}
+do-convert atmosphere 1~atmosphere hectopascal hectoPascal~(hPa)
+do-convert atmosphere ~            lbf/in^2 lb/in$^2$
+do-convert hPa 1~hectoPascal atmosphere atmosphere
+do-convert hPa ~ millibar millibar
+do-convert 100kPa 100~kPa lbf/in^2 lb/in$^2$
+}
+
+\vskip 10pt
+
+\vbox{\head{Volume}
+do-convert litre ml
+do-convert litre ~ brgallon British~gallons
+do-convert litre ~ usgallon US~gallons
+do-convert cm^3 1~cm$^3$~(1~cc) ml ml
+do-convert m^3 1~m$^3$ ml ml
+do-convert m^3 ~ litres litres
+do-convert m^3 ~ brgallon British~gallons
+do-convert pint litres
+do-convert quart litres
+do-convert quart ~ pints pints
+do-convert brfloz British~fluid~ounce ml ml
+do-convert usfloz US~fluid~ounce ml ml
+do-convert metriccup 1~Metric~cup ml ml
+do-convert austbl 1~Australian~tablespoon ml ml
+do-convert austsp 1~Australian~teaspoon ml ml
+do-convert cup ml
+do-convert brgallon 1~British~gallon litres litres
+do-convert usgallon 1~US~gallon litres litres
+do-convert barrel 1~barrel brgallon British~gallons
+do-convert barrel ~ usgallon US~gallons
+do-convert liquidbarrel liquid~barrel usgallon US~gallons
+do-convert hogshead hogshead liquidbarrels liquid~barrels
+do-convert inch^3 1~inch$^3$ cm^3 cm$^3$
+}
+
+\vskip 10pt
+
+\vbox{\head{Area}
+do-convert m^2 m$^2$ foot^2 foot$^2$
+do-convert hectare 1~hectare m^2 m$^2$
+do-convert hectare ~         intacre acres
+do-convert intacre 1~acre hectares hectares
+do-convert intacre ~ m^2 m$^2$
+do-convert mile^2 mile$^2$ intacres acres
+do-convert mile^2 ~        km^2 km$^2$
+do-convert km^2 km$^2$ intacres acres
+do-convert km^2 ~      mile^2 mile$^2$
+}
+
+\vskip 10pt
+
+\vbox{\head{Time}
+do-convert decade years
+do-convert century years
+do-convert century ~ seconds seconds
+do-convert 3.1415927seconds Pi~seconds nanocentury nanocenturies
+}
+
+\vskip 10pt
+
+\vbox{\head{Temperature, heat and power}
+do-convert-nosp tempC(0)   $0^\circ$~Celsius tempF $^\circ$~Farenheit
+do-convert-nosp tempC(100) $100^\circ$~Celsius tempF $^\circ$~Farenheit
+do-convert-nosp tempF(0)   $0^\circ$~Farenheit tempC $^\circ$~Celsius
+do-convert-nosp tempF(100) $100^\circ$~Farenheit tempC $^\circ$~Celsius
+do-convert-nosp tempF(-40) $-40^\circ$~Farenheit tempC $^\circ$~Celsius
+do-convert-nosp tempK(0)   0~Kelvin tempC $^\circ$~Celsius
+do-convert-nosp tempK(0)   ~        tempF $^\circ$~Farenheit
+do-convert      calorie 1~calorie joule Joules
+do-convert      joule 1~Joule calorie calories
+do-convert      btu   1~BTU   joule Joules
+do-convert      joule 1~Joule btu   BTU
+do-convert      horsepower kilowatt
+do-convert      kilowatt horsepower
+}
+
+\vskip 10pt
+
+\vbox{\head{Angles}
+do-convert radian degrees
+do-convert pi Pi 1 {}
+do-convert 360degrees Circle~(360~degrees) radians radians
+do-convert 90degrees Right~angle~(90~degrees) radians radians
+}
+
+\vskip 10pt
+
+\vbox{\head{Paper sizes}
+% This tabular* layout has a fairly high hack factor...
+\begin{tabular*}{\columnwidth}{@{\extracolsep\fill}rccrccrc}
+size &  millimetres     && size & millimetres     && size & millimetres      \\
+\\
+4A0  & 1682$\times$2378 && A2   & 420$\times$594  && A6   & 105$\times$148   \\
+2A0  & 1189$\times$1682 && A3   & 297$\times$420  && A7   &  74$\times$105   \\
+ A0  &  841$\times$1189 && A4   & 210$\times$297  && A8   &  52$\times$74    \\
+ A1  &  594$\times$841  && A5   & 148$\times$210  && A9   &  37$\times$52    \\
+\\
+ B0  & 1000$\times$1414 && B3   & 353$\times$500  && B6   & 125$\times$176   \\
+ B1  &  707$\times$1000 && B4   & 250$\times$353  && B7   &  88$\times$125   \\
+ B2  &  500$\times$707  && B5   & 176$\times$250  && B8   &  62$\times$88
+\end{tabular*}
+}
+
+\end{multicols}
+
+\end{document}
+
+

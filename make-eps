@@ -18,4 +18,6 @@ cd eps
 cd vi-ref
 ./compile-vi-ref
 ./compile-vi-back
+cd ../units-ref
+./compile-units-ref
 

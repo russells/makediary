@@ -31,6 +31,11 @@ setup(name='makediary',
                     'eps/vi-ref/vi-back.eps',
                    ]
                   ),
+                  ('lib/site-python/makediary/eps/units-ref',
+                   ['eps/units-ref/units-ref.tex',
+                    'eps/units-ref/units-ref.eps',
+                   ]
+                  ),
                   ('lib/site-python/makediary/eps',
                    ['eps/unix-ref.tex',
                     'eps/unix-ref.eps',

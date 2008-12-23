@@ -11,4 +11,6 @@ include eps/unix-ref.tex
 include eps/unix-ref.eps
 include eps/sh-ref.tex
 include eps/sh-ref.eps
+include eps/units-ref/units-ref.tex
+include eps/units-ref/units-ref.eps
 

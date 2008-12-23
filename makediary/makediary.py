@@ -70,6 +70,7 @@ class DiaryInfo:
                "sh-ref",
                "start-date=",
                "title=",
+               "units-ref",
                "unix-ref",
                "vim-ref",
                "week-to-opening",
@@ -93,7 +94,7 @@ class DiaryInfo:
                   "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
                   "    [--page-y-offset=Ymm] [--pdf] [--planner-years=n] \n",
-                  "    [--sh-ref] [--unix-ref] [--vim-ref]\n",
+                  "    [--sh-ref] [--units-ref] [--unix-ref] [--vim-ref]\n",
                   "    [--weeks-before=n] [--weeks-after=n] [--week-to-opening]\n",
                   "    [--help] [--version]\n",
                   ]
@@ -182,6 +183,7 @@ class DiaryInfo:
         self.shRef = False
         self.vimRef = False
         self.unixRef = False
+        self.unitsRef = False
         self.imagePages = []
         self.epsPageFiles = []
         self.title = None
@@ -292,6 +294,8 @@ class DiaryInfo:
                 self.setStartDate(DateTime.strptime(opt[1], '%Y-%m-%d'))
             elif opt[0] == "--title":
                 self.title = opt[1]
+            elif opt[0] == "--units-ref":
+                self.unitsRef = True
             elif opt[0] == "--unix-ref":
                 self.unixRef = True
             elif opt[0] == "--vim-ref":
@@ -2513,6 +2517,8 @@ class Diary:
             w( EPSFilePage(di, "unix-ref.eps", "Unix reference").page() )
         if di.shRef:
             w( EPSFilePage(di, "sh-ref.eps", "Shell and utility reference").page() )
+        if di.unitsRef:
+            w( EPSFilePage(di, "units-ref/units-ref.eps", "Units").page() )
         for epsPageFile in di.epsPageFiles:
             w( EPSFilePage(di, epsPageFile, '').page() )
 
