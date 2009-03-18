@@ -134,6 +134,9 @@ do-convert knot kilometres/hour
 do-convert kilometre/hour knots
 do-convert league miles
 do-convert league ~ nauticalmiles nautical~miles
+do-convert c Speed~of~light m/s m/s
+do-convert c ~ km/hr km/hr
+do-convert c ~ furlongs/fortnight furlongs/fortnight
 do-convert lightyear 1~light~year kilometres kilometres
 do-convert lightyear ~ miles miles
 do-convert lightyear ~ parsecs parsecs
@@ -194,6 +197,20 @@ do-convert 100kPa 100~kPa lbf/in^2 lb/in$^2$
 
 \vskip 10pt
 
+\vbox{\head{Area}
+do-convert m^2 m$^2$ foot^2 foot$^2$
+do-convert hectare 1~hectare m^2 m$^2$
+do-convert hectare ~         intacre acres
+do-convert intacre 1~acre hectares hectares
+do-convert intacre ~ m^2 m$^2$
+do-convert mile^2 mile$^2$ intacres acres
+do-convert mile^2 ~        km^2 km$^2$
+do-convert km^2 km$^2$ intacres acres
+do-convert km^2 ~      mile^2 mile$^2$
+}
+
+\vskip 10pt
+
 \vbox{\head{Volume}
 do-convert litre ml
 do-convert litre ~ brgallon British~gallons
@@ -218,20 +235,6 @@ do-convert barrel ~ usgallon US~gallons
 do-convert liquidbarrel liquid~barrel usgallon US~gallons
 do-convert hogshead hogshead liquidbarrels liquid~barrels
 do-convert inch^3 1~inch$^3$ cm^3 cm$^3$
-}
-
-\vskip 10pt
-
-\vbox{\head{Area}
-do-convert m^2 m$^2$ foot^2 foot$^2$
-do-convert hectare 1~hectare m^2 m$^2$
-do-convert hectare ~         intacre acres
-do-convert intacre 1~acre hectares hectares
-do-convert intacre ~ m^2 m$^2$
-do-convert mile^2 mile$^2$ intacres acres
-do-convert mile^2 ~        km^2 km$^2$
-do-convert km^2 km$^2$ intacres acres
-do-convert km^2 ~      mile^2 mile$^2$
 }
 
 \vskip 10pt
