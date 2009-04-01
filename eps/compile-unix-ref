@@ -1,4 +1,0 @@
-#!/bin/sh
-set -e -x
-latex unix-ref.tex && dvips -E -o unix-ref.eps unix-ref.dvi
-

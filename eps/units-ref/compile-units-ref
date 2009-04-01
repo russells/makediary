@@ -1,9 +1,0 @@
-#!/bin/sh
-set -e -x
-awk -f compile-units-ref.awk < units-ref-input.tex > units-ref.tex
-latex units-ref.tex
-test $(grep -c conformability units-ref.tex) -eq 0
-test $(grep -ci 'parse error' units-ref.tex) -eq 0
-dvips -E -o units-ref.eps  units-ref.dvi
-
-

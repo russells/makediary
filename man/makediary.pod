@@ -65,10 +65,26 @@ version number.
 
 Around each diary page (not each sheet of paper), draw a faint box.
 
-=item --eps-page=I<epsfilename>
+=item --eps-page=I<name[|title[|title]]>
+=item --ref=I<name[|title[|title]]>
 
-Include a page whose content is I<epsfilename>, without a title or any other
-decoration.  This could be useful for including maps, for instance.
+Include a page or pages whose content is I<name>, possible with page titles.
+This could be useful for including maps, for instance.
+
+If I<name> contains any '/' characters, it will be interpreted as a path to a
+single file to be included as an EPS page.  Otherwise, it will be interpreted
+as the base name of a file or files to be included.  The path to the file or
+files is expanded as C<eps/>I<name>C</>I<name>C<.eps> or
+C<eps/>I<name>C</>I<name>C<.*.eps>.  These strings will be appended to
+each element of C<sys.path> until one of them expands to one or more file
+names.  These file names will then be used as the EPS files.
+
+If one I<title> is supplied, it will become the page title for each of the
+included pages.  To specify different titles for each page, separate them with
+'|'.  To put a title on only the first page, use C<--ref=name'|title|'>, so
+that subsequent titles are empty.  If there are more pages than titles, the
+extra pages will have no titles.  To put a line at the top of a page without a
+title, specify that title as a single space.
 
 =item --event-images
 
@@ -161,7 +177,8 @@ to 2, ie the diary year and the following year.
 
 =item --sh-ref
 
-Print the Unix shell reference page.
+Print the Unix shell reference page.  (Equivalent to C<--ref=sh'|Shell and
+utility reference'>).
 
 =item --start-date=I<yyyy-mm-dd>
 
@@ -171,19 +188,23 @@ one specified will take precedence.
 
 =item --units-ref
 
-Print the Units reference page.
+Print the Units reference page.  (Equivalent to C<--ref=units'|Units'>.)
 
 =item --unix-ref
 
-Print the Unix commands reference page.
+Print the Unix commands reference page.  (Equivalent to C<--ref=unix'|Unix
+reference'>.)
 
 =item --version
 
 Output version information and exit.
 
+=item --vi-ref
 =item --vim-ref
 
-Print the vi and vim reference pages.
+Print the vi and vim reference pages.  The C<--vi-ref> and C<--vim-ref> options
+do exactly the same thing.  (Equivalent to C<--ref=vi'|Vi reference|Vim
+extensions'>.)
 
 =item --week-to-opening
 

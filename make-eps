@@ -12,12 +12,10 @@ set -e -x
 [ -f setup.py ]
 [ -d makediary ]
 
-cd eps
-./compile-unix-ref
-./compile-sh-ref
-cd vi-ref
-./compile-vi-ref
-./compile-vi-back
-cd ../units-ref
-./compile-units-ref
+for d in eps/* ; do
+    if [ -d "$d" -a -f "$d"/compile -a -x "$d"/compile ] ; then
+	echo Compiling EPS files in $d
+	( cd "$d" && ./compile )
+    fi
+done
 
