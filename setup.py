@@ -54,5 +54,8 @@ setup(name='makediary',
                     'eps/units/units.eps',
                    ]
                   ),
+                  ('lib/site-python/makediary/eps/sed',
+                   globEPSFiles('sed')
+                  ),
                  ])
 
