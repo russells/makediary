@@ -2484,6 +2484,8 @@ class Diary:
                 path = path_join(searchpath, "makediary", "eps", "%s" % name, "%s.*.eps" % name)
                 names = glob(path)
                 if len(names) != 0:
+                    # glob() returns random or directory order, ie unsorted.
+                    names.sort()
                     break
         return names
 
