@@ -1,0 +1,90 @@
+\documentclass{article}
+% Copyright 2002-2004 Donald Bindner
+% Copyright 2004-2008 Russell Steicke
+% Permission is granted to copy, distribute and/or modify this
+% document under the terms of the GNU Free Documentation License,
+% Version 1.1 or any later version published by the Free Software
+% Foundation.
+
+\usepackage{multicol}
+
+\setlength{\textheight}{11 in}
+\setlength{\textwidth}{7.5 in}
+\setlength{\hoffset}{-2 in}
+\setlength{\voffset}{-1 in}
+\setlength{\footskip}{12 pt}
+\setlength{\oddsidemargin}{1.5 in}
+\setlength{\evensidemargin}{1.5 in}
+\setlength{\topmargin}{13 pt}
+\setlength{\headheight}{12 pt}
+\setlength{\headsep}{0 in}
+
+\setlength{\parindent}{0 in}
+
+\ifx \pdfpagewidth \undefined
+\else
+ \pdfpagewidth=11in    % page width of PDF output
+ \pdfpageheight=8.5in  % page height of PDF output
+\fi
+
+\newcommand{\ctrl}{C-}
+
+%% % Right align last line of paragraphs.
+%% % This works, except that it right aligns every paragraph, including the
+%% % headings.  And it also right aligns the only line of short paragraphs.
+%% % Can it be put inside an environment?
+%% % http://texnik.de/cgi-bin/mainFAQ.cgi?file=paragraph/paragraph
+%% \leftskip=0pt plus 1fil
+%% \rightskip=-\leftskip
+%% \parfillskip=\leftskip
+%% \parindent=0pt
+
+
+% This is intended to be a list environment suitable for typesetting one
+% item of the sed examples.  This compiles fine, but when I used it I get
+% an error from LaTeX:
+%
+%  ! LaTeX Error: Something's wrong--perhaps a missing \item.
+%
+%  See the LaTeX manual or LaTeX Companion for explanation.
+%  Type  H <return>  for immediate help.
+%   ...
+%
+%  l.77 \begin{sedlist}
+%                      \item[{\ensuremath\bullet}] double space a file
+\newenvironment{sedlist}{
+  \begin{list}
+    {\ensuremath\bullet}
+    { \setlength{\topsep}{0pt}
+      \setlength{\partopsep}{0pt}
+      \setlength{\parsep}{0pt}
+      \slshape
+    }
+  \end{list}
+}
+
+
+
+\begin{document}
+\pagestyle{empty}
+\fontsize{9}{10}\selectfont
+
+%% % Test the sedlist.
+%% \begin{sedlist}
+%% \item foo
+%% \item bar
+%% \end{sedlist}
+
+\newcommand{\cmd}[2]{{\ensuremath\bullet~}#1:~\hfill\texttt{#2}\par\vskip2pt}
+\newcommand{\head}[1]{{\large\textbf{#1}}\hfill\par
+\vskip 2pt
+\hrule
+\vskip 4pt}
+\newcommand{\bs}{\ensuremath\backslash}
+
+%\begin{multicols}{2}
+
+%\vskip 15pt
+
+
+%%%%% Start of processed input.

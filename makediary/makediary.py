@@ -70,6 +70,7 @@ class DiaryInfo:
                "pdf",
                "planner-years=",
                "ref=",
+               "sed-ref",
                "sh-ref",
                "start-date=",
                "title=",
@@ -99,7 +100,7 @@ class DiaryInfo:
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
                   "    [--page-y-offset=Ymm] [--pdf] [--planner-years=n] \n",
                   "    [--ref=<refname>]\n",
-                  "    [--sh-ref] [--units-ref] [--unix-ref] [--vi[m]-ref]\n",
+                  "    [--sed-ref] [--sh-ref] [--units-ref] [--unix-ref] [--vi[m]-ref]\n",
                   "    [--weeks-before=n] [--weeks-after=n] [--week-to-opening]\n",
                   "    [--help] [--version]\n",
                   ]
@@ -290,6 +291,8 @@ class DiaryInfo:
             elif opt[0] == "--version":
                 print "makediary, version " + versionNumber
                 sys.exit(0)
+            elif opt[0] == "--sed-ref":
+                self.epsPageFiles.append( ['sed', 'sed reference'] )
             elif opt[0] == "--sh-ref":
                 self.epsPageFiles.append( ['sh', 'Shell and utility reference'] )
             elif opt[0] == '--start-date':
