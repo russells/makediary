@@ -524,7 +524,7 @@ class BasicPostscriptPage:
                             + "%5.3f %5.3f TR\n" % (self.di.translateXOffset,
                                                     self.di.translateYOffset)
         self.preamble = self.preamble \
-                        + "calendars begin\n" \
+                        + "monthCalendars begin\n" \
                         + "%%EndPageSetup\n" \
                         + "%% This is for year beginning %04d-%02d-%02d, " % \
                         (self.di.dtbegin.year, self.di.dtbegin.month, self.di.dtbegin.day)
@@ -1146,7 +1146,7 @@ class CalendarPage(PostscriptPage):
             for m in range(1,13):
                 my = y + mvspacing * (2-int((m-1)/4)) + mvgap*0.5
                 mx = x + ((m-1) % 4) * mhspacing + mhgap*0.5
-                mname = DateTime.DateTime(year,m).strftime("%b%Y")
+                mname = DateTime.DateTime(year,m).strftime("M_%Y_%m")
                 ms = "%5.3f %5.3f M SA %5.3f %5.3f SC %s RE\n" % \
                      (mx,my,mhsize,mvsize,mname)
                 s = s + ms
@@ -1233,7 +1233,7 @@ class HalfCalendarPage(PostscriptPage):
             if thisr >=4 : mbottom = mbottom - 2.0*mvgap
             elif thisr >= 2: mbottom = mbottom - mvgap
             mleft = left + thisc*mhspacing + mhgap*0.5
-            mname = DateTime.DateTime(thisy,thism).strftime("%b%Y")
+            mname = DateTime.DateTime(thisy,thism).strftime("M_%Y_%m")
             s = s + "%5.3f %5.3f M SA %5.3f %5.3f SC %s RE\n" % \
                 (mleft, mbottom, mhsize, mvsize, mname)
 
@@ -2058,7 +2058,7 @@ class DiaryPage(PostscriptPage):
     def titleAndThreeMonthsAtTop(self):
         """Print three calendars on the top half of a page."""
         di = self.di
-        s = "%--- three calendars\n"
+        s = "%--- three month calendars\n"
         # Page title.
         s = s + self.title(di.dt.strftime("%B %Y"),
                            "Week %d" % di.dt.iso_week[1])
@@ -2099,7 +2099,7 @@ class DiaryPage(PostscriptPage):
             c_left = c_indent + (i+1)*(c_width+c_gutter)
             s = s +"%5.3f %5.3f M SA %5.3f %5.3f SC " % \
                 (c_left,c_bottom,c_width,c_height) \
-                + c_d.strftime("%b%Y") \
+                + c_d.strftime("M_%Y_%m") \
                 + " RE\n"
             # Draw a box around the current month
             if i == 0:
@@ -2156,7 +2156,7 @@ class DiaryPage(PostscriptPage):
                      self.pBottom + self.bottomcalheight*(1.0-monthprop)/2.0,
                      (self.dwidth/6.0)*monthprop,
                      self.bottomcalheight*monthprop,
-                     DateTime.DateTime(dty.year, month).strftime('%b%Y') )
+                     DateTime.DateTime(dty.year, month).strftime('M_%Y_%m') )
             month += 1
         return s
 
@@ -2372,7 +2372,7 @@ class Diary:
             "/pageIsLetter { currentpagedevice begin " \
             "  PageSize 0 get 612 sub abs 10 lt PageSize 1 get 792 sub abs 10 lt " \
             "  and end } bind def\n" \
-            + self.calendars() \
+            + self.monthCalendars() \
             + "%%EndProlog\n"
         return p
 
@@ -2385,11 +2385,11 @@ class Diary:
         return p
 
 
-    def calendars(self):
+    def monthCalendars(self):
         """ Print code that defines a postscript name for printing a calendar for the months of
         last year, this year and next year.  We will end up with a dictionary called
-        'calendars' that contains entries such as 'Dec2000', 'Jan2001' etc.  Calling those
-        names will print the corresponding calendar with its bottom left corner at
+        'monthCalendars' that contains entries such as 'M_2000_12', 'M_2001_01' etc.  Calling
+        those names will print the corresponding calendar with its bottom left corner at
         currentpoint.  The calendar will be 1 unit high and 1 unit wide.  Change the size of
         these calendars by calling scale before calling the calendar procedure"""
 
@@ -2397,7 +2397,7 @@ class Diary:
         y = self.di.dtbegin.year
         a7 = 142.86                     # 1000/7
         a8 = 125.0                      # 1000/8
-        p = p + "/calendars 100 dict dup begin\n"
+        p = p + "/monthCalendars 100 dict dup begin\n"
         for year in y-1,y,y+1:
             for month in range(1,13):
                 mtime = DateTime.DateTime(year,month)
@@ -2405,7 +2405,7 @@ class Diary:
                 # "0 25 TR" here is to move things up very slightly, so that the
                 # bottom line is not right on the bottom.  "25" should be calculated,
                 # but at the moment it is measured and a static quantity.
-                p = p + mtime.strftime("%%----\n/%b%Y{") \
+                p = p + mtime.strftime("%%----\n/M_%Y_%m{") \
                     + " SA CP TR 0.001 0.001 scale 0 25 TR\n" \
                     + "/Helvetica-Bold findfont [80 0 0 100 0 0] makefont setfont\n"
                 ts = mtime.strftime("%B  %Y")
