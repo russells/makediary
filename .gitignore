@@ -4,6 +4,7 @@ diary.ps
 dist
 dist-deb
 build
+makediaryrc
 MANIFEST
 pod2*.tmp
 tmp

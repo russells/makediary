@@ -383,9 +383,24 @@ ordinal.  In 2001, this will say "Joe Bloggs' 129th birthday".
 
 =head1 F<.makediaryrc> file
 
-B<makediary> will read a file called F<.makediaryrc> if it exists.
-F<.makediaryrc> must be in ini-file format, and it must contain a section
-called "Personal Information".  The key-value pairs in that section are used to
+B<makediary> will read several files containing configuartion information for
+the Personal Information page.  The files are read in the order:
+
+=over
+
+=item F<.makediaryrc> in the user's home directory
+
+=item F<.makediaryrc> in the current directory
+
+=item F<makediaryrc> in the current directory
+
+=back
+
+The values in these files are merged.  Values from a later file override values
+obtained from an earlier file.
+
+The files must be in ini-file format, and should contain a section called
+"Personal Information".  The key-value pairs in that section are used to
 populate the Personal Information page.  The defined keys are:
 
 =over

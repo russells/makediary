@@ -20,6 +20,7 @@ from math import pow
 from os.path import join as path_join
 from os.path import exists as path_exists
 from os.path import basename
+from os.path import expanduser
 from glob import glob
 from os import getcwd
 from errno import EPIPE
@@ -191,7 +192,7 @@ class DiaryInfo:
         self.pdf = False
 
         self.configOptions = ConfigParser()
-        self.configOptions.read( (".makediaryrc",) )
+        self.configOptions.read( (expanduser("~/.makediaryrc"), ".makediaryrc", "makediaryrc") )
 
 
     def parseOptions(self):
