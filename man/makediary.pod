@@ -196,6 +196,15 @@ one specified will take precedence.
 
 Print the Units reference page.  (Equivalent to C<--ref=units'|Units'>.)
 
+When installing B<makediary>, this option requires that the GNU units program
+be available.  Because some systems have that program as gunits, and because
+there are other possibilities about where units could be installed,
+B<makediary> will first look for the program named by $UNITS, and if that is
+not found look for gunits, and if that is not found, finally try units.
+
+Similarly, awk is required for installation.  B<makediary> will try $AWK, gawk,
+then awk.
+
 =item --unix-ref
 
 Print the Unix commands reference page.  (Equivalent to C<--ref=unix'|Unix

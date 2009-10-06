@@ -1,5 +1,15 @@
 #!/usr/bin/awk -f
 
+BEGIN {
+    unitsprogram = ENVIRON["UNITS"];
+    if (length(unitsprogram) == 0) {
+	"which gunits" | getline unitsprogram;
+	if (length(unitsprogram) == 0) {
+	    unitsprogram = "units";
+	}
+    }
+}
+
 /^do-convert/ {
 
     if (NF == 3) {
@@ -17,7 +27,7 @@
 	exit 3;
     }
 
-    command = sprintf("units -t '%s' '%s'", inunits, outunits);
+    command = sprintf("%s -t '%s' '%s'", unitsprogram, inunits, outunits);
     print command > "/dev/stderr";
     command | getline factor;
     if (factor ~ /e\+0/) {
