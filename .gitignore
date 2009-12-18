@@ -1,6 +1,8 @@
+.calendar*
+dot-calendar*
 .makediaryrc
-diary.pdf
-diary.ps
+/*.pdf
+/*.ps
 dist
 dist-deb
 build
