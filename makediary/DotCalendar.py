@@ -8,6 +8,7 @@ __revision__ = """0.2.95"""
 
 import sys
 import os
+from os.path import expanduser
 import re
 import copy
 from mx.DateTime import *
@@ -188,14 +189,14 @@ class DotCalendar:
     def findCalendarFileName(self):
         try:
             #print "Trying DIARY_FILE"
-            name = os.environ['DIARY_FILE']
+            name = expanduser(os.environ['DIARY_FILE'])
             if os.path.isfile(name):
                 return name
         except KeyError, args:
             pass
         try:
             #print "Trying DIARY_DIR"
-            diarydir = os.environ['DIARY_DIR']
+            diarydir = expanduser(os.environ['DIARY_DIR'])
             name = os.path.join(diarydir, '.calendar')
             if os.path.isfile(name):
                 return name
@@ -203,7 +204,7 @@ class DotCalendar:
             pass
         try:
             #print "Trying PCAL_DIR"
-            pcaldir = os.environ['PCAL_DIR']
+            pcaldir = expanduser(os.environ['PCAL_DIR'])
             name = os.path.join(pcaldir, '.calendar')
             if os.path.isfile(name):
                 return name
@@ -218,8 +219,8 @@ class DotCalendar:
             pass
         try:
             #print "Trying HOME"
-            home = os.environ['HOME']
-            name = os.path.join(home, '/.calendar')
+            home = expanduser(os.environ['HOME'])
+            name = os.path.join(home, '.calendar')
             if os.path.isfile(name):
                 return name
         except KeyError, args:
