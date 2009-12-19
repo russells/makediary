@@ -1,9 +1,0 @@
-0.1.2
-
-- Added option to print one week to an opening.
-
-0.1.1
-
-- Added debian package.
-
-- Man page is now in pod format (I got sick of troff.)
