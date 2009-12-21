@@ -518,6 +518,9 @@ class BasicPostscriptPage:
         self.pagenum = self.di.getNextPageNumber()
         self.preamble =   self.di.sectionSep \
                         + ("%%%%Page: %d %d\n" % (self.pagenum,self.pagenum)) \
+                        + "%%%%PageBoundingBox: 0 0 %.0f %.0f\n" % \
+                        (self.di.paperWidth * self.di.points_mm,
+                         self.di.paperHeight * self.di.points_mm) \
                         + "%%BeginPageSetup\n" \
                         + "SA MM\n"
         if self.di.translatePage:
@@ -2275,14 +2278,22 @@ class Diary:
         p =   "%!PS-Adobe-2.0\n" \
             + ("%% -- printed by %s %s, %s\n" % (self.di.myname, self.di.opts,
                                                  DateTime.now().strftime("%Y-%m-%dT%H%M%S%Z")))
-        p = p + "%%BeginProlog\n" \
-            + "%%%%Creator: %s, by Russell Steicke, version: %s\n" % \
+        p = p + "%%%%Creator: %s, by Russell Steicke, version: %s\n" % \
             (self.di.myname,versionNumber) \
-            + DateTime.now().strftime("%%%%CreationDate: %a, %d %b %Y %H:%M:%S %z\n")
+            + DateTime.now().strftime("%%%%CreationDate: %a, %d %b %Y %H:%M:%S %z\n") \
+            + "%%%%BoundingBox: 0 0 %.0f %.0f\n" % \
+            (self.di.paperWidth * self.di.points_mm, self.di.paperHeight * self.di.points_mm)
         p = p + "%%DocumentNeededResources: font Times-Roman\n" \
-            "%%+ font Times-Bold\n%%+ font Helvetica\n%%+ font Helvetica-Oblique\n" \
-            "%%Pages: (atend)\n%%PageOrder: Ascend\n%%Orientation: Portrait\n" \
+            "%%+ font Times-Bold\n" \
+            "%%+ font Helvetica\n" \
+            "%%+ font Helvetica-Oblique\n" \
+            "%%+ font Courier\n" \
+            "%%Pages: (atend)\n" \
+            "%%PageOrder: Ascend\n" \
+            "%%Orientation: Portrait\n" \
             "%%EndComments\n" \
+            "%%BeginProlog\n" \
+            "%%BeginResource: MakediaryProcs\n" \
             "/CP {currentpoint} bind def " \
             "/M {moveto} bind def /RM {rmoveto} bind def " \
             "/L {lineto} bind def /RL {rlineto} bind def\n" \
@@ -2374,7 +2385,18 @@ class Diary:
             "  PageSize 0 get 612 sub abs 10 lt PageSize 1 get 792 sub abs 10 lt " \
             "  and end } bind def\n" \
             + self.monthCalendars() \
+            + "%%EndResource\n" \
             + "%%EndProlog\n"
+
+        p = p + "%%BeginSetup\n" \
+            "%%IncludeResource: font Times-Roman\n" \
+            "%%IncludeResource: font Times-Bold\n" \
+            "%%IncludeResource: font Helvetica\n" \
+            "%%IncludeResource: font Helvetica-Oblique\n" \
+            "%%IncludeResource: font Courier\n" \
+            "%%IncludeResource: procset MakediaryProcs\n" \
+            + "%%%%IncludeFeature: *PageSize %s\n" % self.di.paperSize.title() \
+            + "%%EndSetup\n"
         return p
 
     def postamble(self):
