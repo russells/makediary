@@ -1379,6 +1379,7 @@ class PlannerPage(PostscriptPage):
         self.top = self.pTop - 2.0 # was 5.0
         self.bottom = self.pBottom + 2.0 # was 5.0
         self.lineheight = float(self.top - self.bottom) / float(self.nlines)
+        self.daywidth = self.lineheight * 2
         self.monthwidth = float(self.pWidth - self.daywidth) / nmonths
         self.fontsize = self.lineheight * 0.7
         self.textb = self.lineheight * 0.2
