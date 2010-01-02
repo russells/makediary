@@ -55,6 +55,7 @@ class DiaryInfo:
                "image-page=",
                "image-2page=",
                "large-planner",
+               "layout=",
                "line-spacing=",
                "margins-multiplier=",
                "moon",
@@ -96,6 +97,7 @@ class DiaryInfo:
                   "    [--eps-page=epsfile[|title[|title...]]] [--event-images]\n",
                   "    [--image-page=IMAGEFILE[,title]] [--image-2page=IMAGEFILE[,title]]\n",
                   "    [--large-planner] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
+                  "    [--layout=day-to-opening|week-to-opening|week-to-2-openings]\n"
                   "    [--northern-hemisphere-moon]\n",
                   "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
@@ -119,6 +121,12 @@ class DiaryInfo:
     usageStrings.append("    weeks-before = 0          weeks-after = 0\n")
     usageStrings.append("    appointment-width = 35%   planner-years = 2\n")
     usageStrings.append("    address-pages = 6         notes-pages = 6\n")
+
+    layouts = ( "day-to-page", "week-to-opening", "week-to-2-openings" )
+    defaultLayout = "week-to-2-openings"
+    usageStrings.append("  Layouts: " + ", ".join(layouts) + "\n")
+    usageStrings.append("  Default layout: " + defaultLayout + "\n")
+
     def usage(self, f=sys.stderr):
         for i in range(len(self.usageStrings)):
             f.write(self.usageStrings[i])
@@ -175,8 +183,7 @@ class DiaryInfo:
         self.colour = False             # If true, print images in colour
         self.moon = False               # If true, print moon phases
         self.northernHemisphereMoon = False # If true, print northern hemisphere moon phases
-        self.weekToOpening = False      #
-        self.dayToPage = False          #
+        self.layout = self.defaultLayout
         self.debugBoxes = False         # If true, draw faint boxes around things for debugging
         self.debugVersion = False       # If true, print version info on inside cover.
         self.debugWholePageBoxes = False# If true, draw faint boxes around all pages.
@@ -230,7 +237,7 @@ class DiaryInfo:
             elif opt[0] == "--cover-image":
                 self.coverImage = opt[1]
             elif opt[0] == "--day-to-page":
-                self.dayToPage = True
+                self.layout = "day-to-page"
             elif opt[0] == "--debug-boxes":
                 self.debugBoxes = 1
             elif opt[0] == "--debug-whole-page-boxes":
@@ -251,6 +258,12 @@ class DiaryInfo:
                 self.imagePageOption(opt[1], 2)
             elif opt[0] == "--large-planner":
                 self.largePlanner = True
+            elif opt[0] == "--layout":
+                if opt[1] in self.layouts:
+                    self.layout = opt[1]
+                else:
+                    print >>sys.stderr, "%s: Unknown layout %s" % (sys.argv[0], opt[1])
+                    sys.exit(1)
             elif opt[0] == "--line-spacing":
                 self.lineSpacing = self.floatOption("line-spacing",opt[1])
             elif opt[0] == "--margins-multiplier":
@@ -307,7 +320,7 @@ class DiaryInfo:
             elif opt[0] == "--vim-ref" or opt[0] == "--vi-ref":
                 self.epsPageFiles.append( ['vi', ['Vi reference', 'Vim extensions']] )
             elif opt[0] == "--week-to-opening":
-                self.weekToOpening = True
+                self.layout = "week-to-opening"
             elif opt[0] == "--weeks-after":
                 self.nWeeksAfter = self.integerOption("weeks-after",opt[1])
             elif opt[0] == "--weeks-before":
@@ -317,9 +330,6 @@ class DiaryInfo:
             else:
                 print >>sys.stderr, "Unknown option: %s" % opt[0]
                 self.usage()
-        if self.weekToOpening and self.dayToPage:
-            print >>sys.stderr, "Can't specify both --week-to-opening and --day-to-page"
-            sys.exit(1)
         if self.pdf:
             # If the name is still diary.ps and it was not set by command line option, change
             # it to diary.pdf.
@@ -1781,9 +1791,9 @@ class DiaryPage(PostscriptPage):
         self.ptop_diary = 0
         self.pheight_diary = 0
 
-        if di.weekToOpening:
+        if di.layout == "week-to-opening":
             self.dheight = self.pHeight_diary/4.0
-        elif di.dayToPage:
+        elif di.layout == "day-to-page":
             self.dheight = self.pHeight_diary * 0.9
             self.bottomcalheight = self.pHeight_diary - self.dheight
         else:
@@ -1801,7 +1811,7 @@ class DiaryPage(PostscriptPage):
             self.dwidthLines = self.pWidth
 
         # These are the settings that have the most effect on the layout of a day.
-        if di.weekToOpening:
+        if di.layout == "week-to-opening":
             # Smaller boxes when we cram a week into two pages
             self.titleboxsize = di.lineSpacing * 1.2
         else:
@@ -2068,7 +2078,7 @@ class DiaryPage(PostscriptPage):
         s = s + self.title(di.dt.strftime("%B %Y"),
                            "Week %d" % di.dt.iso_week[1])
         # Calculate the area we have for drawing.
-        if di.weekToOpening or di.dayToPage:
+        if di.layout == "week-to-opening" or di.layout == "day-to-page":
             b = di.bMargin + self.pHeight_diary*0.75
         else:
             b = di.bMargin + self.pHeight_diary*0.5
@@ -2080,7 +2090,7 @@ class DiaryPage(PostscriptPage):
         #      + "2 2 M 0 %5.3f RL %5.3f 0 RL 0 %5.3f RL %5.3f 0 RL S RE\n" % \
         #      (h-4,w-4,-(h-4),-(w-4))
         s = s + "SA %5.3f %5.3f TR\n" % (l,b)
-        if di.weekToOpening:
+        if di.layout == "week-to-opening":
             c_bottom = h * 0.45
             c_height = h * 0.49
             c_indent = w * 0.033
@@ -2242,10 +2252,10 @@ class DiaryPage(PostscriptPage):
 
     def body(self):
         s = ""
-        if self.di.dayToPage:
+        if self.di.layout == "day-to-page":
             s = self.sixMonthsAtBottom() + self.largeDayOnPage()
         elif self.di.dt.day_of_week == DateTime.Monday:
-            if self.di.weekToOpening:
+            if self.di.layout == "week-to-opening":
                 s = self.titleAndThreeMonthsAtTop() +  \
                     self.printMondayWTO() + \
                     self.printTuesdayWTO() + \
@@ -2253,7 +2263,7 @@ class DiaryPage(PostscriptPage):
             else:
                 s = self.titleAndThreeMonthsAtTop() + self.bottomHalf();
         else:
-            if self.di.weekToOpening:
+            if self.di.layout == "week-to-opening":
                 s = self.printThursdayWTO() + \
                     self.printFridayWTO() + \
                     self.printSaturdayWTO() + \

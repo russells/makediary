@@ -50,8 +50,7 @@ the smiley.
 
 =item --day-to-page
 
-Print one day to each page.  A year's worth of month calendars will be printed
-across the bottom of each opening in the day pages.
+This option is deprecated, and it is equivalent to B<--layout=day-to-page>.
 
 =item --debug-boxes
 
@@ -110,6 +109,34 @@ Display an image maximised across two pages.  The optional title will be
 printed on both pages.  A notes page will be inserted immediately before the
 first page, if necessary, to ensure the image is printed on facing left and
 right pages.
+
+=item --layout=day-to-page
+
+=item --layout=week-to-opening
+
+=item --layout=week-to-2-openings
+
+Specify the layout of the diary day pages.  The default is week-to-2-openings.
+
+=over
+
+=item day-to-page
+
+Print one day to each page.  A year's worth of month calendars will be printed
+across the bottom of each opening in the day pages.
+
+=item week-to-opening
+
+Print a week to one opening.  This has, on the left side, three month calendars
+and Monday to Wednesday, and on the right side, Thursday to Sunday.
+
+=item week-to-2-openings
+
+The default layout has on the left side, three calendars and Monday, on the
+right side Tuesday and Wednesday, then on the next two pages, Thursday and
+Friday, and Saturday and Sunday.
+
+=back
 
 =item --line-spacing=I<d>
 
@@ -223,13 +250,7 @@ extensions'>.)
 
 =item --week-to-opening
 
-Print a week to one opening.  This has, on the left side, three calendars and
-Monday to Wednesday, and on the right side, Thursday to Sunday.
-
-The default layout has on the left side, three calendars and Monday, on the
-right side Tuesday and Wednesday, then on the next two pages, Thursday and
-Friday, and Saturday and Sunday.  In both layouts, the same day always appears
-in the same position on the same page.
+This option is deprecated, and is equivalent to B<--layout=week-to-opening>.
 
 =item --weeks-after=I<N>
 
