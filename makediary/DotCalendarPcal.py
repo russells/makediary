@@ -20,7 +20,6 @@ class DotCalendar:
 
         for year in self.yearlist:
             output = subprocess.Popen(["pcal",
-                                       "-E",
                                        "-c",
                                        "-f", self.cfilename,
                                        "1", str(year), "12"],
