@@ -1,8 +1,8 @@
-makediary (0.2.95-1) unstable; urgency = low
+makediary (0.2.96-1) unstable; urgency = low
 
-  * Stuff (fill this in later.)
+  * Allow using pcal to generate the list of events.
 
- -- Russell Steicke <russells@adelie.cx>  Wed, 18 Mar 2009 16:00:00 +0900
+ -- Russell Steicke <russells@adelie.cx>  Sat, 19 Dec 2009 16:00:00 +0900
 
 makediary (0.2.3-1) unstable; urgency=low
 

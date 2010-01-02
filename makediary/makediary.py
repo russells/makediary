@@ -4,7 +4,7 @@
 
 # Print a year diary.
 
-versionNumber = "0.2.95"
+versionNumber = "0.2.96"
 
 import sys
 import getopt
@@ -12,7 +12,6 @@ import re
 import StringIO
 import Image
 import EpsImagePlugin
-import DotCalendar
 import PaperSize
 import Moon
 from mx import DateTime #import *
@@ -69,6 +68,8 @@ class DiaryInfo:
                "page-x-offset=",
                "page-y-offset=",
                "paper-size=",
+               "pcal",
+               "pcal-planner",
                "pdf",
                "planner-years=",
                "ref=",
@@ -102,7 +103,7 @@ class DiaryInfo:
                   "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
                   "    [--page-y-offset=Ymm] [--pdf] [--planner-years=n] \n",
-                  "    [--ref=<refname>]\n",
+                  "    [--pcal] [--pcal-planner] [--ref=<refname>]\n",
                   "    [--sed-ref] [--sh-ref] [--units-ref] [--unix-ref] [--vi[m]-ref]\n",
                   "    [--weeks-before=n] [--weeks-after=n] [--week-to-opening]\n",
                   "    [--help] [--version]\n",
@@ -197,6 +198,8 @@ class DiaryInfo:
         self.epsPageFiles = []
         self.title = None
         self.pdf = False
+        self.pcal = False
+        self.pcalPlanner = False
 
         self.configOptions = ConfigParser()
         self.configOptions.read( (expanduser("~/.makediaryrc"), ".makediaryrc", "makediaryrc") )
@@ -300,6 +303,11 @@ class DiaryInfo:
             elif opt[0] == "--paper-size":
                 self.paperSize = opt[1]
                 self.setPaperSize(self.paperSize)
+            elif opt[0] == "--pcal":
+                self.pcal = True
+            elif opt[0] == '--pcal-planner':
+                self.pcal = True
+                self.pcalPlanner = True
             elif opt[0] == "--planner-years":
                 self.nPlannerYears = self.integerOption("planner-years",opt[1])
             elif opt[0] == "--version":
@@ -497,6 +505,10 @@ class DiaryInfo:
 
 
     def readDotCalendar(self):
+        if self.pcal:
+            import DotCalendarPcal as DotCalendar
+        else:
+            import DotCalendar
         dc = DotCalendar.DotCalendar()
         years = []
         for i in range(self.nPlannerYears+4):
@@ -1499,9 +1511,15 @@ class PlannerPage(PostscriptPage):
                                             self.postscriptEscape(event["short"]))
 
                         if len(se) != 0:
+                            s = s + "%% events for %s\n" % dd.strftime("%Y-%m-%d")
+                            # Clip to the current day box to avoid events text spilling outside
+                            # that box.
+                            s = s + "gsave 0 %5.3f %5.3f %5.3f rectclip\n" % \
+                                (dayb,self.monthwidth,self.lineheight)
                             se = "%5.3f %5.3f M " %(self.lineheight*1.1, dayb+self.textb) + \
                                  se + "\n"
                             s = s + se
+                            s = s + "grestore\n"
 
         # Do the month titles (top and bottom). We attempt to make this localised, by using
         # strftime(), but that doesn't appear to work, even with LANG and LC_TIME set in the
@@ -1559,15 +1577,16 @@ class TwoPlannerPages:
 class FourPlannerPages:
     """Print four planner pages for one year."""
 
-    def __init__(self, year, dinfo):
+    def __init__(self, year, dinfo, doEventsOnPlanner=False):
         self.year = year
         self.dinfo = dinfo
+        self.doEvents = doEventsOnPlanner
 
     def page(self):
-        return PlannerPage(self.year,1,3,self.dinfo,True).page() \
-               + PlannerPage(self.year,4,3,self.dinfo,True).page() \
-               + PlannerPage(self.year,7,3,self.dinfo,True).page() \
-               + PlannerPage(self.year,10,3,self.dinfo,True).page()
+        return PlannerPage(self.year,1,3,self.dinfo,self.doEvents).page() \
+               + PlannerPage(self.year,4,3,self.dinfo,self.doEvents).page() \
+               + PlannerPage(self.year,7,3,self.dinfo,self.doEvents).page() \
+               + PlannerPage(self.year,10,3,self.dinfo,self.doEvents).page()
 
 
 # ############################################################################################
@@ -1575,14 +1594,15 @@ class FourPlannerPages:
 class TwelvePlannerPages:
     """Print twelve planner pages (one for each month) for one year."""
 
-    def __init__(self, year, dinfo):
+    def __init__(self, year, dinfo, doEventsOnPlanner=False):
         self.year = year
         self.dinfo = dinfo
+        self.doEvents = doEventsOnPlanner
 
     def page(self):
         page = ""
         for month in range(1,13): # month numbers are one based
-            page += PlannerPage(self.year,month,1,self.dinfo,True).page()
+            page += PlannerPage(self.year,month,1,self.dinfo,self.doEvents).page()
         return page
 
 # ############################################################################################
@@ -2562,10 +2582,14 @@ class Diary:
         if di.nPlannerYears > 0:
             if di.evenPage:
                 self.w( EmptyPage(di).page() )
+            # Decide whether to put short events on the planner pages.  If we are not using
+            # pcal to generate the events, then yes.  If we are using pcal, only put short
+            # events on if we have been told.
+            doEventsOnPlanner = (not di.pcal or (di.pcal and di.pcalPlanner))
             if di.largePlanner:
-                w( TwelvePlannerPages(di.dtbegin.year, di).page() )
+                w( TwelvePlannerPages(di.dtbegin.year, di, doEventsOnPlanner).page() )
             else:
-                w( FourPlannerPages(di.dtbegin.year, di).page() )
+                w( FourPlannerPages(di.dtbegin.year, di, doEventsOnPlanner).page() )
             if di.dtbegin.month==1 and di.dtbegin.day==1:
                 for i in range(1, di.nPlannerYears):
                     w( TwoPlannerPages(di.dtbegin.year+i, di).page() )

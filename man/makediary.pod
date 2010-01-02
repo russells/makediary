@@ -16,8 +16,8 @@ Generates a paper diary in PostScript or PDF format.
 
 B<makediary> can generate diaries in several different paper sizes.
 B<makediary> can include events printed on dates specified in a F<.calendar>
-file.  The F<.calendar> file is in the same format as used by pcal(1), with
-some extensions.
+file.  The F<.calendar> file is in almost the same format as used by pcal(1),
+with some extensions.
 
 =head1 OPTIONS
 
@@ -194,6 +194,19 @@ Specify the size of the paper that you are printing on.  This is not the
 same as the size of the diary pages.  Do B<makediary --help> for a list of
 paper sizes.
 
+=item --pcal
+
+Use pcal(1) to parse the .calendar file, instead of using the built-in parser.
+None of the extensions mentioned in "PCAL(1) F<.calendar> FILE" will work, but
+that may be fine for many users.
+
+=item --pcal-planner
+
+Use pcal(1) to parse the .calendar file (the same as --pcal) and also add that
+text to the larger planner pages.  Since there is no way to specify shorter
+text to put on the planner pages, the original text will be used, separated by
+commas.  The text is clipped to stay within the day box in any case.
+
 =item --pdf
 
 Generate PDF instead of PostScript.  Requires that ps2pdf be installed and in
@@ -294,6 +307,20 @@ variable B<HOME>.
 =back
 
 The first one of these found is used, and the rest are ignored.
+
+These things from the pcal() F<.calendar> format are not recognised:
+
+=over
+
+=item the "opt" keyword,
+
+=item the "every" keyword,
+
+=item the "each" keyword,
+
+=item the "all" keyword.
+
+=back
 
 The I<.calendar> file allows a few extensions from that defined by pcal(1).
 These extensions are embedded in comments, so the file should still make
@@ -500,14 +527,14 @@ Russell Steicke <russells@adelie.cx>
 
 Copyright (C) 2002-2009 Russell Steicke.  Released under the terms of the GNU
 General Public License, but dedicated to the public domain at the beginning of
-the tenth calendar year after publishing (ie the start of 2019 for version 0.2.95).
+the tenth calendar year after publishing (ie the start of 2019 for version 0.2.96).
 
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 =head1 VERSION
 
-0.2.95
+0.2.96
 
 =head1 SEE ALSO
 

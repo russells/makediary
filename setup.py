@@ -5,7 +5,7 @@ from distutils.core import setup
 
 # This version number must match the version number in VERSION.
 
-_makeDiaryVersion = '0.2.95'
+_makeDiaryVersion = '0.2.96'
 
 from glob import glob
 
