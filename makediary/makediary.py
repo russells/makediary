@@ -108,12 +108,7 @@ class DiaryInfo:
                   "    [--weeks-before=n] [--weeks-after=n] [--week-to-opening]\n",
                   "    [--help] [--version]\n",
                   ]
-    sizes = PaperSize.getPaperSizeNames()
-    sizesString = ''
-    for n in range(len(sizes)):
-        s = sizes[n]
-        if n == len(sizes)-1: sizesString = sizesString+s
-        else:                 sizesString = sizesString+s+'|'
+    sizesString = "|".join(PaperSize.getPaperSizeNames())
     usageStrings.append("    [--page-size=%s]\n" % sizesString)
     usageStrings.append("    [--paper-size=%s]\n" % sizesString)
     usageStrings.append("  Defaults:\n")
