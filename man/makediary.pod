@@ -283,9 +283,12 @@ precedence.
 
 =head1 PCAL(1) F<.calendar> FILE
 
+This section is not relevant if you use the B<--pcal> or B<--pcal-planner>
+flags.  If you use pcal to parse the F<.calendar> file, see pcal(1).
+
 If B<makediary> finds a F<.calendar> file, it is parsed to find events to
 print on particular days.  The file is in the same format as used by
-pcal(1), with some extensions.
+pcal(1), with some extensions, and some unimplemented features.
 
 The F<.calendar> file is searched for in these places:
 
@@ -321,6 +324,9 @@ These things from the pcal() F<.calendar> format are not recognised:
 =item the "all" keyword.
 
 =back
+
+Because "opt" is not recognised, dates are always in European format.  In pcal
+terms, "opt -E" is always in effect.
 
 The I<.calendar> file allows a few extensions from that defined by pcal(1).
 These extensions are embedded in comments, so the file should still make
