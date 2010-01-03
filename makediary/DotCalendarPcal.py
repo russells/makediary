@@ -7,8 +7,12 @@ from mx.DateTime import DateTime
 
 class DotCalendar:
 
+    EUROPEAN = 1
+    AMERICAN = 2
+
     def __init__(self):
         self.datelist = {}
+        self.dateStyle = self.EUROPEAN
 
     def setYears(self, years):
         self.yearlist = years
@@ -34,12 +38,22 @@ class DotCalendar:
         event = {}
         parts = eventline.split(None, 1)
         if len(parts) == 1 or len(parts) == 0: return
-        if len(parts[0]) != 5: return
-        if parts[0] == "opt": return
+        if parts[0] == "opt":
+            if parts[1] == "-A":
+                self.dateStyle = self.AMERICAN
+                print "Setting date style to AMERICAN"
+            elif parts[1] == "-E":
+                self.dateStyle = self.EUROPEAN
+            return
         if parts[0] == "year": return
+        if len(parts[0]) != 5: return
         if parts[0][2] != "/": return
-        day = int(parts[0][0:2])
-        month = int(parts[0][3:])
+        if self.dateStyle == self.EUROPEAN:
+            day = int(parts[0][0:2])
+            month = int(parts[0][3:])
+        elif self.dateStyle == self.AMERICAN:
+            month = int(parts[0][0:2])
+            day = int(parts[0][3:])
         event['text'] = parts[1].strip()
         event['short'] = event['text']
         #print "Adding event", year, month, day, "=", event['text']
