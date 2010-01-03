@@ -116,6 +116,8 @@ right pages.
 
 =item --layout=week-to-2-openings
 
+=item --layout=work
+
 Specify the layout of the diary day pages.  The default is week-to-2-openings.
 
 =over
@@ -135,6 +137,12 @@ and Monday to Wednesday, and on the right side, Thursday to Sunday.
 The default layout has on the left side, three calendars and Monday, on the
 right side Tuesday and Wednesday, then on the next two pages, Thursday and
 Friday, and Saturday and Sunday.
+
+=item work
+
+Layout for a work diary.  Has two days per page, except that Saturday and
+Sunday share half a page.  Also has a year's worth of month calendars across
+the bottom of two pages.
 
 =back
 

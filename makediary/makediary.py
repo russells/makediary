@@ -118,7 +118,7 @@ class DiaryInfo:
     usageStrings.append("    appointment-width = 35%   planner-years = 2\n")
     usageStrings.append("    address-pages = 6         notes-pages = 6\n")
 
-    layouts = ( "day-to-page", "week-to-opening", "week-to-2-openings" )
+    layouts = ( "day-to-page", "week-to-opening", "week-to-2-openings", "work" )
     defaultLayout = "week-to-2-openings"
     usageStrings.append("  Layouts: " + ", ".join(layouts) + "\n")
     usageStrings.append("  Default layout: " + defaultLayout + "\n")
@@ -1811,6 +1811,10 @@ class DiaryPage(PostscriptPage):
         elif di.layout == "day-to-page":
             self.dheight = self.pHeight_diary * 0.9
             self.bottomcalheight = self.pHeight_diary - self.dheight
+        elif di.layout == "work":
+            self.dheight = self.pHeight_diary * 0.45
+            self.bottomcalheight = self.pHeight_diary - self.dheight * 2.0
+            self.weekendDheight = self.dheight / 2.0
         else:
             self.dheight = self.pHeight_diary/2.0
         self.dwidth = self.pWidth
@@ -1841,13 +1845,39 @@ class DiaryPage(PostscriptPage):
         self.nlines = int(self.titleboxy / di.lineSpacing)
 
 
-    def diaryDay(self):
+    def diaryDay(self, height=None):
 
         """Print a diary day in part of a page.  At the point this is called, the graphics
         state has already been translated so we can just draw straight into our patch."""
 
         di = self.di
         dt = di.dt
+
+        # If a height has been specified, we adjust some of the layout parameters to make the
+        # day fit within that space.  But we have to save and restore the old parameters as
+        # this may not be the last day printed on this page.
+        #
+        # This is simulated dynamic scope.  Yuk.
+
+        if height is not None:
+            saved_dheight = self.dheight
+            saved_titleboxy = self.titleboxy
+            saved_titlefonty = self.titlefonty
+            saved_nlines = self.nlines
+
+            self.dheight = height
+            self.titleboxy = self.dheight - self.titleboxsize
+            self.titlefonty = self.dheight - self.titleboxsize * 0.7
+            self.nlines = int(self.titleboxy / di.lineSpacing)
+
+            s = self.diaryDay()
+
+            self.dheight = saved_dheight
+            self.nlines = saved_nlines
+            self.titleboxy = saved_titleboxy
+            self.titlefonty = saved_titlefonty
+
+            return s
 
         s = "%%--- diary day for %d-%02d-%02d\n" % (dt.year,dt.month,dt.day)
 
@@ -2085,6 +2115,41 @@ class DiaryPage(PostscriptPage):
             + "RE\n"
         return s
 
+    def workLayoutTopDay(self):
+        s = "% -- top day\n"\
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, \
+                                        self.pBottom+self.bottomcalheight+self.dheight)) \
+            + self.diaryDay() \
+            + "RE\n"
+        return s
+
+    def workLayoutBottomDay(self):
+        s = "% -- bottom day\n"\
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, \
+                                        self.pBottom+self.bottomcalheight)) \
+            + self.diaryDay() \
+            + "RE\n"
+        return s
+
+    def workLayoutSaturday(self):
+        s = "% -- Saturday on a work layout\n" \
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft,
+                                        self.pBottom
+                                        + self.bottomcalheight
+                                        + self.weekendDheight)) \
+            + self.diaryDay(self.weekendDheight) \
+            + "RE\n"
+        return s
+
+    def workLayoutSunday(self):
+        s = "% -- Sunday on a work layout\n" \
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft,
+                                        self.pBottom
+                                        + self.bottomcalheight)) \
+            + self.diaryDay(self.weekendDheight) \
+            + "RE\n"
+        return s
+
     def titleAndThreeMonthsAtTop(self):
         """Print three calendars on the top half of a page."""
         di = self.di
@@ -2269,6 +2334,12 @@ class DiaryPage(PostscriptPage):
         s = ""
         if self.di.layout == "day-to-page":
             s = self.sixMonthsAtBottom() + self.largeDayOnPage()
+        elif self.di.layout == "work":
+            s = self.sixMonthsAtBottom() + self.workLayoutTopDay()
+            if self.di.dt.day_of_week == DateTime.Saturday:
+                s += self.workLayoutSaturday() + self.workLayoutSunday()
+            else:
+                s += self.workLayoutBottomDay()
         elif self.di.dt.day_of_week == DateTime.Monday:
             if self.di.layout == "week-to-opening":
                 s = self.titleAndThreeMonthsAtTop() +  \
