@@ -98,7 +98,7 @@ class DiaryInfo:
                   "    [--eps-page=epsfile[|title[|title...]]] [--event-images]\n",
                   "    [--image-page=IMAGEFILE[,title]] [--image-2page=IMAGEFILE[,title]]\n",
                   "    [--large-planner] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
-                  "    [--layout=day-to-opening|week-to-opening|week-to-2-openings]\n"
+                  "    [--layout=day-to-opening|week-to-opening|week-to-2-openings]\n",
                   "    [--northern-hemisphere-moon]\n",
                   "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
