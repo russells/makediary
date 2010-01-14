@@ -5,6 +5,16 @@
 export DH_VERBOSE=1
 export DH_COMPAT=3
 
+DebLayoutFlagAvailable = $(shell \
+	( echo 'import sys' ; \
+	  echo 'if sys.version_info[0] >= 3 or (sys.version_info[0] == 2 and sys.version_info[1] >= 6): print "yes"' ) \
+	| python)
+ifeq ($(DebLayoutFlagAvailable),yes)
+	DebLayoutFlag = --install-layout=deb
+else
+	DebLayoutFlag =
+endif
+
 build: #build-stamp
 build-stamp:
 	dh_testdir
@@ -24,7 +34,7 @@ install: build
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
-	/usr/bin/python setup.py install --no-compile --prefix $(CURDIR)/debian/makediary/usr
+	/usr/bin/python setup.py install --no-compile --root $(CURDIR)/debian/makediary $(DebLayoutFlag)
 
 binary-indep: build install
 	dh_testdir
