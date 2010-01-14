@@ -1795,7 +1795,17 @@ class DiaryPage(PostscriptPage):
         PostscriptPage.__init__(self,dinfo)
         self.otherdaygray = (1.0+self.di.titleGray)/2.0
         self.weekendgray = self.di.titleGray
-
+        # When we print six month calendars across the bottom of a page, there will (obviously)
+        # be 12 calendars across an opening.  We want the left page of the opening to have the
+        # five months before the current month, and the current month, and the right page to
+        # have the six months after the current month.  Because the current month can change in
+        # the course of printing an opening (or even in the course of printing a page) we save
+        # the date of the first day printed on the opening, and then we can refer to that when
+        # printing month calendars on both the pages of the opening.  The first page of an
+        # opening is always an even page.  Currently, we always start a year of diary pages on
+        # an even page.  This will have to be revisited if that changes.
+        if self.di.evenPage:
+            self.di.openingCalendarsCurrentDate = self.di.dt
 
     def setMargins(self):
         """Override setMargins() specially for diary pages."""
@@ -1948,6 +1958,9 @@ class DiaryPage(PostscriptPage):
                                   self.titleboxy + self.titleboxsize * 0.5,
                                   di.lineSpacing*0.8)
 
+        # Other bits of code rely on us going to the next day only at the end of printing a
+        # diary day.  An example is the code that prints six months at the bottom of each page
+        # in some layouts.  Don't change this without thinking hard, and testing harder.
         di.gotoNextDay()
         return s
 
@@ -2225,22 +2238,20 @@ class DiaryPage(PostscriptPage):
 
 
     def sixMonthsAtBottom(self):
-        '''Print six months at the bottom of the page, Jan-Jun on the left (even) pages, and
-        Jul-Dec on the right (odd) pages.'''
+        '''Print six months at the bottom of the page, five months before the current month,
+        and the current month, on the left (even) pages, and six months after the current month
+        on the right (odd) pages.'''
 
+        # If we start on the 15th day of the relevant month, we can add or subtract 30 days
+        # several times without worrying about crossing a month boundary when we don't want to.
+        date = DateTime.DateTime( self.di.openingCalendarsCurrentDate.year,
+                                  self.di.openingCalendarsCurrentDate.month,
+                                  15)
         if self.di.evenPage:
-            month = 1
-            s = "% -- Bottom calendars, months 1-6\n"
+            date -= DateTime.oneDay * 30 * 5
         else:
-            month = 7
-            s = "% -- Bottom calendars, months 7-12\n"
-
-        # Find the year to print calendars for.  Consider what would happen when December 31 is
-        # on a left (even) page.  If we printed calendars for the current year on the bottom of
-        # the page, then the left page would have calendars for Jan-Jun in one year, and the
-        # right page would have calendars for Jul-Dec in the following year.  So normalise
-        # this, and always print calendars for the later year.
-        dty = self.di.dt + DateTime.oneDay
+            date += DateTime.oneDay * 30
+        s = "%% -- Bottom calendars, starting at %s\n" % date.strftime("%Y %m")
 
         # Proportion of the month box to fill.
         monthprop = 0.90
@@ -2251,8 +2262,8 @@ class DiaryPage(PostscriptPage):
                      self.pBottom + self.bottomcalheight*(1.0-monthprop)/2.0,
                      (self.dwidth/6.0)*monthprop,
                      self.bottomcalheight*monthprop,
-                     DateTime.DateTime(dty.year, month).strftime('M_%Y_%m') )
-            month += 1
+                     date.strftime('M_%Y_%m') )
+            date += DateTime.oneDay * 30
         return s
 
 
