@@ -128,6 +128,10 @@ class DiaryInfo:
             f.write(self.usageStrings[i])
         sys.exit(1)
 
+    def shortUsage(self, f=sys.stderr):
+        print >>f, "%s --help for usage" % sys.argv[0]
+        sys.exit(1)
+
     def __init__(self, myname, opts):
 
         self.myname = myname
@@ -208,10 +212,10 @@ class DiaryInfo:
             optlist,args = getopt.getopt(args,'',self.options)
         except getopt.error, reason:
             sys.stderr.write( "Error parsing options: " + str(reason) + "\n")
-            self.usage()
+            self.shortUsage()
         if len(args) != 0:
             sys.stderr.write("Unknown arg: %s\n" % args[0] )
-            self.usage()
+            self.shortUsage()
         for opt in optlist:
             if 0:  # Make it easier to move options around
                 pass
@@ -332,7 +336,7 @@ class DiaryInfo:
                 self.setStartDate(DateTime.DateTime(self.integerOption("year",opt[1])))
             else:
                 print >>sys.stderr, "Unknown option: %s" % opt[0]
-                self.usage()
+                self.shortUsage()
         if self.pdf:
             # If the name is still diary.ps and it was not set by command line option, change
             # it to diary.pdf.
@@ -367,7 +371,7 @@ class DiaryInfo:
             return int(s)
         except ValueError,reason:
             sys.stderr.write("Error converting integer: " + str(reason) + "\n")
-            self.usage()
+            self.shortUsage()
 
 
     def epsOption(self, name, s):
@@ -408,14 +412,14 @@ class DiaryInfo:
             return float(s)
         except ValueError,reason:
             sys.stderr.write("Error converting float: " + str(reason) + "\n")
-            self.usage()
+            self.shortUsage()
 
     def setPageSize(self,s):
         """Set the page size to a known size."""
         sizes = PaperSize.getPaperSize(s)
         if sizes is None:
             print >>sys.stderr, "Unknown page size: %s" % s
-            self.usage()
+            self.shortUsage()
         self.pageWidth = sizes[0]
         self.pageHeight = sizes[1]
         # Adjust font sizes with respect to A5, on a square root scale.
@@ -426,7 +430,7 @@ class DiaryInfo:
         sizes = PaperSize.getPaperSize(s)
         if sizes is None:
             print >>sys.stderr, "Unknown paper size: %s" % s
-            self.usage()
+            self.shortUsage()
         self.paperWidth = sizes[0]
         self.paperHeight = sizes[1]
 
