@@ -129,7 +129,7 @@ class DiaryInfo:
         sys.exit(1)
 
     def shortUsage(self, f=sys.stderr):
-        print >>f, "%s --help for usage" % sys.argv[0]
+        print >>f, "%s --help for usage" % self.myname
         sys.exit(1)
 
     def __init__(self, myname, opts):
@@ -264,8 +264,8 @@ class DiaryInfo:
                 if opt[1] in self.layouts:
                     self.layout = opt[1]
                 else:
-                    print >>sys.stderr, "%s: Unknown layout %s" % (sys.argv[0], opt[1])
-                    sys.exit(1)
+                    print >>sys.stderr, "%s: Unknown layout %s" % (self.myname, opt[1])
+                    self.shortUsage()
             elif opt[0] == "--line-spacing":
                 self.lineSpacing = self.floatOption("line-spacing",opt[1])
             elif opt[0] == "--margins-multiplier":
@@ -866,7 +866,7 @@ class ImageFilePage(PostscriptPage):
             # Otherwise, construct the full path to the file.  If we are running from the
             # development directory, or otherwise not from a full path name, look at relative
             # locations first.
-            if sys.argv[0].startswith('.'):
+            if self.di.myname.startswith('.'):
                 searchpath = ['.', '..', '../..']
                 for p in sys.path:
                     searchpath.append(p)
@@ -954,7 +954,8 @@ class EPSFilePage(PostscriptPage):
 
         boundingbox = self.findBoundingBoxInEPS(self.epsfilename, epsfile)
         if not boundingbox:
-            print >>sys.stderr, "%s: no %%%%BoundingBox in %s" % (sys.argv[0], self.epsfilename)
+            print >>sys.stderr, "%s: no %%%%BoundingBox in %s" % (self.di.myname,
+                                                                  self.epsfilename)
             return "%% +++ Error reading %%%%BoundingBox comment in %s\n" % self.epsfilename
 
         epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt = boundingbox
@@ -1050,7 +1051,7 @@ class VersionPage(PostscriptPage):
         liney = self.di.pageHeight*0.8
         s = s + "%5.3f %5.3f M (Command:) SH\n" % (linex, liney)
         liney = liney - fontSize*1.25
-        s = s + "%5.3f %5.3f M (   %s) SH\n" % (linex, liney, sys.argv[0])
+        s = s + "%5.3f %5.3f M (   %s) SH\n" % (linex, liney, self.di.myname)
         liney = liney - fontSize*1.25
         for i in range(len(self.di.opts)):
             s = s + "%5.3f %5.3f M (   %s) SH\n" % (linex, liney,
@@ -2607,7 +2608,7 @@ class Diary:
             # Otherwise, construct the full path to the file.  If we are running from the
             # development directory, or otherwise not from a full path name, look at relative
             # locations first.  In any case, we search the current directory first.
-            if sys.argv[0].startswith('.'):
+            if self.di.myname.startswith('.'):
                 searchpaths = ['.', '..', '../..']
             else:
                 searchpaths = ['.']
@@ -2697,7 +2698,7 @@ class Diary:
             files = self.findEPSFiles(epsPageFile[0])
             if len(files) == 0:
                 print >>sys.stderr, "%s: can't find EPS file %s" % \
-                    (sys.argv[0], epsPageFile[0])
+                    (self.di.myname, epsPageFile[0])
             else:
                 titleindex = 0
                 for f in files:
