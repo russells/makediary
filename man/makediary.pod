@@ -48,6 +48,13 @@ Print I<imagefile> on the cover of the diary, centred and below the year.
 The image will be scaled to fit inside a box across the page, and will replace
 the smiley.
 
+=item --cover-page-image=I<imagefile>
+
+Print I<imagefile> on the cover of the diary, replacing the other markup on the
+cover.  The image will be maximised to fit on the page.  Because all the text
+is replaced, including the year text, it may be a good idea to put the year in
+the image somewhere.
+
 =item --day-to-page
 
 This option is deprecated, and it is equivalent to B<--layout=day-to-page>.

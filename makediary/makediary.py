@@ -44,6 +44,7 @@ class DiaryInfo:
                "appointment-width=",
                "colour",
                "cover-image=",
+               "cover-page-image=",
                "day-to-page",
                "debug-boxes",
                "debug-version",
@@ -93,7 +94,8 @@ class DiaryInfo:
                   "Usage: %s [--year=year | --start-date=yyyy-mm-dd]\n",
                   "    [--output-file=file] [--title=TITLE]\n",
                   "    [--address-pages=n] [--appointment-width=w] [--appointments]\n",
-                  "    [--colour] [--cover-image=file] [--day-to-page]\n",
+                  "    [--colour] [--cover-image=IMAGE]\n",
+                  "    [--cover-page-image=IMAGE] [--day-to-page]\n",
                   "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
                   "    [--eps-page=epsfile[|title[|title...]]] [--event-images]\n",
                   "    [--image-page=IMAGEFILE[,title]] [--image-2page=IMAGEFILE[,title]]\n",
@@ -176,6 +178,7 @@ class DiaryInfo:
         self.nPlannerYears = 2          #
         self.largePlanner = False       # Default: no large planner
         self.coverImage = None          # Pic for the cover page.
+        self.coverPageImage = None      # Pic for the whole cover page.
         self.appointments = False       # Different "styles" for different people.
         self.appointmentTimes = True    # Print appointment times or not
         self.appointmentWidth = 0.35    # Width of appointments (as proportion)
@@ -237,6 +240,8 @@ class DiaryInfo:
                 self.colour = True
             elif opt[0] == "--cover-image":
                 self.coverImage = opt[1]
+            elif opt[0] == "--cover-page-image":
+                self.coverPageImage = opt[1]
             elif opt[0] == "--day-to-page":
                 self.layout = "day-to-page"
             elif opt[0] == "--debug-boxes":
@@ -1085,6 +1090,19 @@ class CoverPage(PostscriptPage):
         picyprop = 0.8
         textycentre = (ytop-ybottom) * 0.66 + ybottom - textheight/2
         textxcentre = (xright-xleft)/2 + xleft
+
+        s = ''
+
+        if self.di.coverPageImage is not None:
+            l = self.pLeft
+            b = self.pBottom
+            w = self.pWidth
+            h = self.pHeight
+            s += "%% -- %s -- image is %s\n" % (self.__class__.__name__,
+                                                self.postscriptEscape(self.di.coverPageImage))
+            s += "%% l=%5.3f b=%5.3f w=%5.3f h=%5.3f\n" % (l, b, w, h)
+            s += self.image(self.di.coverPageImage, l, b, w, h)
+            return s
 
         if self.di.title is not None:
             title = self.di.title
