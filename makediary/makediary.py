@@ -707,7 +707,10 @@ class PostscriptPage(BasicPostscriptPage):
         s = ""
         im = Image.open(file,"r")
         xsize,ysize = im.size
-        if not self.di.colour:
+        if self.di.colour:
+            if im.mode not in ("L", "RGB", "CMYK"):
+                im = im.convert("RGB")
+        else:
             im = im.convert("L")
         epsfile = StringIO.StringIO()
 
