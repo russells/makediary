@@ -1,0 +1,631 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>makediary - output PostScript code for a paper diary.</title>
+<link rel="stylesheet" href="a.css" type="text/css" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body>
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#options">OPTIONS</a></li>
+	<li><a href="#pcal_1___calendar_file"><code>PCAL(1)</code> <em class="file">.calendar</em> FILE</a></li>
+	<ul>
+
+		<li><a href="#__substitution">%-Substitution</a></li>
+		<li><a href="#examples">Examples</a></li>
+	</ul>
+
+	<li><a href="#_makediaryrc_file"><em class="file">.makediaryrc</em> file</a></li>
+	<li><a href="#examples">EXAMPLES</a></li>
+	<li><a href="#bugs">BUGS</a></li>
+	<li><a href="#author">AUTHOR</a></li>
+	<li><a href="#copyright">COPYRIGHT</a></li>
+	<li><a href="#version">VERSION</a></li>
+	<li><a href="#see_also">SEE ALSO</a></li>
+</ul>
+
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>makediary - output PostScript code for a paper diary.</p>
+<p>
+</p>
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<p><strong>makediary --help</strong></p>
+<p><strong>makediary --version</strong></p>
+<p><strong>makediary</strong> <em>[options]</em></p>
+<p>
+</p>
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>Generates a paper diary in PostScript or PDF format.</p>
+<p><strong>makediary</strong> can generate diaries in several different paper sizes.
+<strong>makediary</strong> can include events printed on dates specified in a <em class="file">.calendar</em>
+file.  The <em class="file">.calendar</em> file is in almost the same format as used by <a href="#pcal"><code>pcal(1)</code></a>,
+with some extensions.</p>
+<p>
+</p>
+<h1><a name="options">OPTIONS</a></h1>
+<dl>
+<dt><strong><a name="address_pages_n" class="item">--address-pages=<em>n</em></a></strong></dt>
+
+<dd>
+<p>Print <em>n</em> address pages.  Defaults to 6.</p>
+</dd>
+<dt><strong><a name="appointments" class="item">--appointments</a></strong></dt>
+
+<dd>
+<p>Print a column of appointment times on the right side of each day.</p>
+</dd>
+<dt><strong><a name="appointment_width_n" class="item">--appointment-width=<em>N</em>[%]</a></strong></dt>
+
+<dd>
+<p>Specify the width of the appointment times column as a percentage of the width
+of the day.  Defaults to 35%.  The '%' sign is optional.  Implies
+<strong>--appointments</strong>.</p>
+</dd>
+<dt><strong><a name="colour" class="item">--colour</a></strong></dt>
+
+<dd>
+<p>When printing images, output colour.  By default, images are converted to grey
+scale.</p>
+</dd>
+<dt><strong><a name="cover_image_imagefile" class="item">--cover-image=<em>imagefile</em></a></strong></dt>
+
+<dd>
+<p>Print <em>imagefile</em> on the cover of the diary, centred and below the year.
+The image will be scaled to fit inside a box across the page, and will replace
+the smiley.</p>
+</dd>
+<dt><strong><a name="cover_page_image_imagefile" class="item">--cover-page-image=<em>imagefile</em></a></strong></dt>
+
+<dd>
+<p>Print <em>imagefile</em> on the cover of the diary, replacing the other markup on the
+cover.  The image will be maximised to fit on the page.  Because all the text
+is replaced, including the year text, it may be a good idea to put the year in
+the image somewhere.</p>
+</dd>
+<dt><strong><a name="day_to_page" class="item">--day-to-page</a></strong></dt>
+
+<dd>
+<p>This option is deprecated, and it is equivalent to <strong>--layout=day-to-page</strong>.</p>
+</dd>
+<dt><strong><a name="debug_boxes" class="item">--debug-boxes</a></strong></dt>
+
+<dd>
+<p>Print dashed boxes around parts of the output for debugging the spacing.  These
+parts include images, month calendars, and the drawing border of the whole page.</p>
+</dd>
+<dt><strong><a name="debug_version" class="item">--debug-version</a></strong></dt>
+
+<dd>
+<p>On the inside cover, print a page that describes the options that were used
+to generate this diary, the usage message of the <strong>makediary</strong>, and the CVS
+version number.</p>
+</dd>
+<dt><strong><a name="debug_whole_page_boxes" class="item">--debug-whole-page-boxes</a></strong></dt>
+
+<dd>
+<p>Around each diary page (not each sheet of paper), draw a faint box.</p>
+</dd>
+<dt><strong><a name="eps_page_name_title_title_item_ref_name_title_title" class="item">--eps-page=<em>name[|title[|title]]</em>
+=item --ref=<em>name[|title[|title]]</em></a></strong></dt>
+
+<dd>
+<p>Include a page or pages whose content is <em>name</em>, possible with page titles.
+This could be useful for including maps, for instance.</p>
+<p>If <em>name</em> contains any '/' characters, it will be interpreted as a path to a
+single file to be included as an EPS page.  Otherwise, it will be interpreted
+as the base name of a file or files to be included.  The path to the file or
+files is expanded as <code>eps/</code><em>name</em><code>/</code><em>name</em><code>.eps</code> or
+<code>eps/</code><em>name</em><code>/</code><em>name</em><code>.*.eps</code>.  These strings will be appended to
+each element of <code>sys.path</code> until one of them expands to one or more file
+names.  These file names will then be used as the EPS files.</p>
+<p>If one <em>title</em> is supplied, it will become the page title for each of the
+included pages.  To specify different titles for each page, separate them with
+'|'.  To put a title on only the first page, use <code>--ref=name'|title|'</code>, so
+that subsequent titles are empty.  If there are more pages than titles, the
+extra pages will have no titles.  To put a line at the top of a page without a
+title, specify that title as a single space.</p>
+</dd>
+<dt><strong><a name="event_images" class="item">--event-images</a></strong></dt>
+
+<dd>
+<p>Print images next to events, where they are specified.  If this is not
+specified, the events will be printed without images.</p>
+</dd>
+<dt><strong><a name="help" class="item">--help</a></strong></dt>
+
+<dd>
+<p>Display a usage message and exit.</p>
+</dd>
+<dt><strong><a name="image_page_imagefilename_title" class="item">--image-page=IMAGEFILENAME[,title]</a></strong></dt>
+
+<dd>
+<p>Display an image maximised onto a page.  This can be specified multiple times.
+The images specified will be printed on consecutive pages immediately after the
+personal information page.  The optional title will be used as the page title.</p>
+</dd>
+<dt><strong><a name="image_2page_imagefilename_title" class="item">--image-2page=IMAGEFILENAME[,title]</a></strong></dt>
+
+<dd>
+<p>Display an image maximised across two pages.  The optional title will be
+printed on both pages.  A notes page will be inserted immediately before the
+first page, if necessary, to ensure the image is printed on facing left and
+right pages.</p>
+</dd>
+<dt><strong><a name="layout_day_to_page" class="item">--layout=day-to-page</a></strong></dt>
+
+<dt><strong><a name="layout_week_to_opening" class="item">--layout=week-to-opening</a></strong></dt>
+
+<dt><strong><a name="layout_week_to_2_openings" class="item">--layout=week-to-2-openings</a></strong></dt>
+
+<dt><strong><a name="layout_work" class="item">--layout=work</a></strong></dt>
+
+<dd>
+<p>Specify the layout of the diary day pages.  The default is week-to-2-openings.</p>
+<dl>
+<dt><strong><a name="day_to_page2" class="item">day-to-page</a></strong></dt>
+
+<dd>
+<p>Print one day to each page.  A year's worth of month calendars will be printed
+across the bottom of each opening in the day pages.</p>
+</dd>
+<dt><strong><a name="week_to_opening" class="item">week-to-opening</a></strong></dt>
+
+<dd>
+<p>Print a week to one opening.  This has, on the left side, three month calendars
+and Monday to Wednesday, and on the right side, Thursday to Sunday.</p>
+</dd>
+<dt><strong><a name="week_to_2_openings" class="item">week-to-2-openings</a></strong></dt>
+
+<dd>
+<p>The default layout has on the left side, three calendars and Monday, on the
+right side Tuesday and Wednesday, then on the next two pages, Thursday and
+Friday, and Saturday and Sunday.</p>
+</dd>
+<dt><strong><a name="work" class="item">work</a></strong></dt>
+
+<dd>
+<p>Layout for a work diary.  Has two days per page, except that Saturday and
+Sunday share half a page.  Also has a year's worth of month calendars across
+the bottom of two pages.</p>
+</dd>
+</dl>
+</dd>
+<dt><strong><a name="line_spacing_d" class="item">--line-spacing=<em>d</em></a></strong></dt>
+
+<dd>
+<p>Make the line spacing on diary pages <em>d</em> millimetres.  <em>d</em> can be a
+floating point number.</p>
+</dd>
+<dt><strong><a name="moon" class="item">--moon</a></strong></dt>
+
+<dd>
+<p>Print pictures of phases of the moon in the title of the day at each phase.</p>
+</dd>
+<dt><strong><a name="northern_hemisphere_moon" class="item">--northern-hemisphere-moon</a></strong></dt>
+
+<dd>
+<p>Print pictures of phases of the moon as seen from the Northern Hemisphere,
+instead of from the Southern Hemisphere.  Implies <strong>--moon</strong>.</p>
+</dd>
+<dt><strong><a name="no_smiley" class="item">--no-smiley</a></strong></dt>
+
+<dd>
+<p>Don't print the smiley on the front cover.  The smiley also won't be printed if
+a cover image is specified.</p>
+</dd>
+<dt><strong><a name="notes_pages_n" class="item">--notes-pages=<em>n</em></a></strong></dt>
+
+<dd>
+<p>Print <em>n</em> notes pages at the beginning and end of the diary.  Defaults to
+6.</p>
+</dd>
+<dt><strong><a name="output_file_filename" class="item">--output-file=<em>filename</em></a></strong></dt>
+
+<dd>
+<p>Output to <em>filename</em>.  Defaults to <em class="file">diary.ps</em> if generating PostScript, or
+<em class="file">diary.pdf</em> if generating PDF.  A lone '<strong>-</strong>' means standard output.</p>
+</dd>
+<dt><strong><a name="page_size_size" class="item">--page-size=<em>size</em></a></strong></dt>
+
+<dd>
+<p>Specify the size of the pages.  This is not the same as the paper size, so
+you can print smaller pages than the paper size.  See also the
+<strong>--page-registration-marks</strong> option.</p>
+</dd>
+<dt><strong><a name="page_registration_marks" class="item">--page-registration-marks</a></strong></dt>
+
+<dd>
+<p>Print marks for cutting pages out of a sheet of paper.  This is useful when
+printing pages that are smaller than the paper size.</p>
+</dd>
+<dt><strong><a name="page_x_offset_x" class="item">--page-x-offset=<em>x</em></a></strong></dt>
+
+<dt><strong><a name="page_y_offset_y" class="item">--page-y-offset=<em>y</em></a></strong></dt>
+
+<dd>
+<p>Move each diary page this far on the paper.  The offsets are in
+millimetres.  The rationale for these options is that printers tend not to
+print exactly where told, so when printing double sided the pages on
+opposite sides of the paper may not line up.  You can specify an offset to
+make them line up.  <em>x</em> and <em>y</em> can be floating point numbers.</p>
+</dd>
+<dt><strong><a name="paper_size_size" class="item">--paper-size=<em>size</em></a></strong></dt>
+
+<dd>
+<p>Specify the size of the paper that you are printing on.  This is not the
+same as the size of the diary pages.  Do <strong>makediary --help</strong> for a list of
+paper sizes.</p>
+</dd>
+<dt><strong><a name="pcal" class="item">--pcal</a></strong></dt>
+
+<dd>
+<p>Use <a href="#pcal"><code>pcal(1)</code></a> to parse the .calendar file, instead of using the built-in parser.
+None of the extensions mentioned in &quot;PCAL(1) <em class="file">.calendar</em> FILE&quot; will work, but
+that may be fine for many users.</p>
+</dd>
+<dt><strong><a name="pcal_planner" class="item">--pcal-planner</a></strong></dt>
+
+<dd>
+<p>Use <a href="#pcal"><code>pcal(1)</code></a> to parse the .calendar file (the same as --pcal) and also add that
+text to the larger planner pages.  Since there is no way to specify shorter
+text to put on the planner pages, the original text will be used, separated by
+commas.  The text is clipped to stay within the day box in any case.</p>
+</dd>
+<dt><strong><a name="pdf" class="item">--pdf</a></strong></dt>
+
+<dd>
+<p>Generate PDF instead of PostScript.  Requires that ps2pdf be installed and in
+your $PATH.  Untested on Windows.</p>
+</dd>
+<dt><strong><a name="planner_years_n" class="item">--planner-years=<em>n</em></a></strong></dt>
+
+<dd>
+<p>Print <em>n</em> two-page planner years, starting with the diary year.  Defaults
+to 2, ie the diary year and the following year.</p>
+</dd>
+<dt><strong><a name="sed_ref" class="item">--sed-ref</a></strong></dt>
+
+<dd>
+<p>Print a sed reference page.  (Equivalent to <code>--ref=sed'|sed reference'</code>).</p>
+</dd>
+<dt><strong><a name="sh_ref" class="item">--sh-ref</a></strong></dt>
+
+<dd>
+<p>Print the Unix shell reference page.  (Equivalent to <code>--ref=sh'|Shell and
+utility reference'</code>).</p>
+</dd>
+<dt><strong><a name="start_date_yyyy_mm_dd" class="item">--start-date=<em>yyyy-mm-dd</em></a></strong></dt>
+
+<dd>
+<p>Start the diary on the specified date.  The date must be in yyyy-mm-dd
+format.  If both <strong>--start-date</strong> and <strong>--year</strong> are both specified, the last
+one specified will take precedence.</p>
+</dd>
+<dt><strong><a name="units_ref" class="item">--units-ref</a></strong></dt>
+
+<dd>
+<p>Print the Units reference page.  (Equivalent to <code>--ref=units'|Units'</code>.)</p>
+<p>When installing <strong>makediary</strong>, this option requires that the GNU units program
+be available.  Because some systems have that program as gunits, and because
+there are other possibilities about where units could be installed,
+<strong>makediary</strong> will first look for the program named by $UNITS, and if that is
+not found look for gunits, and if that is not found, finally try units.</p>
+<p>Similarly, awk is required for installation.  <strong>makediary</strong> will try $AWK, gawk,
+then awk.</p>
+</dd>
+<dt><strong><a name="unix_ref" class="item">--unix-ref</a></strong></dt>
+
+<dd>
+<p>Print the Unix commands reference page.  (Equivalent to <code>--ref=unix'|Unix
+reference'</code>.)</p>
+</dd>
+<dt><strong><a name="version" class="item">--version</a></strong></dt>
+
+<dd>
+<p>Output version information and exit.</p>
+</dd>
+<dt><strong><a name="vi_ref_item_vim_ref" class="item">--vi-ref
+=item --vim-ref</a></strong></dt>
+
+<dd>
+<p>Print the vi and vim reference pages.  The <code>--vi-ref</code> and <code>--vim-ref</code> options
+do exactly the same thing.  (Equivalent to <code>--ref=vi'|Vi reference|Vim
+extensions'</code>.)</p>
+</dd>
+<dt><strong><a name="week_to_opening2" class="item">--week-to-opening</a></strong></dt>
+
+<dd>
+<p>This option is deprecated, and is equivalent to <strong>--layout=week-to-opening</strong>.</p>
+</dd>
+<dt><strong><a name="weeks_after_n" class="item">--weeks-after=<em>N</em></a></strong></dt>
+
+<dd>
+<p>Ensure that the diary covers <em>N</em> complete weeks after the specified year.</p>
+</dd>
+<dt><strong><a name="weeks_before_n" class="item">--weeks-before=<em>N</em></a></strong></dt>
+
+<dd>
+<p>Ensure that the diary covers <em>N</em> complete weeks before the specified year.</p>
+</dd>
+<dt><strong><a name="year_year" class="item">--year=<em>year</em></a></strong></dt>
+
+<dd>
+<p>Print a diary for that year.  Defaults to next year.  If both <strong>--year</strong> and
+<strong>--start-date</strong> are both specified, the last one specified will take
+precedence.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h1><a name="pcal_1___calendar_file"><code>PCAL(1)</code> <em class="file">.calendar</em> FILE</a></h1>
+<p>This section is not relevant if you use the <strong>--pcal</strong> or <strong>--pcal-planner</strong>
+flags.  If you use pcal to parse the <em class="file">.calendar</em> file, see <a href="#pcal"><code>pcal(1)</code></a>.</p>
+<p>If <strong>makediary</strong> finds a <em class="file">.calendar</em> file, it is parsed to find events to
+print on particular days.  The file is in the same format as used by
+<a href="#pcal"><code>pcal(1)</code></a>, with some extensions, and some unimplemented features.</p>
+<p>The <em class="file">.calendar</em> file is searched for in these places:</p>
+<ul>
+<li><strong><a name="the_file_named_by_the_environment_variable_diary_file" class="item">The file named by the environment variable <strong>DIARY_FILE</strong>.</a></strong>
+
+<p>The file <em>.calendar</em> in the directory named by the environment variable
+<strong>DIARY_DIR</strong>.</p>
+</li>
+<li><strong><a name="the_file_calendar_in_the_directory_named_by_the_environment_variable_pcal_dir" class="item">The file <em>.calendar</em> in the directory named by the environment
+variable <strong>PCAL_DIR</strong>.</a></strong>
+
+</li>
+<li><strong><a name="the_file_calendar_in_the_current_directory" class="item">The file <em>.calendar</em> in the current directory.</a></strong>
+
+</li>
+<li><strong><a name="the_file_calendar_in_the_directory_named_by_the_environment_variable_home" class="item">The file <em>.calendar</em> in the directory named by the environment
+variable <strong>HOME</strong>.</a></strong>
+
+</li>
+</ul>
+<p>The first one of these found is used, and the rest are ignored.</p>
+<p>These things from the <a href="#pcal"><code>pcal()</code></a> <em class="file">.calendar</em> format are not recognised:</p>
+<dl>
+<dt><strong><a name="the_opt_keyword" class="item">the &quot;opt&quot; keyword,</a></strong></dt>
+
+<dt><strong><a name="the_every_keyword" class="item">the &quot;every&quot; keyword,</a></strong></dt>
+
+<dt><strong><a name="the_each_keyword" class="item">the &quot;each&quot; keyword,</a></strong></dt>
+
+<dt><strong><a name="the_all_keyword" class="item">the &quot;all&quot; keyword.</a></strong></dt>
+
+</dl>
+<p>Because &quot;opt&quot; is not recognised, dates are always in European format.  In pcal
+terms, &quot;opt -E&quot; is always in effect.</p>
+<p>The <em>.calendar</em> file allows a few extensions from that defined by <a href="#pcal"><code>pcal(1)</code></a>.
+These extensions are embedded in comments, so the file should still make
+sense to <a href="#pcal"><code>pcal(1)</code></a>.</p>
+<p>The first type of extension allows for changing the behaviour of <strong>makediary</strong>.  These
+are of the form:</p>
+<p><strong>#&lt;&lt;<em>key</em>:<em>value</em></strong>&gt; &gt;&gt;&gt;&gt;</p>
+<p>(This needs documentation...)</p>
+<p>The second type of extension is similar in form, but is added to the end of the text for
+a date entry.  The currently defined extensions are:</p>
+<dl>
+<dt><strong><a name="image_filename" class="item"><strong>#&lt;&lt;image:<em class="file">filename</em></strong>&gt; &gt;&gt;&gt;&gt;</a></strong></dt>
+
+<dd>
+<p>Specify an image to print next to the entry for this event.  The image will
+be scaled to fit in two lines of the diary.</p>
+</dd>
+<dt><strong><a name="year_year2" class="item"><strong>#&lt;&lt;year:<em>year</em></strong>&gt; &gt;&gt;&gt;&gt;</a></strong></dt>
+
+<dd>
+<p>Specify the year in which the event occurred.  This is used so that the
+text can contain a number of years since the event, in the %-substitution
+extension format specified below.</p>
+</dd>
+<dt><strong><a name="nday" class="item"><strong>#&lt;&lt;warn:<em>n</em><em>day(s)</em>|<em>week(s)</em>|<em>month(s)</em></strong>&gt; &gt;&gt;&gt;&gt;</a></strong></dt>
+
+<dd>
+<p>Print a warning in lighter text, <em>n</em> days, weeks or months before the
+event.  The text printed will be surrounded by parentheses and suffixed
+by the date of the event, ie <em>(Erin's 12th birthday -- Mar 07)</em>.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="__substitution">%-Substitution</a></h2>
+<p>Within the extensions specified above, you can substitute some values with
+<strong>%</strong>-sequences.  The following sequences are available:</p>
+<dl>
+<dt><strong><a name="_a" class="item"><strong>%A</strong></a></strong></dt>
+
+<dd>
+<p>Week day name (same as strftime(3)).</p>
+</dd>
+<dt><strong><a name="_a" class="item"><strong>%a</strong></a></strong></dt>
+
+<dd>
+<p>Abbreviated week day name (same as strftime(3)).</p>
+</dd>
+<dt><strong><a name="_b" class="item"><strong>%B</strong></a></strong></dt>
+
+<dd>
+<p>Full month name (same as strftime(3)).</p>
+</dd>
+<dt><strong><a name="_b" class="item"><strong>%b</strong></a></strong></dt>
+
+<dd>
+<p>Abbreviated month name (same as strftime(3)).</p>
+</dd>
+<dt><strong><a name="_d" class="item"><strong>%d</strong></a></strong></dt>
+
+<dd>
+<p>Day of month, 1 to 31.  If preceded by <strong>0</strong>, ie <strong>%0d</strong>, the month is printed as
+01 to 31, same as <code>strftime(3)</code>.</p>
+</dd>
+<dt><strong><a name="_j" class="item"><strong>%j</strong></a></strong></dt>
+
+<dd>
+<p>Day of year as decimal number (same as strftime(3)).  Three digits if <strong>%0j</strong>.</p>
+</dd>
+<dt><strong><a name="_l" class="item"><strong>%l</strong></a></strong></dt>
+
+<dd>
+<p>Days remaining in the year.  Three digits if <strong>%0l</strong>.</p>
+</dd>
+<dt><strong><a name="_m" class="item"><strong>%m</strong></a></strong></dt>
+
+<dd>
+<p>Month number, 01 to 12 (same as strftime(3)).</p>
+</dd>
+<dt><strong><a name="_n" class="item"><strong>%N</strong></a></strong></dt>
+
+<dd>
+<p>The number of years since the event.  If preceded by <strong>o</strong>, ie <strong>%oN</strong>, the
+number will be printed as an ordinal, ie <strong>14th</strong> instead of <strong>14</strong>.</p>
+</dd>
+<dt><strong><a name="_u" class="item"><strong>%U</strong></a></strong></dt>
+
+<dd>
+<p>The week number of the current week (same as strftime(3)).</p>
+</dd>
+<dt><strong><a name="_y" class="item"><strong>%Y</strong></a></strong></dt>
+
+<dd>
+<p>Four digit year (same as strftime(3)).</p>
+</dd>
+<dt><strong><a name="_y" class="item"><strong>%y</strong></a></strong></dt>
+
+<dd>
+<p>Two digit year (same as strfimte(3)).</p>
+</dd>
+<dt><strong><a name="__" class="item"><strong>%%</strong></a></strong></dt>
+
+<dd>
+<p>Literal %.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="examples">Examples</a></h2>
+<ul>
+<li>
+<pre>
+ 1-1 Joe Bloggs' %oN birthday #&lt;&lt;image:joebloggs.jpg&gt;&gt; \
+                              #&lt;&lt;year:1872&gt;&gt;</pre>
+<p>Print Joe's birthday, with a picture of Joe, and substitute his age, as an
+ordinal.  In 2001, this will say &quot;Joe Bloggs' 129th birthday&quot;.</p>
+</li>
+</ul>
+<p>
+</p>
+<h1><a name="_makediaryrc_file"><em class="file">.makediaryrc</em> file</a></h1>
+<p><strong>makediary</strong> will read several files containing configuartion information for
+the Personal Information page.  The files are read in the order:</p>
+<dl>
+<dt><strong><a name="makediaryrc_in_the_user_s_home_directory" class="item"><em class="file">.makediaryrc</em> in the user's home directory</a></strong></dt>
+
+<dt><strong><a name="makediaryrc_in_the_current_directory" class="item"><em class="file">.makediaryrc</em> in the current directory</a></strong></dt>
+
+<dt><strong><a name="makediaryrc_in_the_current_directory2" class="item"><em class="file">makediaryrc</em> in the current directory</a></strong></dt>
+
+</dl>
+<p>The values in these files are merged.  Values from a later file override values
+obtained from an earlier file.</p>
+<p>The files must be in ini-file format, and should contain a section called
+&quot;Personal Information&quot;.  The key-value pairs in that section are used to
+populate the Personal Information page.  The defined keys are:</p>
+<dl>
+<dt><strong><a name="name" class="item">Name</a></strong></dt>
+
+<dt><strong><a name="phone" class="item">Phone</a></strong></dt>
+
+<dt><strong><a name="mobile" class="item">Mobile (or Cell)</a></strong></dt>
+
+<dt><strong><a name="email" class="item">Email (or Email address)</a></strong></dt>
+
+<dt><strong><a name="address" class="item">Address</a></strong></dt>
+
+<dt><strong><a name="work_phone" class="item">Work phone</a></strong></dt>
+
+<dt><strong><a name="work_fax" class="item">Work fax</a></strong></dt>
+
+<dt><strong><a name="work_address" class="item">Work address</a></strong></dt>
+
+<dt><strong><a name="emergency_contact_1" class="item">Emergency Contact 1</a></strong></dt>
+
+<dt><strong><a name="emergency_contact_2" class="item">Emergency Contact 2</a></strong></dt>
+
+<dt><strong><a name="emergency_contact_3" class="item">Emergency Contact 3</a></strong></dt>
+
+<dt><strong><a name="emergency_contact_4" class="item">Emergency Contact 4</a></strong></dt>
+
+</dl>
+<p>(It is intended that <em class="file">.makediaryrc</em> will one day hold all of the
+information needed by <strong>makediary</strong>, including that now kept in the
+<em class="file">.calendar</em> file.)</p>
+<p>This is an example <em class="file">.makediaryrc</em> file:</p>
+<pre>
+ [Personal Information]
+ Name = Russell Steicke
+ Email = russells@adelie.cx</pre>
+<p>
+</p>
+<h1><a name="examples">EXAMPLES</a></h1>
+<dl>
+<dt><strong><a name="two_pages_on_letter_paper" class="item">Two pages on letter paper</a></strong></dt>
+
+<dd>
+<pre>
+ makediary --page-size=half-letter | \
+ psselect -p2- | \
+ pstops -p letter '2:0L(8.5in,0)+1L(8.5in,5.5in)'  \
+ &gt; out.ps</pre>
+</dd>
+</dl>
+<p>
+</p>
+<h1><a name="bugs">BUGS</a></h1>
+<p>The extensions to the <em class="file">.calendar</em> format are really ugly.  There should really
+be a better way of specifying events etc.  The backward compatibility with
+<a href="#pcal"><code>pcal(1)</code></a> is not as useful as I imagined it would be.  Two ideas are to use a
+simple database format (perhaps nosql(1)), or use the user's palm data,
+exported from <code>evolution(1)</code> or somewhere.</p>
+<p>
+</p>
+<h1><a name="author">AUTHOR</a></h1>
+<p>Russell Steicke &lt;<a href="mailto:russells@adelie.cx">russells@adelie.cx</a>&gt;</p>
+<p>
+</p>
+<h1><a name="copyright">COPYRIGHT</a></h1>
+<p>Copyright (C) 2002-2009 Russell Steicke.  Released under the terms of the GNU
+General Public License, but dedicated to the public domain at the beginning of
+the tenth calendar year after publishing (ie the start of 2019 for version 0.2.96).</p>
+<p>This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</p>
+<p>
+</p>
+<h1><a name="version">VERSION</a></h1>
+<p>0.2.96</p>
+<p>
+</p>
+<h1><a name="see_also">SEE ALSO</a></h1>
+<p><code>calendar(1)</code>, <a href="#pcal"><code>pcal(1)</code></a>, <code>psselect(1)</code>, <code>pstops(1)</code>, <code>units(1)</code>.</p>
+
+</body>
+
+</html>

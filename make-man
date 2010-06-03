@@ -1,0 +1,4 @@
+#!/bin/sh -x
+
+git cat-file blob master:man/makediary.pod | pod2html --css a.css | grep -v '<\<hr\>' > makediary.1.html
+

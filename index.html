@@ -1,0 +1,60 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html> <head>
+<title>makediary - Print a Year Diary</title>
+<link rel="stylesheet" type="text/css" href="a.css">
+</head>
+
+<body>
+
+<h1>makediary - Print a Year Diary</h1>
+
+<p>Program to generate a year diary in PostScript or PDF format on one of
+a range of paper sizes.  Requires <a href="http://python.org/">Python</a>
+(2.4 or later), <a href="http://www.pythonware.com/products/pil/">Python
+Imaging Library</a>, <a
+href="http://www.lemburg.com/files/python/mxDateTime.html">mxDateTime</a>,
+and optionally <tt>ps2pdf</tt>.  </p>
+
+<p>Current version is 0.2.3.</p>
+
+<p>Changes in 0.2.3:</p>
+
+<ul>
+  <li>Output to diary.ps (or diary.pdf) instead of stdout.</li>
+  <li>Allow titles on image pages.</li>
+  <li>Allow printing Northern Hemisphere moons.</li>
+  <li>Optionally allow filling in the personal information page from a config file.</li>
+  <li>Allow an image to span two facing pages, with an optional title.</li>
+  <li>Shade all the day titles, and shade weekends and holidays darker.</li>
+  <li>Start appointments at 9am instead of 7am.</li>
+  <li>Clean up the appointments code.</li>
+  <li>Add a units page, like all the diaries I see in the newsagents.</li>
+</ul>
+
+<p>Changes in 0.2.2:</p>
+<ul>
+  <li>Allow starting the diary on an arbitrary day with --start-date.</li>
+  <li>Allow an arbitrary title on the cover page.</li>
+  <li>Add option for large planner pages, patch from Alfredo Pironti.</li>
+  <li>Depend on python 2.4, not 2.3.</li>
+  <li>Fix for strftime on windows, which does not have the %e expando.</li>
+  <li>PDF output via ps2pdf.</li>
+</ul>
+
+<p>Written by Russell Steicke (<a href="mailto:russ&#101;lls@ad&#101;li&#101;.&#99;x">russ&#101;lls@ad&#101;li&#101;.&#99;x</a>).</p>
+
+<p>Licensed under the <a href="COPYING.txt">GNU GPL</a>.  Version 0.2.3 is
+dedicated to the public domain at the beginning of 2019.</p>
+
+<ul>
+  <!-- <li><a href="examples/">Example pages</a></li> -->
+  <li><a href="makediary.1.html">Man page</a>.</li>
+  <li><a href="http://github.com/russells/makediary">Source (at github)</a></li>
+</ul>
+
+<hr>
+<address></address>
+<font size=-2>
+<!-- hhmts start -->Last modified: Thu Jun  3 16:48:29 WST 2010 <!-- hhmts end -->
+</font>
+</body> </html>
