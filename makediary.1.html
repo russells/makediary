@@ -83,7 +83,14 @@ of the day.  Defaults to 35%.  The '%' sign is optional.  Implies
 
 <dd>
 <p>When printing images, output colour.  By default, images are converted to grey
-scale.</p>
+scale.  Note that this does not apply to included EPS files, which will always
+be in whatever colours they come with.</p>
+</dd>
+<dt><strong><a name="colour_images" class="item">--colour-images</a></strong></dt>
+
+<dd>
+<p>This is an alias for <strong>--colour</strong>.  It's more descriptive, as this option only
+applies to images.</p>
 </dd>
 <dt><strong><a name="cover_image_imagefile" class="item">--cover-image=<em>imagefile</em></a></strong></dt>
 
@@ -123,8 +130,25 @@ version number.</p>
 <dd>
 <p>Around each diary page (not each sheet of paper), draw a faint box.</p>
 </dd>
-<dt><strong><a name="eps_page_name_title_title_item_ref_name_title_title" class="item">--eps-page=<em>name[|title[|title]]</em>
-=item --ref=<em>name[|title[|title]]</em></a></strong></dt>
+<dt><strong><a name="eps_page_epsfilename_title" class="item">--eps-page=<em>epsfilename</em>[|<em>title</em>]</a></strong></dt>
+
+<dd>
+<p>Include a page whose content is <em>epsfilename</em>.  A title can be put on the page
+by appending it after the file name, separated by a vertical bar.  This could
+be useful for including maps, for instance.</p>
+<p>You will probably have to quote the vertical bar to prevent interpretation by
+the shell.</p>
+</dd>
+<dt><strong><a name="eps_2page_epsfilename_lefttitle_righttitle" class="item">--eps-2page=<em>epsfilename</em>[|<em>lefttitle</em>[|<em>righttitle</em>]]</a></strong></dt>
+
+<dd>
+<p>Include two pages whose content is <em>epsfilename</em>, which will be split across a
+pair of facing left and right pages.  If specified, the pages will have titles
+<em>lefttitle</em> and <em>righttitle</em>.</p>
+<p>You will probably have to quote the vertical bars to prevent interpretation by
+the shell.</p>
+</dd>
+<dt><strong><a name="ref_name_title_title" class="item">--ref=<em>name[|title[|title]]</em></a></strong></dt>
 
 <dd>
 <p>Include a page or pages whose content is <em>name</em>, possible with page titles.
