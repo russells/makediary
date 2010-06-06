@@ -43,6 +43,7 @@ class DiaryInfo:
                "appointments",
                "appointment-width=",
                "colour",
+               "colour-images",
                "cover-image=",
                "cover-page-image=",
                "day-to-page",
@@ -50,6 +51,7 @@ class DiaryInfo:
                "debug-version",
                "debug-whole-page-boxes",
                "eps-page=",
+               "eps-2page=",
                "event-images",
                "help",
                "image-page=",
@@ -94,10 +96,11 @@ class DiaryInfo:
                   "Usage: %s [--year=year | --start-date=yyyy-mm-dd]\n",
                   "    [--output-file=file] [--title=TITLE]\n",
                   "    [--address-pages=n] [--appointment-width=w] [--appointments]\n",
-                  "    [--colour] [--cover-image=IMAGE]\n",
+                  "    [--colour | --colour-images] [--cover-image=IMAGE]\n",
                   "    [--cover-page-image=IMAGE] [--day-to-page]\n",
                   "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
-                  "    [--eps-page=epsfile[|title[|title...]]] [--event-images]\n",
+                  "    [--eps-page=epsfile[|title]] [--eps-2page=epsfile[|title1[|title2]]]\n"
+                  "    [--event-images]\n",
                   "    [--image-page=IMAGEFILE[,title]] [--image-2page=IMAGEFILE[,title]]\n",
                   "    [--large-planner] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
                   "    [--layout=LAYOUT] [--northern-hemisphere-moon]\n",
@@ -196,7 +199,7 @@ class DiaryInfo:
         self.nWeeksAfter = 0
         self.smiley = True
         self.imagePages = []
-        self.epsPageFiles = []
+        self.epsPages = []
         self.title = None
         self.pdf = False
         self.pcal = False
@@ -236,7 +239,7 @@ class DiaryInfo:
                     sys.exit(1)
             elif opt[0] == "--appointments":
                 self.appointments = True
-            elif opt[0] == "--colour":
+            elif opt[0] == "--colour" or opt[0] == "--colour-images":
                 self.colour = True
             elif opt[0] == "--cover-image":
                 self.coverImage = opt[1]
@@ -251,9 +254,12 @@ class DiaryInfo:
             elif opt[0] == "--debug-version":
                 self.debugVersion = True
             elif opt[0] == "--eps-page":
-                self.epsPageFiles.append( self.epsOption('eps-page', opt[1] ) )
+                self.epsFilePageOption(opt[1], 1)
+            elif opt[0] == "--eps-2page":
+                self.epsFilePageOption(opt[1], 2)
             elif opt[0] == "--ref":
-                self.epsPageFiles.append( self.epsOption('ref', opt[1] ) )
+                name_and_titles = opt[1].split('|')
+                self.standardEPSRef(name_and_titles[0], name_and_titles[1:])
             elif opt[0] == "--event-images":
                 self.drawEventImages = True
             elif opt[0] == "--help":
@@ -317,19 +323,19 @@ class DiaryInfo:
                 print "makediary, version " + versionNumber
                 sys.exit(0)
             elif opt[0] == "--sed-ref":
-                self.epsPageFiles.append( ['sed', 'sed reference'] )
+                self.standardEPSRef( 'sed', ['sed reference'] )
             elif opt[0] == "--sh-ref":
-                self.epsPageFiles.append( ['sh', 'Shell and utility reference'] )
+                self.standardEPSRef( 'sh', ['Shell and utility reference'] )
             elif opt[0] == '--start-date':
                 self.setStartDate(DateTime.strptime(opt[1], '%Y-%m-%d'))
             elif opt[0] == "--title":
                 self.title = opt[1]
             elif opt[0] == "--units-ref":
-                self.epsPageFiles.append( ['units', 'Units'] )
+                self.standardEPSRef( 'units', ['Units'] )
             elif opt[0] == "--unix-ref":
-                self.epsPageFiles.append( ['unix', 'Unix reference'] )
+                self.standardEPSRef( 'unix', ['Unix reference',] )
             elif opt[0] == "--vim-ref" or opt[0] == "--vi-ref":
-                self.epsPageFiles.append( ['vi', ['Vi reference', 'Vim extensions']] )
+                self.standardEPSRef( 'vi', ['Vi reference', 'Vim extensions'] )
             elif opt[0] == "--week-to-opening":
                 self.layout = "week-to-opening"
             elif opt[0] == "--weeks-after":
@@ -369,6 +375,55 @@ class DiaryInfo:
         self.calcDateStuff()
 
 
+    def epsFilePageOption(self, option, npages):
+        if npages == 1:
+            options = option.split('|', 1)
+            filename = options[0]
+            if len(options) == 2:
+                title1 = options[1]
+            else:
+                title1 = None
+            title2 = None
+        elif npages == 2:
+            options = option.split('|', 2)
+            filename = options[0]
+            if len(options) >= 2:
+                title1 = options[1]
+            else:
+                title1 = None
+            if len(options) == 3:
+                title2 = options[2]
+            else:
+                title2 = None
+        else:
+            print >>sys.stderr, "Strange number of pages for eps-page: %d" % npages
+            return
+        self.epsPages.append( {"fileName" : filename, "pages"  : npages,
+                               "title1"   : title1,   "title2" : title2} )
+
+
+    def standardEPSRef(self, name, titles):
+        '''Find a list of files that make up a standard reference.'''
+        # A weirdness: if we have only one title, use that for all pages.  But if we have more
+        # than one title, use them in order until we run out.  So we have to know at the start
+        # if we have one or more than one.
+        same_title = (1 == len(titles))
+        files = self.findEPSFiles(name)
+        if len(files) == 0:
+            print >>sys.stderr, "%s: cannot find ref files for \"%s\"" % \
+                (sys.argv[0], name)
+            return
+        for f in files:
+            if len(titles) > 0:
+                title = titles[0]
+                if not same_title:
+                    titles = titles[1:]
+            else:
+                title = None
+            self.epsPages.append( {"fileName" : f,     "pages"  : 1,
+                                   "title1"   : title, "title2" : None } )
+
+
     def integerOption(self,name,s):
         """Convert an arg to an int."""
         try:
@@ -376,20 +431,6 @@ class DiaryInfo:
         except ValueError,reason:
             sys.stderr.write("Error converting integer: " + str(reason) + "\n")
             self.shortUsage()
-
-
-    def epsOption(self, name, s):
-        '''Get EPS name and titles.'''
-        ss = s.split('|')
-        if len(ss) == 1:
-            # File name only, no title
-            return [ ss[0], '']
-        elif len(ss) == 2:
-            # File name and one title
-            return [ ss[0], ss[1] ]
-        else:
-            # File name and multiple titles
-            return [ ss[0], ss[1:] ]
 
 
     def setStartDate(self,date):
@@ -519,6 +560,59 @@ class DiaryInfo:
         dc.setYears(years)
         dc.readCalendarFile()
         self.events = dc.datelist
+
+
+    def findEPSFiles(self, name):
+        '''Find EPS files matching a name.
+
+        Given the "base name" of an EPS file, we search for files matching that, and return the
+        path names in a list.
+
+        For example, if we are given "sh", as the name to search for, and
+        /usr/lib/site-python/makediary/eps/sh/sh.eps exists, we return that path in a sequence
+        on its own.
+
+        If given "sh", and /usr/.../sh.001.eps, sh.002.eps etc exist, we return all those in a
+        sequence.
+
+        We construct the names to search for by taking each element of the search path and
+        appending /makediary/eps/<name>/<name>.eps and then /makediary/eps/<name>/<name>.*.eps
+        to each element of the search path and checking to see if there are one or more files
+        that match.  The first time we get a match we construct the list and return that.
+
+        The search path is sys.path.  If makediary is being run with a relative path, then we
+        first check a series of relative paths.
+
+        If we are given a relative or absolute path to a file, use that only, after globbing.
+        '''
+
+        names = []
+        # If we are given a full or relative-to-pwd path to the file, use that only.
+        if '/' in name:
+            names = glob(name)
+        else:
+            # Otherwise, construct the full path to the file.  If we are running from the
+            # development directory, or otherwise not from a full path name, look at relative
+            # locations first.  In any case, we search the current directory first.
+            if sys.argv[0].startswith('.'):
+                searchpaths = ['.', '..', '../..']
+            else:
+                searchpaths = ['.']
+            for p in sys.path:
+                searchpaths.append(p)
+            #print >>sys.stderr, "searchpath is %s" % str(searchpath)
+            for searchpath in searchpaths:
+                path = path_join(searchpath, "makediary", "eps", "%s" % name, "%s.eps" % name)
+                names = glob(path)
+                if len(names) != 0:
+                    break
+                path = path_join(searchpath, "makediary", "eps", "%s" % name, "%s.*.eps" % name)
+                names = glob(path)
+                if len(names) != 0:
+                    # glob() returns random or directory order, ie unsorted.
+                    names.sort()
+                    break
+        return names
 
 
 # ############################################################################################
@@ -777,9 +871,8 @@ class PostscriptPage(BasicPostscriptPage):
             if line.startswith("%%BoundingBox:"):
                 list = line.split()
                 if len(list) != 5:
-                    print >>sys.stderr, "EPS file %s: can't split \"%s\"" % \
-                             (filename, line.strip())
-                    return False
+                    msg = "EPS file %s: can't split \"%s\"" % (epsfilename, line.strip())
+                    return (msg, None)
                 epsx1_pt = float(list[1])
                 epsy1_pt = float(list[2])
                 epsx2_pt = float(list[3])
@@ -791,9 +884,10 @@ class PostscriptPage(BasicPostscriptPage):
         epsfile.seek(filepos)
 
         if boundingboxfound:
-            return (epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt)
+            return (None, (epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt))
         else:
-            return False
+            return ("EPS file %s: no %%%%BoundingBox in first 20 lines" % epsfilename,
+                    None)
 
 
     def embedEPS(self, filename, epsfile):
@@ -815,10 +909,11 @@ class PostscriptPage(BasicPostscriptPage):
         for line in epsfile.readlines():
             s = s + line
 
-        s = s + "\n%%EndDocument\nRE end RE\n"
+        #s = s + "\n%%EndDocument\nRE end RE\n"
+        s = s + "\n%%EndDocument\nRE end\n"
 
         # Remove the clipping region
-        s = s + "grestore\n"
+        #s = s + "grestore\n"
 
         # Now draw a box so we can see where the image should be.
         #s = s + "%5.3f %5.3f %5.3f %5.3f 0 boxLBWH\n" % (x,y,maxwidth,maxheight)
@@ -950,21 +1045,33 @@ class EPSFilePage(PostscriptPage):
         self.epstitle = epstitle
 
 
-    def body(self):
-        s = ''
+    def findEPSFile(self, epsfilename):
+        epsfilepathname = None
+        # If we are given a full or relative-to-pwd path to the file, use that.
+        if self.epsfilename.startswith('/') or self.epsfilename.startswith('./') \
+               or self.epsfilename.startswith('../'):
+            epsfilepathname = self.epsfilename
+        else:
+            # Otherwise, construct the full path to the file.  If we are running from the
+            # development directory, or otherwise not from a full path name, look at relative
+            # locations first.  In any case, we search the current directory first.
+            if sys.argv[0].startswith('.'):
+                searchpath = ['.', '..', '../..']
+            else:
+                searchpath = ['.']
+            for p in sys.path:
+                searchpath.append(p)
+            #print >>sys.stderr, "searchpath is %s" % str(searchpath)
+            for path in searchpath:
+                epsfilepathname = self.searchfor(path, 'eps', self.epsfilename)
+                if epsfilepathname:
+                    break
+        return epsfilepathname
 
-        try:
-            epsfile = open(self.epsfilename, 'r')
-        except IOError, reason:
-            print >>sys.stderr, "Can't open %s: %s" % (self.epsfilename, str(reason))
-            return "%% +++ Error opening %s: %s\n" % (self.epsfilename, str(reason))
 
-        boundingbox = self.findBoundingBoxInEPS(self.epsfilename, epsfile)
-        if not boundingbox:
-            print >>sys.stderr, "%s: no %%%%BoundingBox in %s" % (self.di.myname,
-                                                                  self.epsfilename)
-            return "%% +++ Error reading %%%%BoundingBox comment in %s\n" % self.epsfilename
-
+    # FIXME this method is intended to factor out the bounding box, scaling and translation
+    # stuff for both EPSFilePage and HalfEPSFilePage.  It is not used (yet).
+    def calculateEPSStuff(self, boundingbox, maxwidth, maxheight):
         epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt = boundingbox
         epsx1 = epsx1_pt/self.di.points_mm
         epsy1 = epsy1_pt/self.di.points_mm
@@ -976,8 +1083,34 @@ class EPSFilePage(PostscriptPage):
         # Some space for layout.
         inset = self.pWidth / 200.0
 
+
+    def body(self):
+        s = ''
+
+        try:
+            epsfile = open(self.epsfilename, 'r')
+        except IOError, reason:
+            print >>sys.stderr, "Can't open %s: %s" % (self.epsfilename, str(reason))
+            return "%% +++ Error opening %s: %s\n" % (self.epsfilename, str(reason))
+
+        errmsg, boundingbox = self.findBoundingBoxInEPS(self.epsfilename, epsfile)
+        if errmsg:
+            print >>sys.stderr, "%s: %s" % (sys.argv[0], errmsg)
+            return "%% +++ %s\n" % self.postscriptEscape(errmsg)
+
         if self.epstitle:
             s = s + self.title(self.epstitle)
+
+        epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt = boundingbox
+        epsx1 = epsx1_pt/self.di.points_mm
+        epsy1 = epsy1_pt/self.di.points_mm
+        epsx2 = epsx2_pt/self.di.points_mm
+        epsy2 = epsy2_pt/self.di.points_mm
+        epswidth  = epsx2 - epsx1
+        epsheight = epsy2 - epsy1
+
+        # Some space for layout.
+        inset = self.pWidth / 200.0
 
         x = self.pLeft+inset
         y = self.pBottom+inset
@@ -993,8 +1126,8 @@ class EPSFilePage(PostscriptPage):
                 (epsx1, epsy1, epsx2, epsy2)
 
         # Make a clipping region.
-        s = s + "% Clipping path to contain the EPS file.\n"
-        s = s + "gsave newpath %.3f %.3f %.3f %.3f rectclip\n" % (x, y, maxwidth, maxheight)
+        #s = s + "% Clipping path to contain the EPS file.\n"
+        #s = s + "gsave newpath %.3f %.3f %.3f %.3f rectclip\n" % (x, y, maxwidth, maxheight)
 
         # Move to the required origin for the EPS
         s = s + "%5.3f %5.3f M\n" % (x, y) #(x+xoffset,y+yoffset)
@@ -1027,6 +1160,184 @@ class EPSFilePage(PostscriptPage):
         epsp = self.embedEPS(self.epsfilename, epsfile)
         epsfile.close()
         return s + epsp
+
+
+# ############################################################################################
+
+# One page whose content is made up of a half of an EPS file.
+
+class HalfEPSFilePage(EPSFilePage):
+
+    # Sides
+    LEFT = "Left"
+    RIGHT = "Right"
+
+
+    def __init__(self, dinfo, epsfilepathname, epstitle=None, side=LEFT):
+        EPSFilePage.__init__(self, dinfo, None, epstitle)
+        self.epsfilepathname = epsfilepathname
+        self.side = side
+
+
+    def body(self):
+        '''New body() method.'''
+        pe = self.postscriptEscape
+        s = ''
+        s += '%% %s: file=%s side=%s\n' % (self.__class__.__name__,
+                                           pe(self.epsfilepathname),
+                                           pe(self.side))
+
+        if self.epstitle:
+            s = s + self.title(self.epstitle)
+
+        if self.di.debugBoxes:
+            # This is a bit of an abuse of the --debug-boxes flag, but I think that's ok since
+            # we would not normally want to print the file name info like this unless we're
+            # drawing the debug boxes.
+            fontSize = 2.2*self.di.pageHeight/210.0
+            s += "/Courier %5.3f selectfont " % fontSize
+            s += '%5.3f %5.3f M (%s, %s, %s) SH\n' % (self.pLeft+1, self.pBottom+1,
+                                                      pe(self.__class__.__name__),
+                                                      pe(self.side),
+                                                      pe(self.epsfilepathname))
+
+        try:
+            epsfile = open(self.epsfilepathname, 'r')
+        except IOError, reason:
+            print >>sys.stderr, "%s: Can't open %s: %s" % (sys.argv[0],
+                                                           self.epsfilepathname,
+                                                           str(reason))
+            return "%% +++ Error opening %s: %s\n" % (pe(self.epsfilepathname),
+                                                      pe(str(reason)))
+
+        errmsg, boundingbox = self.findBoundingBoxInEPS(self.epsfilepathname, epsfile)
+        if errmsg:
+            print >>sys.stderr, "%s: %s" % (sys.argv[0], errmsg)
+            return "%% +++ %s\n" % self.postscriptEscape(errmsg)
+        s = s + "%% %s: bounding box = %s\n" % (self.__class__.__name__, str(boundingbox))
+
+        # Now find out how big the bounding box will be on the page.
+        epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt = boundingbox
+        epsx1 = epsx1_pt / self.di.points_mm
+        epsy1 = epsy1_pt / self.di.points_mm
+        epsx2 = epsx2_pt / self.di.points_mm
+        epsy2 = epsy2_pt / self.di.points_mm
+        eps_width  = epsx2 - epsx1
+        eps_height = epsy2 - epsy1
+        s = s + "%% %s: bounding box mm = %s\n" % (self.__class__.__name__,
+                                                   str( (epsx1, epsy1, epsx2, epsy2) ))
+
+        # Sanity check.  We can't operate with width or height <= 0.
+        if eps_width <= 0 or eps_height <= 0:
+            print >>sys.stderr, "%s: Cannot work with this bounding box: %s (file: %s)" % \
+                (sys.argv[0], str(boundingbox), self.epsfilepathname)
+            s += "%% Cannot work with this BoundingBox: %s\n" % str(boundingbox)
+            return s
+
+        # Some space for layout.
+        inset = self.pWidth / 200.0
+        maxwidth = self.pWidth - inset # Yes, only one inset.
+        maxheight = self.pHeight - 2*inset
+
+        # Calculate the scale factor.  We want the EPS page to expand to the maximum it can
+        # before hitting the top and bottom, or hitting the left and right.
+        eps_xscale = maxwidth * 2.0 / eps_width
+        eps_yscale = maxheight / eps_height
+        if eps_xscale == eps_yscale:
+            scale = eps_xscale
+        elif eps_xscale < eps_yscale:
+            # The X dimension of the EPS file takes up more of the available space than does
+            # the Y dimension.  So maximise the EPS to the X scale, and centre the Y.
+            eps_scale = eps_xscale
+        else:
+            # The reverse of the previous case.
+            eps_scale = eps_yscale
+
+        # The Y position does not depend on the page side.
+        if eps_scale == eps_yscale:
+            # The Y dimension takes up the whole page in this case.
+            ypos = self.pBottom + inset
+        else:
+            ypos = self.pBottom + inset + (maxheight - (eps_height * eps_scale)) / 2.0
+
+        # The X position does depend on the page side.
+        if self.side == self.LEFT:
+            xpos = self.pLeft + inset + maxwidth - (eps_width * eps_scale / 2.0)
+        else:
+            xpos = self.pLeft - (eps_width * eps_scale / 2.0)
+
+        # Now draw a debugging box around that bit, if it's requested.
+        if self.di.debugBoxes:
+            s += '0 SLW %5.3f %5.3f %5.3f %5.3f debugboxLBWH\n' % \
+                (xpos, ypos, eps_width * eps_scale, eps_height * eps_scale)
+
+        # If we're not drawing the debug boxes, then create a clipping region, so that the EPS
+        # does not flow outside where the user would expect it.
+        if not self.di.debugBoxes:
+            clipw = eps_width * eps_scale / 2.0
+            cliph = eps_height * eps_scale
+            clipy = ypos
+            if self.side == self.LEFT:
+                clipx = xpos
+            else:
+                clipx = self.pLeft
+            #s += '0 SLW %5.3f %5.3f %5.3f %5.3f debugboxLBWH\n' % \
+            #    (clipx, clipy, clipw, cliph)
+            s += 'newpath %5.3f %5.3f %5.3f %5.3f rectclip\n' % \
+                (clipx, clipy, clipw, cliph)
+
+        # To draw the EPS, we move to the calculated spot, adjusted by the first pair of
+        # coordinates in the bounding box.  And that adjustment must be scaled.
+        s += '%5.3f %5.3f M CP TR\n' % (xpos - epsx1*eps_scale, ypos - epsy1*eps_scale)
+
+        # Debugging smiley.
+        if self.di.debugBoxes:
+            s += 'SA\n' + self.smiley() + 'RE\n'
+
+        # Scale the EPS page
+        s += "%5.3f %5.3f SC\n" % (eps_scale,eps_scale)
+
+        s += self.embedEPS(self.epsfilepathname, epsfile)
+        epsfile.close()
+
+        return s
+
+
+# ############################################################################################
+
+# Two pages whose content is made up of two halves of an EPS file.
+
+class TwoEPSFilePages(EPSFilePage):
+
+    def __init__(self, dinfo, epsfilename, title1=None, title2=None):
+        self.dinfo = dinfo
+        self.epsfilename = epsfilename
+        self.title1 = title1
+        self.title2 = title2
+
+
+    def page(self):
+        s = ''
+
+        epsfilepathname = self.findEPSFile(self.epsfilename)
+        if epsfilepathname is None:
+            print >>sys.stderr, "cannot find %s" % self.epsfilename
+            return "%% %s: cannot find %s\n" % (self.__class__.__name__, self.epsfilename)
+        s = s + "%% %s: found %s at %s\n" % (self.__class__.__name__,
+                                             self.epsfilename, epsfilepathname)
+
+        title1 = self.title1
+        if title1 is not None and (self.title2 is None or self.title2 == ''):
+            # This single space is a bit of a hack to get a line across underneath where the
+            # title would go, without putting a title there.
+            title2 = ' '
+        else:
+            title2 = self.title2
+        s = s + HalfEPSFilePage(self.dinfo, epsfilepathname,
+                                title1, HalfEPSFilePage.LEFT).page() \
+              + HalfEPSFilePage(self.dinfo, epsfilepathname,
+                                title2, HalfEPSFilePage.RIGHT).page()
+        return s
 
 
 # ############################################################################################
@@ -2596,59 +2907,6 @@ class Diary:
         return p
 
 
-    def findEPSFiles(self, name):
-        '''Find EPS files matching a name.
-
-        Given the "base name" of an EPS file, we search for files matching that, and return the
-        path names in a list.
-
-        For example, if we are given "sh", as the name to search for, and
-        /usr/lib/site-python/makediary/eps/sh/sh.eps exists, we return that path in a sequence
-        on its own.
-
-        If given "sh", and /usr/.../sh.001.eps, sh.002.eps etc exist, we return all those in a
-        sequence.
-
-        We construct the names to search for by taking each element of the search path and
-        appending /makediary/eps/<name>/<name>.eps and then /makediary/eps/<name>/<name>.*.eps
-        to each element of the search path and checking to see if there are one or more files
-        that match.  The first time we get a match we construct the list and return that.
-
-        The search path is sys.path.  If makediary is being run with a relative path, then we
-        first check a series of relative paths.
-
-        If we are given a relative or absolute path to a file, use that only, after globbing.
-        '''
-
-        names = []
-        # If we are given a full or relative-to-pwd path to the file, use that only.
-        if '/' in name:
-            names = glob(name)
-        else:
-            # Otherwise, construct the full path to the file.  If we are running from the
-            # development directory, or otherwise not from a full path name, look at relative
-            # locations first.  In any case, we search the current directory first.
-            if self.di.myname.startswith('.'):
-                searchpaths = ['.', '..', '../..']
-            else:
-                searchpaths = ['.']
-            for p in sys.path:
-                searchpaths.append(p)
-            #print >>sys.stderr, "searchpath is %s" % str(searchpath)
-            for searchpath in searchpaths:
-                path = path_join(searchpath, "makediary", "eps", "%s" % name, "%s.eps" % name)
-                names = glob(path)
-                if len(names) != 0:
-                    break
-                path = path_join(searchpath, "makediary", "eps", "%s" % name, "%s.*.eps" % name)
-                names = glob(path)
-                if len(names) != 0:
-                    # glob() returns random or directory order, ie unsorted.
-                    names.sort()
-                    break
-        return names
-
-
     # print the whole diary
     def diary(self):
         di = self.di
@@ -2714,25 +2972,23 @@ class Diary:
         w( TwoExpensePages().page(di) )
         #self.w( FourExpensePages().page(di) )
 
-        for epsPageFile in di.epsPageFiles:
-            files = self.findEPSFiles(epsPageFile[0])
-            if len(files) == 0:
-                print >>sys.stderr, "%s: can't find EPS file %s" % \
-                    (self.di.myname, epsPageFile[0])
-            else:
-                titleindex = 0
-                for f in files:
-                    # The page title can be supplied as a single string, and we use that string
-                    # as the title for all pages, or as a sequence of strings, and we use each
-                    # string as a title in turn.
-                    title = epsPageFile[1]
-                    if isinstance(title, (ListType,TupleType)):
-                        if titleindex >= len(title):
-                            title = ''
-                        else:
-                            title = title[titleindex]
-                        titleindex += 1
-                    w( EPSFilePage(di, f, title).page() )
+        for epsPage in di.epsPages:
+            try:
+                eps_pages = epsPage["pages"]
+                eps_fileName = epsPage["fileName"]
+                eps_title1 = epsPage["title1"]
+                eps_title2 = epsPage["title2"]
+            except KeyError, reason:
+                print >>sys.stderr, "KeyError: missing key for EPS page (%s): %s" % \
+                      (epsPage, str(reason))
+                continue
+            if eps_pages == 1:
+                w( EPSFilePage(di, eps_fileName, eps_title1).page() )
+            elif eps_pages == 2:
+                # Ensure we start the two eps pages on an even page
+                if di.evenPage:
+                    w( EmptyPage(di).page() )
+                w( TwoEPSFilePages(di, eps_fileName, eps_title1, eps_title2).page() )
 
         for i in range(di.nNotesPages):
             w( NotesPage(di).page() )

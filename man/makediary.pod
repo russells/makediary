@@ -40,7 +40,13 @@ B<--appointments>.
 =item --colour
 
 When printing images, output colour.  By default, images are converted to grey
-scale.
+scale.  Note that this does not apply to included EPS files, which will always
+be in whatever colours they come with.
+
+=item --colour-images
+
+This is an alias for B<--colour>.  It's more descriptive, as this option only
+applies to images.
 
 =item --cover-image=I<imagefile>
 
@@ -74,7 +80,24 @@ version number.
 
 Around each diary page (not each sheet of paper), draw a faint box.
 
-=item --eps-page=I<name[|title[|title]]>
+=item --eps-page=I<epsfilename>[|I<title>]
+
+Include a page whose content is I<epsfilename>.  A title can be put on the page
+by appending it after the file name, separated by a vertical bar.  This could
+be useful for including maps, for instance.
+
+You will probably have to quote the vertical bar to prevent interpretation by
+the shell.
+
+=item --eps-2page=I<epsfilename>[|I<lefttitle>[|I<righttitle>]]
+
+Include two pages whose content is I<epsfilename>, which will be split across a
+pair of facing left and right pages.  If specified, the pages will have titles
+I<lefttitle> and I<righttitle>.
+
+You will probably have to quote the vertical bars to prevent interpretation by
+the shell.
+
 =item --ref=I<name[|title[|title]]>
 
 Include a page or pages whose content is I<name>, possible with page titles.
