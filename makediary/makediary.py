@@ -2880,18 +2880,17 @@ class Diary:
                 p = p + "%5.3f %5.3f M " % (20,a8*7) # Left titles
                 p = p + "(%s) SH\n" % (ts,)
                 p = p + "/Helvetica findfont [80 0 0 100 0 0] makefont setfont " \
-                    + "%5.3f (S) SWP2D sub %5.3f M (S) SH\n" % (a7*0.5,a8*6.0) \
-                    + "%5.3f (M) SWP2D sub %5.3f M (M) SH\n" % (a7*1.5,a8*6.0) \
-                    + "%5.3f (T) SWP2D sub %5.3f M (T) SH\n" % (a7*2.5,a8*6.0) \
-                    + "%5.3f (W) SWP2D sub %5.3f M (W) SH\n" % (a7*3.5,a8*6.0) \
-                    + "%5.3f (T) SWP2D sub %5.3f M (T) SH\n" % (a7*4.5,a8*6.0) \
-                    + "%5.3f (F) SWP2D sub %5.3f M (F) SH\n" % (a7*5.5,a8*6.0) \
+                    + "%5.3f (M) SWP2D sub %5.3f M (M) SH\n" % (a7*0.5,a8*6.0) \
+                    + "%5.3f (T) SWP2D sub %5.3f M (T) SH\n" % (a7*1.5,a8*6.0) \
+                    + "%5.3f (W) SWP2D sub %5.3f M (W) SH\n" % (a7*2.5,a8*6.0) \
+                    + "%5.3f (T) SWP2D sub %5.3f M (T) SH\n" % (a7*3.5,a8*6.0) \
+                    + "%5.3f (F) SWP2D sub %5.3f M (F) SH\n" % (a7*4.5,a8*6.0) \
+                    + "%5.3f (S) SWP2D sub %5.3f M (S) SH\n" % (a7*5.5,a8*6.0) \
                     + "%5.3f (S) SWP2D sub %5.3f M (S) SH\n"% (a7*6.5,a8*6.0)
                 thisweek = 0            # Used to calculate what line to print the week on
                 ndays = mtime.days_in_month
                 for day in range(1,ndays+1):
                     wday = DateTime.DateTime(year,month,day).day_of_week
-                    wday = (wday + 1) % 7 # Make Sunday first
                     p = p + "(%d) dup SWP2D %3.2f exch sub %5.3f M SH\n" \
                         % (day, wday*a7+a7/2, (5-thisweek)*a8 )
                     if wday==DateTime.Sunday:
