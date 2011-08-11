@@ -74,6 +74,7 @@ class DiaryInfo:
                "pcal",
                "pcal-planner",
                "pdf",
+               "perpetual-calendars",
                "planner-years=",
                "ref=",
                "sed-ref",
@@ -99,7 +100,7 @@ class DiaryInfo:
                   "    [--colour | --colour-images] [--cover-image=IMAGE]\n",
                   "    [--cover-page-image=IMAGE] [--day-to-page]\n",
                   "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
-                  "    [--eps-page=epsfile[|title]] [--eps-2page=epsfile[|title1[|title2]]]\n"
+                  "    [--eps-page=epsfile[|title]] [--eps-2page=epsfile[|title1[|title2]]]\n",
                   "    [--event-images]\n",
                   "    [--image-page=IMAGEFILE[,title]] [--image-2page=IMAGEFILE[,title]]\n",
                   "    [--large-planner] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
@@ -107,7 +108,8 @@ class DiaryInfo:
                   "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
                   "    [--page-y-offset=Ymm] [--pdf] [--planner-years=n] \n",
-                  "    [--pcal] [--pcal-planner] [--ref=<refname>]\n",
+                  "    [--pcal] [--pcal-planner] [--perpetual-calendars]\n",
+                  "    [--ref=<refname>]\n",
                   "    [--sed-ref] [--sh-ref] [--units-ref] [--unix-ref] [--vi[m]-ref]\n",
                   "    [--weeks-before=n] [--weeks-after=n] [--week-to-opening]\n",
                   "    [--help] [--version]\n",
@@ -204,10 +206,56 @@ class DiaryInfo:
         self.pdf = False
         self.pcal = False
         self.pcalPlanner = False
+        self.perpetualCalendars = False
 
         self.configOptions = ConfigParser()
         self.configOptions.read( (expanduser("~/.makediaryrc"), ".makediaryrc", "makediaryrc") )
 
+        self.createMonthCalendars()
+
+    def createMonthCalendars(self):
+        '''Create all the month calendar names.
+
+        There are only 14 possible yearly calendars - one for a year beginning on each day of
+        the days of the week, and twice that for leap years.
+
+        For each day of the week, we generate one set of month calendars that start on that day
+        and finish on that day (ie 1JAN and 31DEC are the same day of the week) and another set
+        where the year is an extra day longer.
+
+        The idea is when something wants to print a month calendar, it can call in here with
+        the year and month, and we will calculate exactly which calendar is to be printed, and
+        return a name that will print that calendar in PostScript.
+        '''
+        self.monthCalendarList = {}
+        for i in range(7):
+            for m in range(1,13):
+                self.monthCalendarList[ (m,i,i) ] = "M_m%02d_b%d_e%d" % (m,i,i)
+                i2 = (i+1) % 7
+                self.monthCalendarList[ (m,i,i2) ] = "M_m%02d_b%d_e%d" % (m,i,i2)
+
+    def getMonthCalendarPsFnCall(self, year, month, addyear=True):
+        '''Return the code to call a PostScript function that will print the appropriate
+        calendar for a given year and month.
+
+        If addYear==False, we return '() M_mMM_bB_eE', where MM is the month number, B is the
+        day of week of the beginning of the year, and E is the day of week of the end of the
+        year.
+
+        If addYear is true, we return '(YYYY) M_mMM_bB_eE', where YYYY is the four digit year.
+        '''
+        dow_begin = DateTime.DateTime(year,  1,  1).day_of_week
+        dow_end   = DateTime.DateTime(year, 12, 31).day_of_week
+        k = (month, dow_begin, dow_end)
+        if not self.monthCalendarList.has_key(k):
+            print >>sys.stderr, "makediary: internal error:"
+            print >>sys.stderr, "-- No month calendar for year=%s month=%s" % (str(year),str(month))
+            sys.exit(1)
+        procname = self.monthCalendarList[k]
+        if addyear:
+            return (" (%d) " % year) + procname
+        else:
+            return " () " + procname
 
     def parseOptions(self):
         args = self.opts
@@ -257,6 +305,8 @@ class DiaryInfo:
                 self.epsFilePageOption(opt[1], 1)
             elif opt[0] == "--eps-2page":
                 self.epsFilePageOption(opt[1], 2)
+            elif opt[0] == "--perpetual-calendars":
+                self.perpetualCalendars = True
             elif opt[0] == "--ref":
                 name_and_titles = opt[1].split('|')
                 self.standardEPSRef(name_and_titles[0], name_and_titles[1:])
@@ -1503,7 +1553,7 @@ class CalendarPage(PostscriptPage):
             for m in range(1,13):
                 my = y + mvspacing * (2-int((m-1)/4)) + mvgap*0.5
                 mx = x + ((m-1) % 4) * mhspacing + mhgap*0.5
-                mname = DateTime.DateTime(year,m).strftime("M_%Y_%m")
+                mname = self.di.getMonthCalendarPsFnCall(year,m)
                 ms = "%5.3f %5.3f M SA %5.3f %5.3f SC %s RE\n" % \
                      (mx,my,mhsize,mvsize,mname)
                 s = s + ms
@@ -1590,7 +1640,7 @@ class HalfCalendarPage(PostscriptPage):
             if thisr >=4 : mbottom = mbottom - 2.0*mvgap
             elif thisr >= 2: mbottom = mbottom - mvgap
             mleft = left + thisc*mhspacing + mhgap*0.5
-            mname = DateTime.DateTime(thisy,thism).strftime("M_%Y_%m")
+            mname = self.di.getMonthCalendarPsFnCall(thisy,thism)
             s = s + "%5.3f %5.3f M SA %5.3f %5.3f SC %s RE\n" % \
                 (mleft, mbottom, mhsize, mvsize, mname)
 
@@ -1608,6 +1658,172 @@ class TwoCalendarPages:
         s = ''
         s = s + HalfCalendarPage(self.dinfo).page()
         s = s + HalfCalendarPage(self.dinfo).page()
+        return s
+
+
+
+# ############################################################################################
+
+class PerpetualYear:
+    """Hold all the information about particular year calendars.
+
+    This class has static member dictionaries that are maps from (b,e)->c, c->years, and
+    year->c, where b and e are the day of the week of the first and last days of the year, and
+    c is a character from 'A' to 'N'.  It also contains a list of years that are to go on the
+    perpetual calendars list.
+
+    To add a year to the list, create an instance with PerpetualYear(year).  You don't have to
+    hold on to that object, as all information goes into the class members.
+    """
+    d2c = {}                            # Map ((b,e)->titlechar)
+    c2years = {}                        # Map (c->years)
+    year2c = {}                         # Map (year->c)
+    years = []
+    for d in range(7):
+        for leap in (0,1):
+            be_dow = (d, (d+leap)%7)    # Beginning and end dow of a year.
+            c = chr(ord('A')+d+(leap*7))
+            d2c[be_dow] = c
+            c2years[c] = []
+
+    def __init__(self, year):
+        d0 = DateTime.DateTime(year, 1, 1).day_of_week
+        d9 = DateTime.DateTime(year,12,31).day_of_week
+        be_dow = (d0,d9)
+        c = PerpetualYear.d2c[be_dow]
+        # Append this year to the relevant list.
+        PerpetualYear.c2years[c].append(year)
+        PerpetualYear.year2c[year] = c
+        PerpetualYear.years.append(year)
+
+
+# ############################################################################################
+
+class FourPerpetualCalendarsPage(PostscriptPage):
+
+    def __init__(self, dinfo, char, nchars):
+        PostscriptPage.__init__(self, dinfo)
+        self.char = char                # char to year
+        self.nchars = nchars            # number of chars to use for calendars
+        # Configurable variables
+        self.mvprop = 0.92              # proportion of month box that gets printed in
+        self.mhprop = 0.90              # proportion of month box that gets printed in
+
+    def body(self):
+        # Calculated stuff
+        yboxh = (self.di.titleLineY - self.pBottom) / 4.0
+        yboxw = self.pWidth
+        s = '% ----- FourPerpetualCalendarsPage\n'
+        s += self.title("Perpetual calendars")
+        y = self.pBottom + 4.0 * yboxh
+        if self.nchars < 4:
+            s += self.perpetualYearLists(self.pLeft, self.pBottom + 2.0*yboxh,
+                                         yboxw, yboxh*2.0)
+            y -= 2.0*yboxh
+        for i in range(self.nchars):
+            y -= yboxh
+            s += self.perpetualYear(self.pLeft, y, yboxw, yboxh - 1.0, chr(ord(self.char)+i))
+        return s
+
+    def perpetualYear(self, l, b, w, h, char):
+        '''Create a whole calendar for a year identified by a title char.
+
+        All other data for the calendar is got by interrogating the PerpetualYear class static
+        members.
+        '''
+        years = PerpetualYear.c2years[char]
+        s = '%% ---- A perpetual year calendar\n'
+        s += "%% --- years[0]: %d\n" % years[0]
+        if self.di.debugBoxes:
+            s += "%5.3f %5.3f %5.3f %5.3f debugboxLBWH\n" % (l, b, w, h)
+        titlefontsize = h / 10.0
+        if self.di.evenPage:
+            ml = l + 1.5*titlefontsize
+        else:
+            ml = l
+        mwidth = (w - 1.5*titlefontsize) / 6.0
+        mheight = h / 2.0
+        # On an odd page, shift everything away from the gutter.  See the comment below.
+        s += "/Helvetica findfont [%5.3f 0 0 %5.3f 0 0] makefont setfont\n" % \
+             (titlefontsize, titlefontsize)
+        if self.di.evenPage:
+            s += "%5.3f %5.3f M (%s) SH\n" % (l, b+(h-titlefontsize)/2.0, char)
+            s += "%5.3f SLW %5.3f %5.3f M %5.3f 0 RL 0 %5.3f RL %5.3f 0 RL S\n" % \
+                 (self.di.underlineThick * 0.6,
+                  ml-0.25*titlefontsize, b, -0.25*titlefontsize,
+                  2.0*mheight, 0.25*titlefontsize)
+        else:
+            s += "%5.3f (%s) SW pop sub %5.3f M (%s) SH\n" % \
+                (l+w, char, b+(h-titlefontsize)/2.0, char)
+            s += "%5.3f SLW %5.3f %5.3f M %5.3f 0 RL 0 %5.3f RL %5.3f 0 RL S\n" % \
+                 (self.di.underlineThick * 0.6,
+                  ml+6.0*mwidth+0.25*titlefontsize, b, 0.25*titlefontsize,
+                  2.0*mheight, -0.25*titlefontsize)
+        mbottom = b + mheight
+        for m in range(1,13):
+            dt = DateTime.DateTime(years[0], m)
+            mleft = ml + (((m-1) % 6) * mwidth)
+            # Because we make the months slightly smaller than the available space, they seem
+            # to be shifted left.  When we are printing on an odd (right side) page, make them
+            # shift right, so we shift away from the gutter in both cases.
+            if not self.di.evenPage:
+                mleft += mwidth * (1.0 - self.mhprop)
+            if m == 7:
+                mbottom -= mheight
+            s += "%5.3f %5.3f M SA %5.3f %5.3f SC %s RE\n" % \
+                 (mleft, mbottom, mwidth*self.mhprop, mheight*self.mvprop,
+                  self.di.getMonthCalendarPsFnCall(years[0], m, addyear=False))
+        return s
+
+    def perpetualYearLists(self, l, b, w, h):
+        '''Create the lists of perpetual years on half of a page.
+        '''
+        s = ''
+        fontsize = h / 45.0
+        rowheight = fontsize * 1.3
+        columnwidth = fontsize * 5.0
+        columntextwidth = fontsize * 3.5 # Estimated width of text.
+        columnpos = l + 1.0 + (columnwidth * 0.3)
+        toprowpos = b + h - (2.0 * fontsize)
+        rowpos = toprowpos
+        bottomrowpos = b + rowheight
+        s += "/Helvetica findfont [%5.3f 0 0 %5.3f 0 0] makefont setfont\n" % \
+             (fontsize, fontsize)
+        for year in PerpetualYear.years:
+            c = PerpetualYear.year2c[year]
+            s += "%5.3f %5.3f M (%d) SH %5.3f (%s) SWP2D sub %5.3f M (%s) SH\n" % \
+                 (columnpos, rowpos, year, columnpos + 3.0*fontsize, c, rowpos, c)
+            rowpos -= rowheight
+            if rowpos <= bottomrowpos:
+                rowpos = toprowpos
+                columnpos += columnwidth
+                if columnpos + columntextwidth > l + w:
+                    break
+        return s
+
+
+
+# ############################################################################################
+
+class PerpetualCalendarPages:
+
+    def __init__(self,dinfo):
+        self.di = dinfo
+        # Generate the lists of years.
+        year = self.di.dt.year - 301
+        year -= year % 100
+        # Do lots of years.  They don't take up much memory and the page will stop printing
+        # years when the page area fills up.
+        for i in range(year, year+451):
+            # We don't have to keep this object.
+            PerpetualYear(i)
+
+    def page(self):
+        s = ''
+        s += FourPerpetualCalendarsPage(self.di, 'A', 2).page()
+        s += FourPerpetualCalendarsPage(self.di, 'C', 4).page()
+        s += FourPerpetualCalendarsPage(self.di, 'G', 4).page()
+        s += FourPerpetualCalendarsPage(self.di, 'K', 4).page()
         return s
 
 
@@ -2543,7 +2759,7 @@ class DiaryPage(PostscriptPage):
             c_left = c_indent + (i+1)*(c_width+c_gutter)
             s = s +"%5.3f %5.3f M SA %5.3f %5.3f SC " % \
                 (c_left,c_bottom,c_width,c_height) \
-                + c_d.strftime("M_%Y_%m") \
+                + self.di.getMonthCalendarPsFnCall(c_d.year, c_d.month) \
                 + " RE\n"
             # Draw a box around the current month
             if i == 0:
@@ -2598,7 +2814,7 @@ class DiaryPage(PostscriptPage):
                      self.pBottom + self.bottomcalheight*(1.0-monthprop)/2.0,
                      (self.dwidth/6.0)*monthprop,
                      self.bottomcalheight*monthprop,
-                     date.strftime('M_%Y_%m') )
+                     self.di.getMonthCalendarPsFnCall(date.year, date.month) )
             date += DateTime.oneDay * 30
         return s
 
@@ -2828,6 +3044,13 @@ class Diary:
             "/pageIsLetter { currentpagedevice begin " \
             "  PageSize 0 get 612 sub abs 10 lt PageSize 1 get 792 sub abs 10 lt " \
             "  and end } bind def\n" \
+            "% concatstr(ings) copied from http://en.wikibooks.org/wiki/PostScript_FAQ\n" \
+            "/concatstr % (a) (b) -> (ab)\n" \
+            "{ exch dup length\n" \
+            "  2 index length add string\n" \
+            "  dup dup 4 2 roll copy length\n" \
+            "  4 -1 roll putinterval\n" \
+            "} bind def\n" \
             + self.monthCalendars() \
             + "%%EndResource\n" \
             + "%%EndProlog\n"
@@ -2865,20 +3088,32 @@ class Diary:
         a7 = 142.86                     # 1000/7
         a8 = 125.0                      # 1000/8
         p = p + "/monthCalendars 100 dict dup begin\n"
-        for year in y-1,y,y+1:
+        # This list of years contains one instance of each of the 14 possible calendars.
+        yearslist = [2000,2001,2002,2003,2004,2005,2006,2008,2009,2010,2012,2016,2020,2024]
+
+        # Create 168 (14*12) month calendars, named M_mMM_bB_eE, where MM is a month number, B
+        # is the day of week of 1jan, and E is day of week of 31dec (day of week is 0 to 6).
+        # Callers need to call self.di.getMonthCalendarPsFnCall(y,m[,addyear=True]) when
+        # printing a calendar.
+        for year in yearslist:
+
+            day_b = DateTime.DateTime(year,  1,  1).day_of_week
+            day_e = DateTime.DateTime(year, 12, 31).day_of_week
+
             for month in range(1,13):
                 mtime = DateTime.DateTime(year,month)
                 # Work in a 1000-scaled world to make the numbers a bit easier.
                 # "0 25 TR" here is to move things up very slightly, so that the
                 # bottom line is not right on the bottom.  "25" should be calculated,
                 # but at the moment it is measured and a static quantity.
-                p = p + mtime.strftime("%%----\n/M_%Y_%m{") \
+                p = p + mtime.strftime("%%%%----\n/M_m%%02m_b%d_e%d{" % (day_b, day_e)) \
+                    + " 5 dict begin /TT exch def\n" \
                     + " SA CP TR 0.001 0.001 scale 0 25 TR\n" \
                     + "/Helvetica-Bold findfont [80 0 0 100 0 0] makefont setfont\n"
-                ts = mtime.strftime("%B  %Y")
+                ts = mtime.strftime("%B")
                 #p = p + "(%s) SWP2D 500 exch sub %d M " % (ts,a8*7) # Centred titles
                 p = p + "%5.3f %5.3f M " % (20,a8*7) # Left titles
-                p = p + "(%s) SH\n" % (ts,)
+                p = p + "(%s) TT length 0 ne { (  ) concatstr TT concatstr} if SH\n" % (ts,)
                 p = p + "/Helvetica findfont [80 0 0 100 0 0] makefont setfont " \
                     + "%5.3f (M) SWP2D sub %5.3f M (M) SH\n" % (a7*0.5,a8*6.0) \
                     + "%5.3f (T) SWP2D sub %5.3f M (T) SH\n" % (a7*1.5,a8*6.0) \
@@ -2886,7 +3121,7 @@ class Diary:
                     + "%5.3f (T) SWP2D sub %5.3f M (T) SH\n" % (a7*3.5,a8*6.0) \
                     + "%5.3f (F) SWP2D sub %5.3f M (F) SH\n" % (a7*4.5,a8*6.0) \
                     + "%5.3f (S) SWP2D sub %5.3f M (S) SH\n" % (a7*5.5,a8*6.0) \
-                    + "%5.3f (S) SWP2D sub %5.3f M (S) SH\n"% (a7*6.5,a8*6.0)
+                    + "%5.3f (S) SWP2D sub %5.3f M (S) SH\n" % (a7*6.5,a8*6.0)
                 thisweek = 0            # Used to calculate what line to print the week on
                 ndays = mtime.days_in_month
                 for day in range(1,ndays+1):
@@ -2901,7 +3136,7 @@ class Diary:
                     #p = p + "0 SLW 0 0 999 999 50 debugboxLBRTD "
                     p = p + "0 SLW 0 0 999 999 debugboxLBRT "
                 # End of the month definition
-                p = p + "RE} def\n"
+                p = p + "RE end } def\n"
         p = p + "end def\n"
         return p
 
@@ -2937,6 +3172,10 @@ class Diary:
             self.w( EmptyPage(di).page() )
 
         w( TwoCalendarPages(di).page() )
+
+        if di.perpetualCalendars:
+            self.w( PerpetualCalendarPages(di).page() )
+
         # Ensure that the planner pages are on facing pages.
         if di.nPlannerYears > 0:
             if di.evenPage:

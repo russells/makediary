@@ -250,6 +250,12 @@ commas.  The text is clipped to stay within the day box in any case.
 Generate PDF instead of PostScript.  Requires that ps2pdf be installed and in
 your $PATH.  Untested on Windows.
 
+=item --perpetual-calendars
+
+Print four pages of perpetual calendars.  There are only 14 possible calendars,
+and this options makes B<makediary> print them all, along with a list of recent
+and future years showing which calendar applies to each one.
+
 =item --planner-years=I<n>
 
 Print I<n> two-page planner years, starting with the diary year.  Defaults
