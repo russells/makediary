@@ -1,662 +1,1771 @@
-<?xml version="1.0" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<title>makediary - output PostScript code for a paper diary.</title>
-<link rel="stylesheet" href="http://russells.github.com/russells.github.com.css" type="text/css" />
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<link rev="made" href="mailto:root@localhost" />
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+<meta name="generator" content="AsciiDoc 8.6.5" />
+<title>MAKEDIARY(1)</title>
+<style type="text/css">
+/* Shared CSS for AsciiDoc xhtml11 and html5 backends */
+
+/* Default font. */
+body {
+  font-family: Georgia,serif;
+}
+
+/* Title font. */
+h1, h2, h3, h4, h5, h6,
+div.title, caption.title,
+thead, p.table.header,
+#toctitle,
+#author, #revnumber, #revdate, #revremark,
+#footer {
+  font-family: Arial,Helvetica,sans-serif;
+}
+
+body {
+  margin: 1em 5% 1em 5%;
+}
+
+a {
+  color: blue;
+  text-decoration: underline;
+}
+a:visited {
+  color: fuchsia;
+}
+
+em {
+  font-style: italic;
+  color: navy;
+}
+
+strong {
+  font-weight: bold;
+  color: #083194;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #527bbd;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+h1, h2, h3 {
+  border-bottom: 2px solid silver;
+}
+h2 {
+  padding-top: 0.5em;
+}
+h3 {
+  float: left;
+}
+h3 + * {
+  clear: left;
+}
+h5 {
+  font-size: 1.0em;
+}
+
+div.sectionbody {
+  margin-left: 0;
+}
+
+hr {
+  border: 1px solid silver;
+}
+
+p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+ul, ol, li > p {
+  margin-top: 0;
+}
+ul > li     { color: #aaa; }
+ul > li > * { color: black; }
+
+pre {
+  padding: 0;
+  margin: 0;
+}
+
+#author {
+  color: #527bbd;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+#email {
+}
+#revnumber, #revdate, #revremark {
+}
+
+#footer {
+  font-size: small;
+  border-top: 2px solid silver;
+  padding-top: 0.5em;
+  margin-top: 4.0em;
+}
+#footer-text {
+  float: left;
+  padding-bottom: 0.5em;
+}
+#footer-badges {
+  float: right;
+  padding-bottom: 0.5em;
+}
+
+#preamble {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+div.imageblock, div.exampleblock, div.verseblock,
+div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
+div.admonitionblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+div.admonitionblock {
+  margin-top: 2.0em;
+  margin-bottom: 2.0em;
+  margin-right: 10%;
+  color: #606060;
+}
+
+div.content { /* Block element content. */
+  padding: 0;
+}
+
+/* Block element titles. */
+div.title, caption.title {
+  color: #527bbd;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 1.0em;
+  margin-bottom: 0.5em;
+}
+div.title + * {
+  margin-top: 0;
+}
+
+td div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content + div.title {
+  margin-top: 0.0em;
+}
+
+div.sidebarblock > div.content {
+  background: #ffffee;
+  border: 1px solid #dddddd;
+  border-left: 4px solid #f0f0f0;
+  padding: 0.5em;
+}
+
+div.listingblock > div.content {
+  border: 1px solid #dddddd;
+  border-left: 5px solid #f0f0f0;
+  background: #f8f8f8;
+  padding: 0.5em;
+}
+
+div.quoteblock, div.verseblock {
+  padding-left: 1.0em;
+  margin-left: 1.0em;
+  margin-right: 10%;
+  border-left: 5px solid #f0f0f0;
+  color: #777777;
+}
+
+div.quoteblock > div.attribution {
+  padding-top: 0.5em;
+  text-align: right;
+}
+
+div.verseblock > pre.content {
+  font-family: inherit;
+  font-size: inherit;
+}
+div.verseblock > div.attribution {
+  padding-top: 0.75em;
+  text-align: left;
+}
+/* DEPRECATED: Pre version 8.2.7 verse style literal block. */
+div.verseblock + div.attribution {
+  text-align: left;
+}
+
+div.admonitionblock .icon {
+  vertical-align: top;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: underline;
+  color: #527bbd;
+  padding-right: 0.5em;
+}
+div.admonitionblock td.content {
+  padding-left: 0.5em;
+  border-left: 3px solid #dddddd;
+}
+
+div.exampleblock > div.content {
+  border-left: 3px solid #dddddd;
+  padding-left: 0.5em;
+}
+
+div.imageblock div.content { padding-left: 0; }
+span.image img { border-style: none; }
+a.image:visited { color: white; }
+
+dl {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+dt {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+  font-style: normal;
+  color: navy;
+}
+dd > *:first-child {
+  margin-top: 0.1em;
+}
+
+ul, ol {
+    list-style-position: outside;
+}
+ol.arabic {
+  list-style-type: decimal;
+}
+ol.loweralpha {
+  list-style-type: lower-alpha;
+}
+ol.upperalpha {
+  list-style-type: upper-alpha;
+}
+ol.lowerroman {
+  list-style-type: lower-roman;
+}
+ol.upperroman {
+  list-style-type: upper-roman;
+}
+
+div.compact ul, div.compact ol,
+div.compact p, div.compact p,
+div.compact div, div.compact div {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+tfoot {
+  font-weight: bold;
+}
+td > div.verse {
+  white-space: pre;
+}
+
+div.hdlist {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+div.hdlist tr {
+  padding-bottom: 15px;
+}
+dt.hdlist1.strong, td.hdlist1.strong {
+  font-weight: bold;
+}
+td.hdlist1 {
+  vertical-align: top;
+  font-style: normal;
+  padding-right: 0.8em;
+  color: navy;
+}
+td.hdlist2 {
+  vertical-align: top;
+}
+div.hdlist.compact tr {
+  margin: 0;
+  padding-bottom: 0;
+}
+
+.comment {
+  background: yellow;
+}
+
+.footnote, .footnoteref {
+  font-size: 0.8em;
+}
+
+span.footnote, span.footnoteref {
+  vertical-align: super;
+}
+
+#footnotes {
+  margin: 20px 0 20px 0;
+  padding: 7px 0 0 0;
+}
+
+#footnotes div.footnote {
+  margin: 0 0 5px 0;
+}
+
+#footnotes hr {
+  border: none;
+  border-top: 1px solid silver;
+  height: 1px;
+  text-align: left;
+  margin-left: 0;
+  width: 20%;
+  min-width: 100px;
+}
+
+div.colist td {
+  padding-right: 0.5em;
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+div.colist td img {
+  margin-top: 0.3em;
+}
+
+@media print {
+  #footer-badges { display: none; }
+}
+
+#toc {
+  margin-bottom: 2.5em;
+}
+
+#toctitle {
+  color: #527bbd;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-top: 1.0em;
+  margin-bottom: 0.1em;
+}
+
+div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+div.toclevel2 {
+  margin-left: 2em;
+  font-size: 0.9em;
+}
+div.toclevel3 {
+  margin-left: 4em;
+  font-size: 0.9em;
+}
+div.toclevel4 {
+  margin-left: 6em;
+  font-size: 0.9em;
+}
+
+span.aqua { color: aqua; }
+span.black { color: black; }
+span.blue { color: blue; }
+span.fuchsia { color: fuchsia; }
+span.gray { color: gray; }
+span.green { color: green; }
+span.lime { color: lime; }
+span.maroon { color: maroon; }
+span.navy { color: navy; }
+span.olive { color: olive; }
+span.purple { color: purple; }
+span.red { color: red; }
+span.silver { color: silver; }
+span.teal { color: teal; }
+span.white { color: white; }
+span.yellow { color: yellow; }
+
+span.aqua-background { background: aqua; }
+span.black-background { background: black; }
+span.blue-background { background: blue; }
+span.fuchsia-background { background: fuchsia; }
+span.gray-background { background: gray; }
+span.green-background { background: green; }
+span.lime-background { background: lime; }
+span.maroon-background { background: maroon; }
+span.navy-background { background: navy; }
+span.olive-background { background: olive; }
+span.purple-background { background: purple; }
+span.red-background { background: red; }
+span.silver-background { background: silver; }
+span.teal-background { background: teal; }
+span.white-background { background: white; }
+span.yellow-background { background: yellow; }
+
+span.big { font-size: 2em; }
+span.small { font-size: 0.6em; }
+
+span.underline { text-decoration: underline; }
+span.overline { text-decoration: overline; }
+span.line-through { text-decoration: line-through; }
+
+
+/*
+ * xhtml11 specific
+ *
+ * */
+
+tt {
+  font-family: monospace;
+  font-size: inherit;
+  color: navy;
+}
+
+div.tableblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+div.tableblock > table {
+  border: 3px solid #527bbd;
+}
+thead, p.table.header {
+  font-weight: bold;
+  color: #527bbd;
+}
+p.table {
+  margin-top: 0;
+}
+/* Because the table frame attribute is overriden by CSS in most browsers. */
+div.tableblock > table[frame="void"] {
+  border-style: none;
+}
+div.tableblock > table[frame="hsides"] {
+  border-left-style: none;
+  border-right-style: none;
+}
+div.tableblock > table[frame="vsides"] {
+  border-top-style: none;
+  border-bottom-style: none;
+}
+
+
+/*
+ * html5 specific
+ *
+ * */
+
+.monospaced {
+  font-family: monospace;
+  font-size: inherit;
+  color: navy;
+}
+
+table.tableblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+thead, p.tableblock.header {
+  font-weight: bold;
+  color: #527bbd;
+}
+p.tableblock {
+  margin-top: 0;
+}
+table.tableblock {
+  border-width: 3px;
+  border-spacing: 0px;
+  border-style: solid;
+  border-color: #527bbd;
+  border-collapse: collapse;
+}
+th.tableblock, td.tableblock {
+  border-width: 1px;
+  padding: 4px;
+  border-style: solid;
+  border-color: #527bbd;
+}
+
+table.tableblock.frame-topbot {
+  border-left-style: hidden;
+  border-right-style: hidden;
+}
+table.tableblock.frame-sides {
+  border-top-style: hidden;
+  border-bottom-style: hidden;
+}
+table.tableblock.frame-none {
+  border-style: hidden;
+}
+
+th.tableblock.halign-left, td.tableblock.halign-left {
+  text-align: left;
+}
+th.tableblock.halign-center, td.tableblock.halign-center {
+  text-align: center;
+}
+th.tableblock.halign-right, td.tableblock.halign-right {
+  text-align: right;
+}
+
+th.tableblock.valign-top, td.tableblock.valign-top {
+  vertical-align: top;
+}
+th.tableblock.valign-middle, td.tableblock.valign-middle {
+  vertical-align: middle;
+}
+th.tableblock.valign-bottom, td.tableblock.valign-bottom {
+  vertical-align: bottom;
+}
+/* Overrides for manpage documents */
+h1 {
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  border-top: 2px solid silver;
+  border-bottom: 2px solid silver;
+}
+h2 {
+  border-style: none;
+}
+div.sectionbody {
+  margin-left: 3em;
+}
+
+@media print {
+  div#toc { display: none; }
+}
+
+
+
+body
+{
+  width: 94%;
+  margin-left: 3%;
+  margin-right: 3%;
+}
+
+td.block,
+span.block
+{
+  text-align: center;
+  font-size: 1.3em;
+}
+
+h1
+{
+  text-align: center;
+  padding: 0.2em;
+  border-style: solid;
+  border-width: 2px;
+  border-color: black;
+  font-family: monospace;
+  font-size: 240%;
+}
+
+h2
+{
+  padding: 0.2em;
+  border-style: solid;
+  border-width: 1px;
+  border-color: black;
+  font-family: sans-serif;
+  font-size: 120%;
+}
+
+h3
+{
+  padding: 0.2em;
+  border-style: solid;
+  border-width: 1px;
+  border-color: black;
+  font-family: sans-serif;
+  font-size: 0.8em;
+}
+
+p
+{
+  /* margin-left: 2%; */
+}
+
+pre
+{
+  width: 91%;
+  background-color: #ddd;
+  margin: 1%;
+  margin-left: 3%;
+  margin-right: 3%;
+  padding: 1%;
+  border-style: solid;
+  border-width: 1px;
+  border-color: black;
+}
+
+a.fancy-link[href]
+{
+  /*
+  background-color: #ff8;
+  padding: 3px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: black;
+  */
+}
+
+table.download-links
+{
+  margin-left: 3%;
+}
+
+dl.download-links
+{
+  margin-left: 3%;
+}
+
+dl.download-links > dt
+{
+  font-weight: bold;
+}
+
+table.download-links tr>td
+{
+  padding: 6px;
+}
+
+span.filename
+{
+  font-family: monospace;
+}
+
+.last-modified
+{
+  font-size: 0.6em;
+  text-align: center;
+}
+
+
+</style>
+<script type="text/javascript">
+/*<![CDATA[*/
+var asciidoc = {  // Namespace.
+
+/////////////////////////////////////////////////////////////////////
+// Table Of Contents generator
+/////////////////////////////////////////////////////////////////////
+
+/* Author: Mihai Bazon, September 2002
+ * http://students.infoiasi.ro/~mishoo
+ *
+ * Table Of Content generator
+ * Version: 0.4
+ *
+ * Feel free to use this script under the terms of the GNU General Public
+ * License, as long as you do not remove or alter this notice.
+ */
+
+ /* modified by Troy D. Hanson, September 2006. License: GPL */
+ /* modified by Stuart Rackham, 2006, 2009. License: GPL */
+
+// toclevels = 1..4.
+toc: function (toclevels) {
+
+  function getText(el) {
+    var text = "";
+    for (var i = el.firstChild; i != null; i = i.nextSibling) {
+      if (i.nodeType == 3 /* Node.TEXT_NODE */) // IE doesn't speak constants.
+        text += i.data;
+      else if (i.firstChild != null)
+        text += getText(i);
+    }
+    return text;
+  }
+
+  function TocEntry(el, text, toclevel) {
+    this.element = el;
+    this.text = text;
+    this.toclevel = toclevel;
+  }
+
+  function tocEntries(el, toclevels) {
+    var result = new Array;
+    var re = new RegExp('[hH]([2-'+(toclevels+1)+'])');
+    // Function that scans the DOM tree for header elements (the DOM2
+    // nodeIterator API would be a better technique but not supported by all
+    // browsers).
+    var iterate = function (el) {
+      for (var i = el.firstChild; i != null; i = i.nextSibling) {
+        if (i.nodeType == 1 /* Node.ELEMENT_NODE */) {
+          var mo = re.exec(i.tagName);
+          if (mo && (i.getAttribute("class") || i.getAttribute("className")) != "float") {
+            result[result.length] = new TocEntry(i, getText(i), mo[1]-1);
+          }
+          iterate(i);
+        }
+      }
+    }
+    iterate(el);
+    return result;
+  }
+
+  var toc = document.getElementById("toc");
+  if (!toc) {
+    return;
+  }
+
+  // Delete existing TOC entries in case we're reloading the TOC.
+  var tocEntriesToRemove = [];
+  var i;
+  for (i = 0; i < toc.childNodes.length; i++) {
+    var entry = toc.childNodes[i];
+    if (entry.nodeName == 'DIV'
+     && entry.getAttribute("class")
+     && entry.getAttribute("class").match(/^toclevel/))
+      tocEntriesToRemove.push(entry);
+  }
+  for (i = 0; i < tocEntriesToRemove.length; i++) {
+    toc.removeChild(tocEntriesToRemove[i]);
+  }
+
+  // Rebuild TOC entries.
+  var entries = tocEntries(document.getElementById("content"), toclevels);
+  for (var i = 0; i < entries.length; ++i) {
+    var entry = entries[i];
+    if (entry.element.id == "")
+      entry.element.id = "_toc_" + i;
+    var a = document.createElement("a");
+    a.href = "#" + entry.element.id;
+    a.appendChild(document.createTextNode(entry.text));
+    var div = document.createElement("div");
+    div.appendChild(a);
+    div.className = "toclevel" + entry.toclevel;
+    toc.appendChild(div);
+  }
+  if (entries.length == 0)
+    toc.parentNode.removeChild(toc);
+},
+
+
+/////////////////////////////////////////////////////////////////////
+// Footnotes generator
+/////////////////////////////////////////////////////////////////////
+
+/* Based on footnote generation code from:
+ * http://www.brandspankingnew.net/archive/2005/07/format_footnote.html
+ */
+
+footnotes: function () {
+  // Delete existing footnote entries in case we're reloading the footnodes.
+  var i;
+  var noteholder = document.getElementById("footnotes");
+  if (!noteholder) {
+    return;
+  }
+  var entriesToRemove = [];
+  for (i = 0; i < noteholder.childNodes.length; i++) {
+    var entry = noteholder.childNodes[i];
+    if (entry.nodeName == 'DIV' && entry.getAttribute("class") == "footnote")
+      entriesToRemove.push(entry);
+  }
+  for (i = 0; i < entriesToRemove.length; i++) {
+    noteholder.removeChild(entriesToRemove[i]);
+  }
+
+  // Rebuild footnote entries.
+  var cont = document.getElementById("content");
+  var spans = cont.getElementsByTagName("span");
+  var refs = {};
+  var n = 0;
+  for (i=0; i<spans.length; i++) {
+    if (spans[i].className == "footnote") {
+      n++;
+      var note = spans[i].getAttribute("data-note");
+      if (!note) {
+        // Use [\s\S] in place of . so multi-line matches work.
+        // Because JavaScript has no s (dotall) regex flag.
+        note = spans[i].innerHTML.match(/\s*\[([\s\S]*)]\s*/)[1];
+        spans[i].innerHTML =
+          "[<a id='_footnoteref_" + n + "' href='#_footnote_" + n +
+          "' title='View footnote' class='footnote'>" + n + "</a>]";
+        spans[i].setAttribute("data-note", note);
+      }
+      noteholder.innerHTML +=
+        "<div class='footnote' id='_footnote_" + n + "'>" +
+        "<a href='#_footnoteref_" + n + "' title='Return to text'>" +
+        n + "</a>. " + note + "</div>";
+      var id =spans[i].getAttribute("id");
+      if (id != null) refs["#"+id] = n;
+    }
+  }
+  if (n == 0)
+    noteholder.parentNode.removeChild(noteholder);
+  else {
+    // Process footnoterefs.
+    for (i=0; i<spans.length; i++) {
+      if (spans[i].className == "footnoteref") {
+        var href = spans[i].getElementsByTagName("a")[0].getAttribute("href");
+        href = href.match(/#.*/)[0];  // Because IE return full URL.
+        n = refs[href];
+        spans[i].innerHTML =
+          "[<a href='#_footnote_" + n +
+          "' title='View footnote' class='footnote'>" + n + "</a>]";
+      }
+    }
+  }
+},
+
+install: function(toclevels) {
+  var timerId;
+
+  function reinstall() {
+    asciidoc.footnotes();
+    if (toclevels) {
+      asciidoc.toc(toclevels);
+    }
+  }
+
+  function reinstallAndRemoveTimer() {
+    clearInterval(timerId);
+    reinstall();
+  }
+
+  timerId = setInterval(reinstall, 500);
+  if (document.addEventListener)
+    document.addEventListener("DOMContentLoaded", reinstallAndRemoveTimer, false);
+  else
+    window.onload = reinstallAndRemoveTimer;
+}
+
+}
+asciidoc.install();
+/*]]>*/
+</script>
 </head>
-
-<body>
-
-
-<!-- INDEX BEGIN -->
-<div name="index">
-<p><a name="__index__"></a></p>
-
-<ul>
-
-	<li><a href="#name">NAME</a></li>
-	<li><a href="#synopsis">SYNOPSIS</a></li>
-	<li><a href="#description">DESCRIPTION</a></li>
-	<li><a href="#options">OPTIONS</a></li>
-	<li><a href="#pcal_1___calendar_file"><code>PCAL(1)</code> <em class="file">.calendar</em> FILE</a></li>
-	<ul>
-
-		<li><a href="#__substitution">%-Substitution</a></li>
-		<li><a href="#examples">Examples</a></li>
-	</ul>
-
-	<li><a href="#_makediaryrc_file"><em class="file">.makediaryrc</em> file</a></li>
-	<li><a href="#examples">EXAMPLES</a></li>
-	<li><a href="#bugs">BUGS</a></li>
-	<li><a href="#author">AUTHOR</a></li>
-	<li><a href="#copyright">COPYRIGHT</a></li>
-	<li><a href="#version">VERSION</a></li>
-	<li><a href="#see_also">SEE ALSO</a></li>
-</ul>
-
+<body class="manpage">
+<div id="header">
+<h1>
+MAKEDIARY(1) Manual Page
+</h1>
+<h2>NAME</h2>
+<div class="sectionbody">
+<p>makediary -
+   output PostScript code for a paper diary.
+</p>
 </div>
-<!-- INDEX END -->
-
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_synopsis">SYNOPSIS</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><strong>makediary</strong> <em>--help</em></p></div>
+<div class="paragraph"><p><strong>makediary</strong> <em>--version</em></p></div>
+<div class="paragraph"><p><strong>makediary</strong> [<em>options</em>]</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_description">DESCRIPTION</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Generates a paper diary in PostScript or PDF format.</p></div>
+<div class="paragraph"><p><strong>makediary</strong> can generate diaries in several different paper sizes.
+<strong>makediary</strong> can include events printed on dates specified in a <em>.calendar</em>
+file.  The <em>.calendar</em> file is in almost the same format as used by pcal(1),
+with some extensions.</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_options">OPTIONS</h2>
+<div class="sectionbody">
+<div class="dlist"><dl>
+<dt class="hdlist1">
+--address-pages=&lt;n&gt;
+</dt>
+<dd>
 <p>
+    Print &lt;n&gt; address pages.  Defaults to 6.
 </p>
-<h1><a name="name">NAME</a></h1>
-<p>makediary - output PostScript code for a paper diary.</p>
+</dd>
+<dt class="hdlist1">
+--appointments
+</dt>
+<dd>
 <p>
+    Print a column of appointment times on the right side of each day.
 </p>
-<h1><a name="synopsis">SYNOPSIS</a></h1>
-<p><strong>makediary --help</strong></p>
-<p><strong>makediary --version</strong></p>
-<p><strong>makediary</strong> <em>[options]</em></p>
+</dd>
+<dt class="hdlist1">
+--appointment-width=&lt;N&gt;[%]
+</dt>
+<dd>
 <p>
+    Specify the width of the appointment times column as a percentage of the
+    width of the day.  Defaults to 35%.  The <em>%</em> sign is optional.  Implies
+    <em>--appointments</em>.
 </p>
-<h1><a name="description">DESCRIPTION</a></h1>
-<p>Generates a paper diary in PostScript or PDF format.</p>
-<p><strong>makediary</strong> can generate diaries in several different paper sizes.
-<strong>makediary</strong> can include events printed on dates specified in a <em class="file">.calendar</em>
-file.  The <em class="file">.calendar</em> file is in almost the same format as used by <a href="#pcal"><code>pcal(1)</code></a>,
-with some extensions.</p>
+</dd>
+<dt class="hdlist1">
+--colour
+</dt>
+<dd>
 <p>
+    When printing images, output colour.  By default, images are converted to
+    grey scale.  Note that this does not apply to included EPS files, which
+    will always be in whatever colours they come with.
 </p>
-<h1><a name="options">OPTIONS</a></h1>
-<dl>
-<dt><strong><a name="address_pages_n" class="item">--address-pages=<em>n</em></a></strong></dt>
-
-<dd>
-<p>Print <em>n</em> address pages.  Defaults to 6.</p>
 </dd>
-<dt><strong><a name="appointments" class="item">--appointments</a></strong></dt>
-
+<dt class="hdlist1">
+--colour-images
+</dt>
 <dd>
-<p>Print a column of appointment times on the right side of each day.</p>
+<p>
+    This is an alias for <em>--colour</em>.  It&#8217;s more descriptive, as this option
+    only applies to images.
+</p>
 </dd>
-<dt><strong><a name="appointment_width_n" class="item">--appointment-width=<em>N</em>[%]</a></strong></dt>
-
+<dt class="hdlist1">
+--cover-image=&lt;imagefile&gt;
+</dt>
 <dd>
-<p>Specify the width of the appointment times column as a percentage of the width
-of the day.  Defaults to 35%.  The '%' sign is optional.  Implies
-<strong>--appointments</strong>.</p>
+<p>
+    Print &lt;imagefile&gt; on the cover of the diary, centred and below the year.
+    The image will be scaled to fit inside a box across the page, and will
+    replace the smiley.
+</p>
 </dd>
-<dt><strong><a name="colour" class="item">--colour</a></strong></dt>
-
+<dt class="hdlist1">
+--cover-page-image=&lt;imagefile&gt;
+</dt>
 <dd>
-<p>When printing images, output colour.  By default, images are converted to grey
-scale.  Note that this does not apply to included EPS files, which will always
-be in whatever colours they come with.</p>
+<p>
+    Print &lt;imagefile&gt; on the cover of the diary, replacing the other markup on
+    the cover.  The image will be maximised to fit on the page.  Because all
+    the text is replaced, including the year text, it may be a good idea to put
+    the year in the image somewhere.
+</p>
 </dd>
-<dt><strong><a name="colour_images" class="item">--colour-images</a></strong></dt>
-
+<dt class="hdlist1">
+--day-to-page
+</dt>
 <dd>
-<p>This is an alias for <strong>--colour</strong>.  It's more descriptive, as this option only
-applies to images.</p>
+<p>
+    This option is deprecated, and it is equivalent to <em>--layout=day-to-page</em>.
+</p>
 </dd>
-<dt><strong><a name="cover_image_imagefile" class="item">--cover-image=<em>imagefile</em></a></strong></dt>
-
+<dt class="hdlist1">
+--debug-boxes
+</dt>
 <dd>
-<p>Print <em>imagefile</em> on the cover of the diary, centred and below the year.
-The image will be scaled to fit inside a box across the page, and will replace
-the smiley.</p>
+<p>
+    Print dashed boxes around parts of the output for debugging the spacing.
+    These parts include images, month calendars, and the drawing border of the
+    whole page.
+</p>
 </dd>
-<dt><strong><a name="cover_page_image_imagefile" class="item">--cover-page-image=<em>imagefile</em></a></strong></dt>
-
+<dt class="hdlist1">
+--debug-version
+</dt>
 <dd>
-<p>Print <em>imagefile</em> on the cover of the diary, replacing the other markup on the
-cover.  The image will be maximised to fit on the page.  Because all the text
-is replaced, including the year text, it may be a good idea to put the year in
-the image somewhere.</p>
+<p>
+    On the inside cover, print a page that describes the options that were used
+    to generate this diary, the usage message of the <strong>makediary</strong>, and the CVS
+    version number.
+</p>
 </dd>
-<dt><strong><a name="day_to_page" class="item">--day-to-page</a></strong></dt>
-
+<dt class="hdlist1">
+--debug-whole-page-boxes
+</dt>
 <dd>
-<p>This option is deprecated, and it is equivalent to <strong>--layout=day-to-page</strong>.</p>
+<p>
+    Around each diary page (not each sheet of paper), draw a faint box.
+</p>
 </dd>
-<dt><strong><a name="debug_boxes" class="item">--debug-boxes</a></strong></dt>
-
+<dt class="hdlist1">
+--eps-page=&lt;epsfilename&gt;[|&lt;title&gt;]
+</dt>
 <dd>
-<p>Print dashed boxes around parts of the output for debugging the spacing.  These
-parts include images, month calendars, and the drawing border of the whole page.</p>
+<p>
+    Include a page whose content is &lt;epsfilename&gt;.  A title can be put on
+    the page by appending it after the file name, separated by a vertical
+    bar.  This could be useful for including maps, for instance.
+</p>
+<div class="paragraph"><p>You will probably have to quote the vertical bar to prevent interpretation
+by the shell.</p></div>
 </dd>
-<dt><strong><a name="debug_version" class="item">--debug-version</a></strong></dt>
-
+<dt class="hdlist1">
+--eps-2page=&lt;epsfilename&gt;[|&lt;lefttitle&gt;[|&lt;righttitle&gt;]]
+</dt>
 <dd>
-<p>On the inside cover, print a page that describes the options that were used
-to generate this diary, the usage message of the <strong>makediary</strong>, and the CVS
-version number.</p>
+<p>
+    Include two pages whose content is &lt;epsfilename&gt;, which will be split
+    across a pair of facing left and right pages.  If specified, the pages will
+    have titles &lt;lefttitle&gt; and &lt;righttitle&gt;.  + You will probably have to
+    quote the vertical bars to prevent interpretation by the shell.
+</p>
 </dd>
-<dt><strong><a name="debug_whole_page_boxes" class="item">--debug-whole-page-boxes</a></strong></dt>
-
+<dt class="hdlist1">
+--ref=&lt;name[|title[|title]]&gt;
+</dt>
 <dd>
-<p>Around each diary page (not each sheet of paper), draw a faint box.</p>
-</dd>
-<dt><strong><a name="eps_page_epsfilename_title" class="item">--eps-page=<em>epsfilename</em>[|<em>title</em>]</a></strong></dt>
-
-<dd>
-<p>Include a page whose content is <em>epsfilename</em>.  A title can be put on the page
-by appending it after the file name, separated by a vertical bar.  This could
-be useful for including maps, for instance.</p>
-<p>You will probably have to quote the vertical bar to prevent interpretation by
-the shell.</p>
-</dd>
-<dt><strong><a name="eps_2page_epsfilename_lefttitle_righttitle" class="item">--eps-2page=<em>epsfilename</em>[|<em>lefttitle</em>[|<em>righttitle</em>]]</a></strong></dt>
-
-<dd>
-<p>Include two pages whose content is <em>epsfilename</em>, which will be split across a
-pair of facing left and right pages.  If specified, the pages will have titles
-<em>lefttitle</em> and <em>righttitle</em>.</p>
-<p>You will probably have to quote the vertical bars to prevent interpretation by
-the shell.</p>
-</dd>
-<dt><strong><a name="ref_name_title_title" class="item">--ref=<em>name[|title[|title]]</em></a></strong></dt>
-
-<dd>
-<p>Include a page or pages whose content is <em>name</em>, possible with page titles.
-This could be useful for including maps, for instance.</p>
-<p>If <em>name</em> contains any '/' characters, it will be interpreted as a path to a
+<p>
+    Include a page or pages whose content is &lt;name&gt;, possible with page titles.
+    This could be useful for including maps, for instance.
+</p>
+<div class="paragraph"><p>If &lt;name&gt; contains any <em>/</em> characters, it will be interpreted as a path to a
 single file to be included as an EPS page.  Otherwise, it will be interpreted
 as the base name of a file or files to be included.  The path to the file or
-files is expanded as <code>eps/</code><em>name</em><code>/</code><em>name</em><code>.eps</code> or
-<code>eps/</code><em>name</em><code>/</code><em>name</em><code>.*.eps</code>.  These strings will be appended to
-each element of <code>sys.path</code> until one of them expands to one or more file
-names.  These file names will then be used as the EPS files.</p>
-<p>If one <em>title</em> is supplied, it will become the page title for each of the
-included pages.  To specify different titles for each page, separate them with
-'|'.  To put a title on only the first page, use <code>--ref=name'|title|'</code>, so
-that subsequent titles are empty.  If there are more pages than titles, the
-extra pages will have no titles.  To put a line at the top of a page without a
-title, specify that title as a single space.</p>
+files is expanded as <tt>eps/</tt><em>name</em><tt>/</tt><em>name</em><tt>.eps</tt> or
+<tt>eps/</tt><em>name</em><tt>/</tt><em>name</em><tt>.*.eps</tt>.  These strings will be appended to each element
+of sys.path until one of them expands to one or more file names.  These file
+names will then be used as the EPS files.</p></div>
+<div class="paragraph"><p>If one <em>title</em> is supplied, it will become the page title for each of the
+included pages.  To specify different titles for each page, separate them
+with <em>|</em>.  To put a title on only the first page, use
+<em>--ref=name"|</em><tt>title</tt><em>|"</em>, so that subsequent titles are empty.  If there are
+more pages than titles, the extra pages will have no titles.  To put a line
+at the top of a page without a title, specify that title as a single space.</p></div>
 </dd>
-<dt><strong><a name="event_images" class="item">--event-images</a></strong></dt>
-
+<dt class="hdlist1">
+--event-images
+</dt>
 <dd>
-<p>Print images next to events, where they are specified.  If this is not
-specified, the events will be printed without images.</p>
-</dd>
-<dt><strong><a name="help" class="item">--help</a></strong></dt>
-
-<dd>
-<p>Display a usage message and exit.</p>
-</dd>
-<dt><strong><a name="image_page_imagefilename_title" class="item">--image-page=IMAGEFILENAME[,title]</a></strong></dt>
-
-<dd>
-<p>Display an image maximised onto a page.  This can be specified multiple times.
-The images specified will be printed on consecutive pages immediately after the
-personal information page.  The optional title will be used as the page title.</p>
-</dd>
-<dt><strong><a name="image_2page_imagefilename_title" class="item">--image-2page=IMAGEFILENAME[,title]</a></strong></dt>
-
-<dd>
-<p>Display an image maximised across two pages.  The optional title will be
-printed on both pages.  A notes page will be inserted immediately before the
-first page, if necessary, to ensure the image is printed on facing left and
-right pages.</p>
-</dd>
-<dt><strong><a name="layout_day_to_page" class="item">--layout=day-to-page</a></strong></dt>
-
-<dt><strong><a name="layout_week_to_opening" class="item">--layout=week-to-opening</a></strong></dt>
-
-<dt><strong><a name="layout_week_to_2_openings" class="item">--layout=week-to-2-openings</a></strong></dt>
-
-<dt><strong><a name="layout_work" class="item">--layout=work</a></strong></dt>
-
-<dd>
-<p>Specify the layout of the diary day pages.  The default is week-to-2-openings.</p>
-<dl>
-<dt><strong><a name="day_to_page2" class="item">day-to-page</a></strong></dt>
-
-<dd>
-<p>Print one day to each page.  A year's worth of month calendars will be printed
-across the bottom of each opening in the day pages.</p>
-</dd>
-<dt><strong><a name="week_to_opening" class="item">week-to-opening</a></strong></dt>
-
-<dd>
-<p>Print a week to one opening.  This has, on the left side, three month calendars
-and Monday to Wednesday, and on the right side, Thursday to Sunday.</p>
-</dd>
-<dt><strong><a name="week_to_2_openings" class="item">week-to-2-openings</a></strong></dt>
-
-<dd>
-<p>The default layout has on the left side, three calendars and Monday, on the
-right side Tuesday and Wednesday, then on the next two pages, Thursday and
-Friday, and Saturday and Sunday.</p>
-</dd>
-<dt><strong><a name="work" class="item">work</a></strong></dt>
-
-<dd>
-<p>Layout for a work diary.  Has two days per page, except that Saturday and
-Sunday share half a page.  Also has a year's worth of month calendars across
-the bottom of two pages.</p>
-</dd>
-</dl>
-</dd>
-<dt><strong><a name="line_spacing_d" class="item">--line-spacing=<em>d</em></a></strong></dt>
-
-<dd>
-<p>Make the line spacing on diary pages <em>d</em> millimetres.  <em>d</em> can be a
-floating point number.</p>
-</dd>
-<dt><strong><a name="moon" class="item">--moon</a></strong></dt>
-
-<dd>
-<p>Print pictures of phases of the moon in the title of the day at each phase.</p>
-</dd>
-<dt><strong><a name="northern_hemisphere_moon" class="item">--northern-hemisphere-moon</a></strong></dt>
-
-<dd>
-<p>Print pictures of phases of the moon as seen from the Northern Hemisphere,
-instead of from the Southern Hemisphere.  Implies <strong>--moon</strong>.</p>
-</dd>
-<dt><strong><a name="no_smiley" class="item">--no-smiley</a></strong></dt>
-
-<dd>
-<p>Don't print the smiley on the front cover.  The smiley also won't be printed if
-a cover image is specified.</p>
-</dd>
-<dt><strong><a name="notes_pages_n" class="item">--notes-pages=<em>n</em></a></strong></dt>
-
-<dd>
-<p>Print <em>n</em> notes pages at the beginning and end of the diary.  Defaults to
-6.</p>
-</dd>
-<dt><strong><a name="output_file_filename" class="item">--output-file=<em>filename</em></a></strong></dt>
-
-<dd>
-<p>Output to <em>filename</em>.  Defaults to <em class="file">diary.ps</em> if generating PostScript, or
-<em class="file">diary.pdf</em> if generating PDF.  A lone '<strong>-</strong>' means standard output.</p>
-</dd>
-<dt><strong><a name="page_size_size" class="item">--page-size=<em>size</em></a></strong></dt>
-
-<dd>
-<p>Specify the size of the pages.  This is not the same as the paper size, so
-you can print smaller pages than the paper size.  See also the
-<strong>--page-registration-marks</strong> option.</p>
-</dd>
-<dt><strong><a name="page_registration_marks" class="item">--page-registration-marks</a></strong></dt>
-
-<dd>
-<p>Print marks for cutting pages out of a sheet of paper.  This is useful when
-printing pages that are smaller than the paper size.</p>
-</dd>
-<dt><strong><a name="page_x_offset_x" class="item">--page-x-offset=<em>x</em></a></strong></dt>
-
-<dt><strong><a name="page_y_offset_y" class="item">--page-y-offset=<em>y</em></a></strong></dt>
-
-<dd>
-<p>Move each diary page this far on the paper.  The offsets are in
-millimetres.  The rationale for these options is that printers tend not to
-print exactly where told, so when printing double sided the pages on
-opposite sides of the paper may not line up.  You can specify an offset to
-make them line up.  <em>x</em> and <em>y</em> can be floating point numbers.</p>
-</dd>
-<dt><strong><a name="paper_size_size" class="item">--paper-size=<em>size</em></a></strong></dt>
-
-<dd>
-<p>Specify the size of the paper that you are printing on.  This is not the
-same as the size of the diary pages.  Do <strong>makediary --help</strong> for a list of
-paper sizes.</p>
-</dd>
-<dt><strong><a name="pcal" class="item">--pcal</a></strong></dt>
-
-<dd>
-<p>Use <a href="#pcal"><code>pcal(1)</code></a> to parse the .calendar file, instead of using the built-in parser.
-None of the extensions mentioned in &quot;PCAL(1) <em class="file">.calendar</em> FILE&quot; will work, but
-that may be fine for many users.</p>
-</dd>
-<dt><strong><a name="pcal_planner" class="item">--pcal-planner</a></strong></dt>
-
-<dd>
-<p>Use <a href="#pcal"><code>pcal(1)</code></a> to parse the .calendar file (the same as --pcal) and also add that
-text to the larger planner pages.  Since there is no way to specify shorter
-text to put on the planner pages, the original text will be used, separated by
-commas.  The text is clipped to stay within the day box in any case.</p>
-</dd>
-<dt><strong><a name="pdf" class="item">--pdf</a></strong></dt>
-
-<dd>
-<p>Generate PDF instead of PostScript.  Requires that ps2pdf be installed and in
-your $PATH.  Untested on Windows.</p>
-</dd>
-<dt><strong><a name="perpetual_calendars" class="item">--perpetual-calendars</a></strong></dt>
-
-<dd>
-<p>Print four pages of perpetual calendars.  There are only 14 possible calendars,
-and this options makes <strong>makediary</strong> print them all, along with a list of recent
-and future years showing which calendar applies to each one.</p>
-</dd>
-<dt><strong><a name="planner_years_n" class="item">--planner-years=<em>n</em></a></strong></dt>
-
-<dd>
-<p>Print <em>n</em> two-page planner years, starting with the diary year.  Defaults
-to 2, ie the diary year and the following year.</p>
-</dd>
-<dt><strong><a name="sed_ref" class="item">--sed-ref</a></strong></dt>
-
-<dd>
-<p>Print a sed reference page.  (Equivalent to <code>--ref=sed'|sed reference'</code>).</p>
-</dd>
-<dt><strong><a name="sh_ref" class="item">--sh-ref</a></strong></dt>
-
-<dd>
-<p>Print the Unix shell reference page.  (Equivalent to <code>--ref=sh'|Shell and
-utility reference'</code>).</p>
-</dd>
-<dt><strong><a name="start_date_yyyy_mm_dd" class="item">--start-date=<em>yyyy-mm-dd</em></a></strong></dt>
-
-<dd>
-<p>Start the diary on the specified date.  The date must be in yyyy-mm-dd
-format.  If both <strong>--start-date</strong> and <strong>--year</strong> are both specified, the last
-one specified will take precedence.</p>
-</dd>
-<dt><strong><a name="units_ref" class="item">--units-ref</a></strong></dt>
-
-<dd>
-<p>Print the Units reference page.  (Equivalent to <code>--ref=units'|Units'</code>.)</p>
-<p>When installing <strong>makediary</strong>, this option requires that the GNU units program
-be available.  Because some systems have that program as gunits, and because
-there are other possibilities about where units could be installed,
-<strong>makediary</strong> will first look for the program named by $UNITS, and if that is
-not found look for gunits, and if that is not found, finally try units.</p>
-<p>Similarly, awk is required for installation.  <strong>makediary</strong> will try $AWK, gawk,
-then awk.</p>
-</dd>
-<dt><strong><a name="unix_ref" class="item">--unix-ref</a></strong></dt>
-
-<dd>
-<p>Print the Unix commands reference page.  (Equivalent to <code>--ref=unix'|Unix
-reference'</code>.)</p>
-</dd>
-<dt><strong><a name="version" class="item">--version</a></strong></dt>
-
-<dd>
-<p>Output version information and exit.</p>
-</dd>
-<dt><strong><a name="vi_ref_item_vim_ref" class="item">--vi-ref
-=item --vim-ref</a></strong></dt>
-
-<dd>
-<p>Print the vi and vim reference pages.  The <code>--vi-ref</code> and <code>--vim-ref</code> options
-do exactly the same thing.  (Equivalent to <code>--ref=vi'|Vi reference|Vim
-extensions'</code>.)</p>
-</dd>
-<dt><strong><a name="week_to_opening2" class="item">--week-to-opening</a></strong></dt>
-
-<dd>
-<p>This option is deprecated, and is equivalent to <strong>--layout=week-to-opening</strong>.</p>
-</dd>
-<dt><strong><a name="weeks_after_n" class="item">--weeks-after=<em>N</em></a></strong></dt>
-
-<dd>
-<p>Ensure that the diary covers <em>N</em> complete weeks after the specified year.</p>
-</dd>
-<dt><strong><a name="weeks_before_n" class="item">--weeks-before=<em>N</em></a></strong></dt>
-
-<dd>
-<p>Ensure that the diary covers <em>N</em> complete weeks before the specified year.</p>
-</dd>
-<dt><strong><a name="year_year" class="item">--year=<em>year</em></a></strong></dt>
-
-<dd>
-<p>Print a diary for that year.  Defaults to next year.  If both <strong>--year</strong> and
-<strong>--start-date</strong> are both specified, the last one specified will take
-precedence.</p>
-</dd>
-</dl>
 <p>
+    Print images next to events, where they are specified.  If this is not
+    specified, the events will be printed without images.
 </p>
-<h1><a name="pcal_1___calendar_file"><code>PCAL(1)</code> <em class="file">.calendar</em> FILE</a></h1>
-<p>This section is not relevant if you use the <strong>--pcal</strong> or <strong>--pcal-planner</strong>
-flags.  If you use pcal to parse the <em class="file">.calendar</em> file, see <a href="#pcal"><code>pcal(1)</code></a>.</p>
-<p>If <strong>makediary</strong> finds a <em class="file">.calendar</em> file, it is parsed to find events to
-print on particular days.  The file is in the same format as used by
-<a href="#pcal"><code>pcal(1)</code></a>, with some extensions, and some unimplemented features.</p>
-<p>The <em class="file">.calendar</em> file is searched for in these places:</p>
-<ul>
-<li><strong><a name="the_file_named_by_the_environment_variable_diary_file" class="item">The file named by the environment variable <strong>DIARY_FILE</strong>.</a></strong>
-
-<p>The file <em>.calendar</em> in the directory named by the environment variable
-<strong>DIARY_DIR</strong>.</p>
-</li>
-<li><strong><a name="the_file_calendar_in_the_directory_named_by_the_environment_variable_pcal_dir" class="item">The file <em>.calendar</em> in the directory named by the environment
-variable <strong>PCAL_DIR</strong>.</a></strong>
-
-</li>
-<li><strong><a name="the_file_calendar_in_the_current_directory" class="item">The file <em>.calendar</em> in the current directory.</a></strong>
-
-</li>
-<li><strong><a name="the_file_calendar_in_the_directory_named_by_the_environment_variable_home" class="item">The file <em>.calendar</em> in the directory named by the environment
-variable <strong>HOME</strong>.</a></strong>
-
-</li>
-</ul>
-<p>The first one of these found is used, and the rest are ignored.</p>
-<p>These things from the <a href="#pcal"><code>pcal()</code></a> <em class="file">.calendar</em> format are not recognised:</p>
-<dl>
-<dt><strong><a name="the_opt_keyword" class="item">the &quot;opt&quot; keyword,</a></strong></dt>
-
-<dt><strong><a name="the_every_keyword" class="item">the &quot;every&quot; keyword,</a></strong></dt>
-
-<dt><strong><a name="the_each_keyword" class="item">the &quot;each&quot; keyword,</a></strong></dt>
-
-<dt><strong><a name="the_all_keyword" class="item">the &quot;all&quot; keyword.</a></strong></dt>
-
-</dl>
-<p>Because &quot;opt&quot; is not recognised, dates are always in European format.  In pcal
-terms, &quot;opt -E&quot; is always in effect.</p>
-<p>The <em>.calendar</em> file allows a few extensions from that defined by <a href="#pcal"><code>pcal(1)</code></a>.
-These extensions are embedded in comments, so the file should still make
-sense to <a href="#pcal"><code>pcal(1)</code></a>.</p>
-<p>The first type of extension allows for changing the behaviour of <strong>makediary</strong>.  These
-are of the form:</p>
-<p><strong>#&lt;&lt;<em>key</em>:<em>value</em></strong>&gt; &gt;&gt;&gt;&gt;</p>
-<p>(This needs documentation...)</p>
-<p>The second type of extension is similar in form, but is added to the end of the text for
-a date entry.  The currently defined extensions are:</p>
-<dl>
-<dt><strong><a name="image_filename" class="item"><strong>#&lt;&lt;image:<em class="file">filename</em></strong>&gt; &gt;&gt;&gt;&gt;</a></strong></dt>
-
-<dd>
-<p>Specify an image to print next to the entry for this event.  The image will
-be scaled to fit in two lines of the diary.</p>
 </dd>
-<dt><strong><a name="year_year2" class="item"><strong>#&lt;&lt;year:<em>year</em></strong>&gt; &gt;&gt;&gt;&gt;</a></strong></dt>
-
+<dt class="hdlist1">
+--help
+</dt>
 <dd>
-<p>Specify the year in which the event occurred.  This is used so that the
-text can contain a number of years since the event, in the %-substitution
-extension format specified below.</p>
-</dd>
-<dt><strong><a name="nday" class="item"><strong>#&lt;&lt;warn:<em>n</em><em>day(s)</em>|<em>week(s)</em>|<em>month(s)</em></strong>&gt; &gt;&gt;&gt;&gt;</a></strong></dt>
-
-<dd>
-<p>Print a warning in lighter text, <em>n</em> days, weeks or months before the
-event.  The text printed will be surrounded by parentheses and suffixed
-by the date of the event, ie <em>(Erin's 12th birthday -- Mar 07)</em>.</p>
-</dd>
-</dl>
 <p>
+    Display a usage message and exit.
 </p>
-<h2><a name="__substitution">%-Substitution</a></h2>
-<p>Within the extensions specified above, you can substitute some values with
-<strong>%</strong>-sequences.  The following sequences are available:</p>
-<dl>
-<dt><strong><a name="_a" class="item"><strong>%A</strong></a></strong></dt>
-
-<dd>
-<p>Week day name (same as strftime(3)).</p>
 </dd>
-<dt><strong><a name="_a" class="item"><strong>%a</strong></a></strong></dt>
-
+<dt class="hdlist1">
+--image-page=IMAGEFILENAME[,title]
+</dt>
 <dd>
-<p>Abbreviated week day name (same as strftime(3)).</p>
-</dd>
-<dt><strong><a name="_b" class="item"><strong>%B</strong></a></strong></dt>
-
-<dd>
-<p>Full month name (same as strftime(3)).</p>
-</dd>
-<dt><strong><a name="_b" class="item"><strong>%b</strong></a></strong></dt>
-
-<dd>
-<p>Abbreviated month name (same as strftime(3)).</p>
-</dd>
-<dt><strong><a name="_d" class="item"><strong>%d</strong></a></strong></dt>
-
-<dd>
-<p>Day of month, 1 to 31.  If preceded by <strong>0</strong>, ie <strong>%0d</strong>, the month is printed as
-01 to 31, same as <code>strftime(3)</code>.</p>
-</dd>
-<dt><strong><a name="_j" class="item"><strong>%j</strong></a></strong></dt>
-
-<dd>
-<p>Day of year as decimal number (same as strftime(3)).  Three digits if <strong>%0j</strong>.</p>
-</dd>
-<dt><strong><a name="_l" class="item"><strong>%l</strong></a></strong></dt>
-
-<dd>
-<p>Days remaining in the year.  Three digits if <strong>%0l</strong>.</p>
-</dd>
-<dt><strong><a name="_m" class="item"><strong>%m</strong></a></strong></dt>
-
-<dd>
-<p>Month number, 01 to 12 (same as strftime(3)).</p>
-</dd>
-<dt><strong><a name="_n" class="item"><strong>%N</strong></a></strong></dt>
-
-<dd>
-<p>The number of years since the event.  If preceded by <strong>o</strong>, ie <strong>%oN</strong>, the
-number will be printed as an ordinal, ie <strong>14th</strong> instead of <strong>14</strong>.</p>
-</dd>
-<dt><strong><a name="_u" class="item"><strong>%U</strong></a></strong></dt>
-
-<dd>
-<p>The week number of the current week (same as strftime(3)).</p>
-</dd>
-<dt><strong><a name="_y" class="item"><strong>%Y</strong></a></strong></dt>
-
-<dd>
-<p>Four digit year (same as strftime(3)).</p>
-</dd>
-<dt><strong><a name="_y" class="item"><strong>%y</strong></a></strong></dt>
-
-<dd>
-<p>Two digit year (same as strfimte(3)).</p>
-</dd>
-<dt><strong><a name="__" class="item"><strong>%%</strong></a></strong></dt>
-
-<dd>
-<p>Literal %.</p>
-</dd>
-</dl>
 <p>
+    Display an image maximised onto a page.  This can be specified multiple times.
+    The images specified will be printed on consecutive pages immediately after the
+    personal information page.  The optional title will be used as the page title.
 </p>
-<h2><a name="examples">Examples</a></h2>
-<ul>
+</dd>
+<dt class="hdlist1">
+--image-2page=IMAGEFILENAME[,title]
+</dt>
+<dd>
+<p>
+    Display an image maximised across two pages.  The optional title will be
+    printed on both pages.  A notes page will be inserted immediately before the
+    first page, if necessary, to ensure the image is printed on facing left and
+    right pages.
+</p>
+</dd>
+<dt class="hdlist1">
+--layout=day-to-page
+</dt>
+<dt class="hdlist1">
+--layout=week-to-opening
+</dt>
+<dt class="hdlist1">
+--layout=week-to-2-openings
+</dt>
+<dt class="hdlist1">
+--layout=work
+</dt>
+<dd>
+<p>
+    Specify the layout of the diary day pages.  The default is week-to-2-openings.
+</p>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+day-to-page
+</dt>
+<dd>
+<p>
+    Print one day to each page.  A year&#8217;s worth of month calendars will be printed
+    across the bottom of each opening in the day pages.
+</p>
+</dd>
+<dt class="hdlist1">
+week-to-opening
+</dt>
+<dd>
+<p>
+    Print a week to one opening.  This has, on the left side, three month calendars
+    and Monday to Wednesday, and on the right side, Thursday to Sunday.
+</p>
+</dd>
+<dt class="hdlist1">
+week-to-2-openings
+</dt>
+<dd>
+<p>
+    The default layout has on the left side, three calendars and Monday, on the
+    right side Tuesday and Wednesday, then on the next two pages, Thursday and
+    Friday, and Saturday and Sunday.
+</p>
+</dd>
+<dt class="hdlist1">
+work
+</dt>
+<dd>
+<p>
+    Layout for a work diary.  Has two days per page, except that Saturday and
+    Sunday share half a page.  Also has a year&#8217;s worth of month calendars across
+    the bottom of two pages.
+</p>
+</dd>
+</dl></div>
+</dd>
+<dt class="hdlist1">
+--line-spacing=&lt;d&gt;
+</dt>
+<dd>
+<p>
+    Make the line spacing on diary pages &lt;d&gt; millimetres.  &lt;d&gt; can be a
+    floating point number.
+</p>
+</dd>
+<dt class="hdlist1">
+--moon
+</dt>
+<dd>
+<p>
+    Print pictures of phases of the moon in the title of the day at each phase.
+</p>
+</dd>
+<dt class="hdlist1">
+--northern-hemisphere-moon
+</dt>
+<dd>
+<p>
+    Print pictures of phases of the moon as seen from the Northern Hemisphere,
+    instead of from the Southern Hemisphere.  Implies <em>--moon</em>.
+</p>
+</dd>
+<dt class="hdlist1">
+--no-smiley
+</dt>
+<dd>
+<p>
+    Don&#8217;t print the smiley on the front cover.  The smiley also won&#8217;t be printed if
+    a cover image is specified.
+</p>
+</dd>
+<dt class="hdlist1">
+--notes-pages=&lt;n&gt;
+</dt>
+<dd>
+<p>
+    Print &lt;n&gt; notes pages at the beginning and end of the diary.  Defaults
+    to 6.
+</p>
+</dd>
+<dt class="hdlist1">
+--output-file=&lt;filename&gt;
+</dt>
+<dd>
+<p>
+    Output to &lt;filename&gt;.  Defaults to <em>diary.ps</em> if generating PostScript, or
+    <em>diary.pdf</em> if generating PDF.  A lone <em>-</em> means standard output.
+</p>
+</dd>
+<dt class="hdlist1">
+--page-size=&lt;size&gt;
+</dt>
+<dd>
+<p>
+    Specify the size of the pages.  This is not the same as the paper size, so
+    you can print smaller pages than the paper size.  See also the
+    <em>--page-registration-marks</em> option.
+</p>
+</dd>
+<dt class="hdlist1">
+--page-registration-marks
+</dt>
+<dd>
+<p>
+    Print marks for cutting pages out of a sheet of paper.  This is useful when
+    printing pages that are smaller than the paper size.
+</p>
+</dd>
+<dt class="hdlist1">
+--page-x-offset=&lt;x&gt;
+</dt>
+<dt class="hdlist1">
+--page-y-offset=&lt;y&gt;
+</dt>
+<dd>
+<p>
+    Move each diary page this far on the paper.  The offsets are in
+    millimetres.  The rationale for these options is that printers tend not to
+    print exactly where told, so when printing double sided the pages on
+    opposite sides of the paper may not line up.  You can specify an offset to
+    make them line up.  &lt;x&gt; and &lt;y&gt; can be floating point numbers.
+</p>
+</dd>
+<dt class="hdlist1">
+--paper-size=&lt;size&gt;
+</dt>
+<dd>
+<p>
+    Specify the size of the paper that you are printing on.  This is not the
+    same as the size of the diary pages.  Do <em>makediary --help</em> for a list of
+    paper sizes.
+</p>
+</dd>
+<dt class="hdlist1">
+--pcal
+</dt>
+<dd>
+<p>
+    Use pcal(1) to parse the .calendar file, instead of using the built-in parser.
+    None of the extensions mentioned in "PCAL(1) <em>.calendar</em> FILE" will work, but
+    that may be fine for many users.
+</p>
+</dd>
+<dt class="hdlist1">
+--pcal-planner
+</dt>
+<dd>
+<p>
+    Use pcal(1) to parse the .calendar file (the same as --pcal) and also add that
+    text to the larger planner pages.  Since there is no way to specify shorter
+    text to put on the planner pages, the original text will be used, separated by
+    commas.  The text is clipped to stay within the day box in any case.
+</p>
+</dd>
+<dt class="hdlist1">
+--pdf
+</dt>
+<dd>
+<p>
+    Generate PDF instead of PostScript.  Requires that ps2pdf be installed and in
+    your $PATH.  Untested on Windows.
+</p>
+</dd>
+<dt class="hdlist1">
+--perpetual-calendars
+</dt>
+<dd>
+<p>
+    Print four pages of perpetual calendars.  There are only 14 possible calendars,
+    and this options makes <strong>makediary</strong> print them all, along with a list of recent
+    and future years showing which calendar applies to each one.
+</p>
+</dd>
+<dt class="hdlist1">
+--planner-years=&lt;n&gt;
+</dt>
+<dd>
+<p>
+    Print &lt;n&gt; two-page planner years, starting with the diary year.  Defaults
+    to 2, ie the diary year and the following year.
+</p>
+</dd>
+<dt class="hdlist1">
+--sed-ref
+</dt>
+<dd>
+<p>
+    Print a sed reference page.  (Equivalent to <em>--ref=sed"|sed reference"</em>).
+</p>
+</dd>
+<dt class="hdlist1">
+--sh-ref
+</dt>
+<dd>
+<p>
+    Print the Unix shell reference page.  (Equivalent to <em>--ref=sh"|Shell and
+    utility reference"</em>).
+</p>
+</dd>
+<dt class="hdlist1">
+--start-date=&lt;yyyy-mm-dd&gt;
+</dt>
+<dd>
+<p>
+    Start the diary on the specified date.  The date must be in yyyy-mm-dd
+    format.  If both <em>--start-date</em> and <em>--year</em> are both specified, the last
+    one specified will take precedence.
+</p>
+</dd>
+<dt class="hdlist1">
+--units-ref
+</dt>
+<dd>
+<p>
+    Print the Units reference page.  (Equivalent to
+    <em>--ref=units"|Units"</em>.)
+</p>
+<div class="paragraph"><p>When installing <strong>makediary</strong>, this option requires that the GNU units
+program be available.  Because some systems have that program as gunits,
+and because there are other possibilities about where units could be
+installed, <strong>makediary</strong> will first look for the program named by $UNITS, and
+if that is not found look for gunits, and if that is not found, finally try
+units.</p></div>
+<div class="paragraph"><p>Similarly, awk is required for installation.  <strong>makediary</strong> will try $AWK,
+gawk, then awk.</p></div>
+</dd>
+<dt class="hdlist1">
+--unix-ref
+</dt>
+<dd>
+<p>
+    Print the Unix commands reference page.  (Equivalent to <em>--ref=unix"|Unix
+    reference"</em>.)
+</p>
+</dd>
+<dt class="hdlist1">
+--version
+</dt>
+<dd>
+<p>
+    Output version information and exit.
+</p>
+</dd>
+<dt class="hdlist1">
+--vi-ref
+</dt>
+<dt class="hdlist1">
+--vim-ref
+</dt>
+<dd>
+<p>
+    Print the vi and vim reference pages.  The <em>--vi-ref</em> and <em>--vim-ref</em> options
+    do exactly the same thing.  (Equivalent to <em>--ref=vi"|Vi reference|Vim
+    extensions"</em>.)
+</p>
+</dd>
+<dt class="hdlist1">
+--week-to-opening
+</dt>
+<dd>
+<p>
+This option is deprecated, and is equivalent to
+    <em>--layout=week-to-opening</em>.
+</p>
+</dd>
+<dt class="hdlist1">
+--weeks-after=&lt;N&gt;
+</dt>
+<dd>
+<p>
+    Ensure that the diary covers &lt;N&gt; complete weeks after the specified year.
+</p>
+</dd>
+<dt class="hdlist1">
+--weeks-before=&lt;N&gt;
+</dt>
+<dd>
+<p>
+    Ensure that the diary covers &lt;N&gt; complete weeks before the specified year.
+</p>
+</dd>
+<dt class="hdlist1">
+--year=&lt;year&gt;
+</dt>
+<dd>
+<p>
+    Print a diary for that year.  Defaults to next year.  If both <em>--year</em> and
+    <em>--start-date</em> are both specified, the last one specified will take
+    precedence.
+</p>
+</dd>
+</dl></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_pcal_1_em_calendar_em_file">PCAL(1) <em>.calendar</em> FILE</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>This section is not relevant if you use the <em>--pcal</em> or <em>--pcal-planner</em>
+flags.  If you use pcal to parse the <em>.calendar</em> file, see pcal(1).</p></div>
+<div class="paragraph"><p>If <strong>makediary</strong> finds a <em>.calendar</em> file, it is parsed to find events to print
+on particular days.  The file is in the same format as used by pcal(1), with
+some extensions, and some unimplemented features.</p></div>
+<div class="paragraph"><p>The <em>.calendar</em> file is searched for in these places:</p></div>
+<div class="ulist"><ul>
 <li>
-<pre>
- 1-1 Joe Bloggs' %oN birthday #&lt;&lt;image:joebloggs.jpg&gt;&gt; \
-                              #&lt;&lt;year:1872&gt;&gt;</pre>
-<p>Print Joe's birthday, with a picture of Joe, and substitute his age, as an
-ordinal.  In 2001, this will say &quot;Joe Bloggs' 129th birthday&quot;.</p>
+<p>
+The file named by the environment variable <strong>DIARY_FILE</strong>.
+</p>
 </li>
-</ul>
+<li>
 <p>
+The file <em>.calendar</em> in the directory named by the environment variable
+  <strong>DIARY_DIR</strong>.
 </p>
-<h1><a name="_makediaryrc_file"><em class="file">.makediaryrc</em> file</a></h1>
-<p><strong>makediary</strong> will read several files containing configuartion information for
-the Personal Information page.  The files are read in the order:</p>
-<dl>
-<dt><strong><a name="makediaryrc_in_the_user_s_home_directory" class="item"><em class="file">.makediaryrc</em> in the user's home directory</a></strong></dt>
-
-<dt><strong><a name="makediaryrc_in_the_current_directory" class="item"><em class="file">.makediaryrc</em> in the current directory</a></strong></dt>
-
-<dt><strong><a name="makediaryrc_in_the_current_directory2" class="item"><em class="file">makediaryrc</em> in the current directory</a></strong></dt>
-
-</dl>
-<p>The values in these files are merged.  Values from a later file override values
-obtained from an earlier file.</p>
-<p>The files must be in ini-file format, and should contain a section called
-&quot;Personal Information&quot;.  The key-value pairs in that section are used to
-populate the Personal Information page.  The defined keys are:</p>
-<dl>
-<dt><strong><a name="name" class="item">Name</a></strong></dt>
-
-<dt><strong><a name="phone" class="item">Phone</a></strong></dt>
-
-<dt><strong><a name="mobile" class="item">Mobile (or Cell)</a></strong></dt>
-
-<dt><strong><a name="email" class="item">Email (or Email address)</a></strong></dt>
-
-<dt><strong><a name="address" class="item">Address</a></strong></dt>
-
-<dt><strong><a name="work_phone" class="item">Work phone</a></strong></dt>
-
-<dt><strong><a name="work_fax" class="item">Work fax</a></strong></dt>
-
-<dt><strong><a name="work_address" class="item">Work address</a></strong></dt>
-
-<dt><strong><a name="emergency_contact_1" class="item">Emergency Contact 1</a></strong></dt>
-
-<dt><strong><a name="emergency_contact_2" class="item">Emergency Contact 2</a></strong></dt>
-
-<dt><strong><a name="emergency_contact_3" class="item">Emergency Contact 3</a></strong></dt>
-
-<dt><strong><a name="emergency_contact_4" class="item">Emergency Contact 4</a></strong></dt>
-
-</dl>
-<p>(It is intended that <em class="file">.makediaryrc</em> will one day hold all of the
-information needed by <strong>makediary</strong>, including that now kept in the
-<em class="file">.calendar</em> file.)</p>
-<p>This is an example <em class="file">.makediaryrc</em> file:</p>
-<pre>
- [Personal Information]
- Name = Russell Steicke
- Email = russells@adelie.cx</pre>
+</li>
+<li>
 <p>
+The file <em>.calendar</em> in the directory named by the environment variable
+  <strong>PCAL_DIR</strong>.
 </p>
-<h1><a name="examples">EXAMPLES</a></h1>
-<dl>
-<dt><strong><a name="two_pages_on_letter_paper" class="item">Two pages on letter paper</a></strong></dt>
-
+</li>
+<li>
+<p>
+The file <em>.calendar</em> in the current directory.
+</p>
+</li>
+<li>
+<p>
+The file <em>.calendar</em> in the directory named by the environment variable
+  <strong>HOME</strong>.
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>The first one of these found is used, and the rest are ignored.</p></div>
+<div class="paragraph"><p>These things from the pcal() <em>.calendar</em> format are not recognised:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+the "opt" keyword,
+</p>
+</li>
+<li>
+<p>
+the "every" keyword,
+</p>
+</li>
+<li>
+<p>
+the "each" keyword,
+</p>
+</li>
+<li>
+<p>
+the "all" keyword.
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>Because "opt" is not recognised, dates are always in European format.  In pcal
+terms, "opt -E" is always in effect.</p></div>
+<div class="paragraph"><p>The <em>.calendar</em> file allows a few extensions from that defined by pcal(1).
+These extensions are embedded in comments, so the file should still make sense
+to pcal(1).</p></div>
+<div class="paragraph"><p>The first type of extension allows for changing the behaviour of <strong>makediary</strong>.  These
+are of the form:</p></div>
+<div class="literalblock">
+<div class="content">
+<pre><tt>#&lt;&lt;key:value&gt;&gt;</tt></pre>
+</div></div>
+<div class="paragraph"><p>(This needs documentation&#8230;)</p></div>
+<div class="paragraph"><p>The second type of extension is similar in form, but is added to the end of the
+text for a date entry.  The currently defined extensions are:</p></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<tt>#&lt;&lt;image:</tt><em>filename</em><tt>&gt;&gt;</tt>
+</dt>
 <dd>
-<pre>
- makediary --page-size=half-letter | \
- psselect -p2- | \
- pstops -p letter '2:0L(8.5in,0)+1L(8.5in,5.5in)'  \
- &gt; out.ps</pre>
+<p>
+    Specify an image to print next to the entry for this event.  The image
+    will be scaled to fit in two lines of the diary.
+</p>
 </dd>
-</dl>
+<dt class="hdlist1">
+<tt>#&lt;&lt;year:</tt><em>year</em><tt>&gt;&gt;</tt>
+</dt>
+<dd>
 <p>
+    Specify the year in which the event occurred.  This is used so that the
+    text can contain a number of years since the event, in the
+    %-substitution extension format specified below.
 </p>
-<h1><a name="bugs">BUGS</a></h1>
-<p>The extensions to the <em class="file">.calendar</em> format are really ugly.  There should really
+</dd>
+<dt class="hdlist1">
+<tt>#&lt;&lt;warn:</tt><em>n</em><tt>day(s)|week(s)|month(s)&gt;&gt;</tt>
+</dt>
+<dd>
+<p>
+    Print a warning in lighter text, <em>n</em> days, weeks or months before the
+    event.  The text printed will be surrounded by parentheses and suffixed
+    by the date of the event, eg <em>(Erin&#8217;s 12th birthday&#8201;&#8212;&#8201;Mar 07)</em>.
+</p>
+</dd>
+</dl></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_substitution">%-Substitution</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Within the extensions specified above, you can substitute some values with
+%-sequences.  The following sequences are available:</p></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+%A
+</dt>
+<dd>
+<p>
+Week day name (same as strftime(3)).
+</p>
+</dd>
+<dt class="hdlist1">
+%a
+</dt>
+<dd>
+<p>
+Abbreviated week day name (same as strftime(3)).
+</p>
+</dd>
+<dt class="hdlist1">
+%B
+</dt>
+<dd>
+<p>
+Full month name (same as strftime(3)).
+</p>
+</dd>
+<dt class="hdlist1">
+%b
+</dt>
+<dd>
+<p>
+Abbreviated month name (same as strftime(3)).
+</p>
+</dd>
+<dt class="hdlist1">
+%d
+</dt>
+<dd>
+<p>
+Day of month, 1 to 31.  If preceded by 0, ie &#8220;%0d&#8221;, the month is printed
+as 01 to 31, same as strftime(3).
+</p>
+</dd>
+<dt class="hdlist1">
+%j
+</dt>
+<dd>
+<p>
+Day of year as decimal number (same as strftime(3)).  Three digits, if
+&#8220;%0j&#8221;.
+</p>
+</dd>
+<dt class="hdlist1">
+%l
+</dt>
+<dd>
+<p>
+Days remaining in the year.  Three digits, if &#8220;%0l&#8221;.
+</p>
+</dd>
+<dt class="hdlist1">
+%m
+</dt>
+<dd>
+<p>
+Month number, 01 to 12 (same as strftime(3)).
+</p>
+</dd>
+<dt class="hdlist1">
+%N
+</dt>
+<dd>
+<p>
+The number of years since the event.  If preceded by o, ie &#8220;%oN&#8221;, the
+number will be printed as an ordinal, ie &#8220;14th&#8221; instead of &#8220;14&#8221;.
+</p>
+</dd>
+<dt class="hdlist1">
+%U
+</dt>
+<dd>
+<p>
+The week number of the current week (same as strftime(3)).
+</p>
+</dd>
+<dt class="hdlist1">
+%Y
+</dt>
+<dd>
+<p>
+Four digit year (same as strftime(3)).
+</p>
+</dd>
+<dt class="hdlist1">
+%y
+</dt>
+<dd>
+<p>
+Two digit year (same as strfimte(3)).
+</p>
+</dd>
+<dt class="hdlist1">
+%%
+</dt>
+<dd>
+<p>
+Literal %.
+</p>
+</dd>
+</dl></div>
+<div class="sect2">
+<h3 id="_examples">Examples</h3>
+<div class="paragraph"><p>Print Joe&#8217;s birthday, with a picture of Joe, and substitute his age, as an
+ordinal.  In 2001, this will say "Joe Bloggs' 129th birthday".</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>1-1 Joe Bloggs' %oN birthday #&lt;&lt;image:joebloggs.jpg&gt;&gt; \
+                              #&lt;&lt;year:1872&gt;&gt;</tt></pre>
+</div></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_em_makediaryrc_em_file"><em>.makediaryrc</em> file</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><strong>makediary</strong> will read several files containing configuartion information for
+the Personal Information page.  The files are read in the order:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<tt>.makediaryrc</tt> in the user&#8217;s home directory
+</p>
+</li>
+<li>
+<p>
+<em>.makediaryrc</em> in the current directory
+</p>
+</li>
+<li>
+<p>
+<em>makediaryrc</em> in the current directory
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>The values in these files are merged.  Values from a later file override values
+obtained from an earlier file.</p></div>
+<div class="paragraph"><p>The files must be in ini-file format, and should contain a section called
+"Personal Information".  The key-value pairs in that section are used to
+populate the Personal Information page.  The defined keys are:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+Name
+</p>
+</li>
+<li>
+<p>
+Phone
+</p>
+</li>
+<li>
+<p>
+Mobile (or Cell)
+</p>
+</li>
+<li>
+<p>
+Email (or Email address)
+</p>
+</li>
+<li>
+<p>
+Address
+</p>
+</li>
+<li>
+<p>
+Work phone
+</p>
+</li>
+<li>
+<p>
+Work fax
+</p>
+</li>
+<li>
+<p>
+Work address
+</p>
+</li>
+<li>
+<p>
+Emergency Contact 1
+</p>
+</li>
+<li>
+<p>
+Emergency Contact 2
+</p>
+</li>
+<li>
+<p>
+Emergency Contact 3
+</p>
+</li>
+<li>
+<p>
+Emergency Contact 4
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>(It is intended that <em>.makediaryrc</em> will one day hold all of the
+information needed by <strong>makediary</strong>, including that now kept in the
+<em>.calendar</em> file.)</p></div>
+<div class="listingblock">
+<div class="title">An example <em>.makediaryrc</em> file:</div>
+<div class="content">
+<pre><tt>[Personal Information]
+Name = Russell Steicke
+Email = russells@adelie.cx</tt></pre>
+</div></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_examples_2">EXAMPLES</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="title">Two pages on letter paper</div>
+<div class="content">
+<pre><tt>makediary --page-size=half-letter | \
+psselect -p2- | \
+pstops -p letter '2:0L(8.5in,0)+1L(8.5in,5.5in)'  \
+&gt; out.ps</tt></pre>
+</div></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_bugs">BUGS</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>The extensions to the <em>.calendar</em> format are really ugly.  There should really
 be a better way of specifying events etc.  The backward compatibility with
-<a href="#pcal"><code>pcal(1)</code></a> is not as useful as I imagined it would be.  Two ideas are to use a
-simple database format (perhaps nosql(1)), or use the user's palm data,
-exported from <code>evolution(1)</code> or somewhere.</p>
-<p>
-</p>
-<h1><a name="author">AUTHOR</a></h1>
-<p>Russell Steicke &lt;<a href="mailto:russells@adelie.cx">russells@adelie.cx</a>&gt;</p>
-<p>
-</p>
-<h1><a name="copyright">COPYRIGHT</a></h1>
-<p>Copyright (C) 2002-2009 Russell Steicke.  Released under the terms of the GNU
+pcal(1) is not as useful as I imagined it would be.  Two ideas are to use a
+simple database format (perhaps nosql(1)), or use the user&#8217;s palm data,
+exported from evolution(1) or somewhere.</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_author">AUTHOR</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Russell Steicke &lt;<a href="mailto:russells@adelie.cx">russells@adelie.cx</a>&gt;</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_copyright">COPYRIGHT</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Copyright &#169; 2002-2009 Russell Steicke.  Released under the terms of the GNU
 General Public License, but dedicated to the public domain at the beginning of
-the tenth calendar year after publishing (ie the start of 2019 for version 0.2.96).</p>
-<p>This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</p>
-<p>
-</p>
-<h1><a name="version">VERSION</a></h1>
-<p>0.2.96</p>
-<p>
-</p>
-<h1><a name="see_also">SEE ALSO</a></h1>
-<p><code>calendar(1)</code>, <a href="#pcal"><code>pcal(1)</code></a>, <code>psselect(1)</code>, <code>pstops(1)</code>, <code>units(1)</code>.</p>
-
+the tenth calendar year after publishing (ie the start of 2021 for version 0.2.97).</p></div>
+<div class="paragraph"><p>This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version">VERSION</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>0.2.97</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_see_also">SEE ALSO</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>calendar(1), pcal(1), psselect(1), pstops(1), units(1).</p></div>
+</div>
+</div>
+</div>
+<div id="footnotes"><hr /></div>
+<div id="footer">
+<div id="footer-text">
+Version 0.2.97<br />
+Last updated 2011-08-17 21:01:44 WST
+</div>
+</div>
 </body>
-
 </html>
