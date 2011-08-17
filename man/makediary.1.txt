@@ -1,0 +1,545 @@
+MAKEDIARY(1)
+============
+Russell Steicke <russells@adelie.cx>
+v0.2.96, August 2011
+:doctype: manpage
+
+NAME
+----
+
+makediary - output PostScript code for a paper diary.
+
+SYNOPSIS
+--------
+
+*makediary* '--help'
+
+*makediary* '--version'
+
+*makediary* ['options']
+
+DESCRIPTION
+-----------
+
+Generates a paper diary in PostScript or PDF format.
+
+*makediary* can generate diaries in several different paper sizes.
+*makediary* can include events printed on dates specified in a '.calendar'
+file.  The '.calendar' file is in almost the same format as used by pcal(1),
+with some extensions.
+
+OPTIONS
+-------
+
+--address-pages=<n>::
+
+    Print <n> address pages.  Defaults to 6.
+
+--appointments::
+
+    Print a column of appointment times on the right side of each day.
+
+--appointment-width=<N>[%]::
+
+    Specify the width of the appointment times column as a percentage of the
+    width of the day.  Defaults to 35%.  The '%' sign is optional.  Implies
+    '--appointments'.
+
+--colour::
+
+    When printing images, output colour.  By default, images are converted to
+    grey scale.  Note that this does not apply to included EPS files, which
+    will always be in whatever colours they come with.
+
+--colour-images::
+
+    This is an alias for '--colour'.  It's more descriptive, as this option
+    only applies to images.
+
+--cover-image=<imagefile>::
+
+    Print <imagefile> on the cover of the diary, centred and below the year.
+    The image will be scaled to fit inside a box across the page, and will
+    replace the smiley.
+
+--cover-page-image=<imagefile>::
+
+    Print <imagefile> on the cover of the diary, replacing the other markup on
+    the cover.  The image will be maximised to fit on the page.  Because all
+    the text is replaced, including the year text, it may be a good idea to put
+    the year in the image somewhere.
+
+--day-to-page::
+
+    This option is deprecated, and it is equivalent to '--layout=day-to-page'.
+
+--debug-boxes::
+
+    Print dashed boxes around parts of the output for debugging the spacing.
+    These parts include images, month calendars, and the drawing border of the
+    whole page.
+
+--debug-version::
+
+    On the inside cover, print a page that describes the options that were used
+    to generate this diary, the usage message of the *makediary*, and the CVS
+    version number.
+
+--debug-whole-page-boxes::
+
+    Around each diary page (not each sheet of paper), draw a faint box.
+
+--eps-page=<epsfilename>[|<title>]::
+
+    Include a page whose content is <epsfilename>.  A title can be put on
+    the page by appending it after the file name, separated by a vertical
+    bar.  This could be useful for including maps, for instance.
++
+You will probably have to quote the vertical bar to prevent interpretation
+by the shell.
+
+--eps-2page=<epsfilename>[|<lefttitle>[|<righttitle>]]::
+
+    Include two pages whose content is <epsfilename>, which will be split
+    across a pair of facing left and right pages.  If specified, the pages will
+    have titles <lefttitle> and <righttitle>.  + You will probably have to
+    quote the vertical bars to prevent interpretation by the shell.
+
+--ref=<name[|title[|title]]>::
+
+    Include a page or pages whose content is <name>, possible with page titles.
+    This could be useful for including maps, for instance.
++
+If <name> contains any '/' characters, it will be interpreted as a path to a
+single file to be included as an EPS page.  Otherwise, it will be interpreted
+as the base name of a file or files to be included.  The path to the file or
+files is expanded as `eps/`'name'`/`'name'`.eps` or
+`eps/`'name'`/`'name'`.*.eps`.  These strings will be appended to each element
+of sys.path until one of them expands to one or more file names.  These file
+names will then be used as the EPS files.
++
+
+If one 'title' is supplied, it will become the page title for each of the
+included pages.  To specify different titles for each page, separate them
+with '|'.  To put a title on only the first page, use
+'--ref=name"|'`title`'|"', so that subsequent titles are empty.  If there are
+more pages than titles, the extra pages will have no titles.  To put a line
+at the top of a page without a title, specify that title as a single space.
+
+--event-images::
+
+    Print images next to events, where they are specified.  If this is not
+    specified, the events will be printed without images.
+
+--help::
+
+    Display a usage message and exit.
+
+--image-page=IMAGEFILENAME[,title]::
+
+    Display an image maximised onto a page.  This can be specified multiple times.
+    The images specified will be printed on consecutive pages immediately after the
+    personal information page.  The optional title will be used as the page title.
+
+--image-2page=IMAGEFILENAME[,title]::
+
+    Display an image maximised across two pages.  The optional title will be
+    printed on both pages.  A notes page will be inserted immediately before the
+    first page, if necessary, to ensure the image is printed on facing left and
+    right pages.
+
+--layout=day-to-page::
+--layout=week-to-opening::
+--layout=week-to-2-openings::
+--layout=work::
+
+    Specify the layout of the diary day pages.  The default is week-to-2-openings.
+
+day-to-page:::
+
+    Print one day to each page.  A year's worth of month calendars will be printed
+    across the bottom of each opening in the day pages.
+
+week-to-opening:::
+
+    Print a week to one opening.  This has, on the left side, three month calendars
+    and Monday to Wednesday, and on the right side, Thursday to Sunday.
+
+week-to-2-openings:::
+
+    The default layout has on the left side, three calendars and Monday, on the
+    right side Tuesday and Wednesday, then on the next two pages, Thursday and
+    Friday, and Saturday and Sunday.
+
+work:::
+
+    Layout for a work diary.  Has two days per page, except that Saturday and
+    Sunday share half a page.  Also has a year's worth of month calendars across
+    the bottom of two pages.
+
+--line-spacing=<d>::
+
+    Make the line spacing on diary pages <d> millimetres.  <d> can be a
+    floating point number.
+
+--moon::
+
+    Print pictures of phases of the moon in the title of the day at each phase.
+
+--northern-hemisphere-moon::
+
+    Print pictures of phases of the moon as seen from the Northern Hemisphere,
+    instead of from the Southern Hemisphere.  Implies '--moon'.
+
+--no-smiley::
+
+    Don't print the smiley on the front cover.  The smiley also won't be printed if
+    a cover image is specified.
+
+--notes-pages=<n>::
+
+    Print <n> notes pages at the beginning and end of the diary.  Defaults
+    to 6.
+
+--output-file=<filename>::
+
+    Output to <filename>.  Defaults to 'diary.ps' if generating PostScript, or
+    'diary.pdf' if generating PDF.  A lone '-' means standard output.
+
+--page-size=<size>::
+
+    Specify the size of the pages.  This is not the same as the paper size, so
+    you can print smaller pages than the paper size.  See also the
+    '--page-registration-marks' option.
+
+--page-registration-marks::
+
+    Print marks for cutting pages out of a sheet of paper.  This is useful when
+    printing pages that are smaller than the paper size.
+
+--page-x-offset=<x>::
+--page-y-offset=<y>::
+
+    Move each diary page this far on the paper.  The offsets are in
+    millimetres.  The rationale for these options is that printers tend not to
+    print exactly where told, so when printing double sided the pages on
+    opposite sides of the paper may not line up.  You can specify an offset to
+    make them line up.  <x> and <y> can be floating point numbers.
+
+--paper-size=<size>::
+
+    Specify the size of the paper that you are printing on.  This is not the
+    same as the size of the diary pages.  Do 'makediary --help' for a list of
+    paper sizes.
+
+--pcal::
+
+    Use pcal(1) to parse the .calendar file, instead of using the built-in parser.
+    None of the extensions mentioned in "PCAL(1) '.calendar' FILE" will work, but
+    that may be fine for many users.
+
+--pcal-planner::
+
+    Use pcal(1) to parse the .calendar file (the same as --pcal) and also add that
+    text to the larger planner pages.  Since there is no way to specify shorter
+    text to put on the planner pages, the original text will be used, separated by
+    commas.  The text is clipped to stay within the day box in any case.
+
+--pdf::
+
+    Generate PDF instead of PostScript.  Requires that ps2pdf be installed and in
+    your $PATH.  Untested on Windows.
+
+--perpetual-calendars::
+
+    Print four pages of perpetual calendars.  There are only 14 possible calendars,
+    and this options makes *makediary* print them all, along with a list of recent
+    and future years showing which calendar applies to each one.
+
+--planner-years=<n>::
+
+    Print <n> two-page planner years, starting with the diary year.  Defaults
+    to 2, ie the diary year and the following year.
+
+--sed-ref::
+
+    Print a sed reference page.  (Equivalent to '--ref=sed"|sed reference"').
+
+--sh-ref::
+
+    Print the Unix shell reference page.  (Equivalent to '--ref=sh"|Shell and
+    utility reference"').
+
+--start-date=<yyyy-mm-dd>::
+
+    Start the diary on the specified date.  The date must be in yyyy-mm-dd
+    format.  If both '--start-date' and '--year' are both specified, the last
+    one specified will take precedence.
+
+--units-ref::
+
+    Print the Units reference page.  (Equivalent to
+    '--ref=units"|Units"'.)
++
+When installing *makediary*, this option requires that the GNU units
+program be available.  Because some systems have that program as gunits,
+and because there are other possibilities about where units could be
+installed, *makediary* will first look for the program named by $UNITS, and
+if that is not found look for gunits, and if that is not found, finally try
+units.
++
+Similarly, awk is required for installation.  *makediary* will try $AWK,
+gawk, then awk.
+
+--unix-ref::
+
+    Print the Unix commands reference page.  (Equivalent to '--ref=unix"|Unix
+    reference"'.)
+
+--version::
+
+    Output version information and exit.
+
+--vi-ref::
+--vim-ref::
+
+    Print the vi and vim reference pages.  The '--vi-ref' and '--vim-ref' options
+    do exactly the same thing.  (Equivalent to '--ref=vi"|Vi reference|Vim
+    extensions"'.)
+
+--week-to-opening:: This option is deprecated, and is equivalent to
+    '--layout=week-to-opening'.
+
+--weeks-after=<N>::
+
+    Ensure that the diary covers <N> complete weeks after the specified year.
+
+--weeks-before=<N>::
+
+    Ensure that the diary covers <N> complete weeks before the specified year.
+
+--year=<year>::
+
+    Print a diary for that year.  Defaults to next year.  If both '--year' and
+    '--start-date' are both specified, the last one specified will take
+    precedence.
+
+
+PCAL(1) '.calendar' FILE
+------------------------
+
+This section is not relevant if you use the '--pcal' or '--pcal-planner'
+flags.  If you use pcal to parse the '.calendar' file, see pcal(1).
+
+If *makediary* finds a '.calendar' file, it is parsed to find events to print
+on particular days.  The file is in the same format as used by pcal(1), with
+some extensions, and some unimplemented features.
+
+The '.calendar' file is searched for in these places:
+
+
+* The file named by the environment variable *DIARY_FILE*.
+
+* The file '.calendar' in the directory named by the environment variable
+  *DIARY_DIR*.
+
+* The file '.calendar' in the directory named by the environment variable
+  *PCAL_DIR*.
+
+* The file '.calendar' in the current directory.
+
+* The file '.calendar' in the directory named by the environment variable
+  *HOME*.
+
+The first one of these found is used, and the rest are ignored.
+
+These things from the pcal() '.calendar' format are not recognised:
+
+* the "opt" keyword,
+
+* the "every" keyword,
+
+* the "each" keyword,
+
+* the "all" keyword.
+
+Because "opt" is not recognised, dates are always in European format.  In pcal
+terms, "opt -E" is always in effect.
+
+The '.calendar' file allows a few extensions from that defined by pcal(1).
+These extensions are embedded in comments, so the file should still make sense
+to pcal(1).
+
+The first type of extension allows for changing the behaviour of *makediary*.  These
+are of the form:
+
+  #<<key:value>>
+
+(This needs documentation...)
+
+The second type of extension is similar in form, but is added to the end of the
+text for a date entry.  The currently defined extensions are:
+
+`#<<image:`'filename'`>>`::
+
+    Specify an image to print next to the entry for this event.  The image
+    will be scaled to fit in two lines of the diary.
+
+`#<<year:`'year'`>>`::
+
+    Specify the year in which the event occurred.  This is used so that the
+    text can contain a number of years since the event, in the
+    %-substitution extension format specified below.
+
+`#<<warn:`'n'`day(s)|week(s)|month(s)>>`::
+
+    Print a warning in lighter text, 'n' days, weeks or months before the
+    event.  The text printed will be surrounded by parentheses and suffixed
+    by the date of the event, eg '(Erin's 12th birthday -- Mar 07)'.
+
+%-Substitution
+--------------
+
+Within the extensions specified above, you can substitute some values with
+%-sequences.  The following sequences are available:
+
+%A:: Week day name (same as strftime(3)).
+
+%a:: Abbreviated week day name (same as strftime(3)).
+
+%B:: Full month name (same as strftime(3)).
+
+%b:: Abbreviated month name (same as strftime(3)).
+
+%d:: Day of month, 1 to 31.  If preceded by 0, ie ``%0d'', the month is printed
+as 01 to 31, same as strftime(3).
+
+%j:: Day of year as decimal number (same as strftime(3)).  Three digits, if
+``%0j''.
+
+%l:: Days remaining in the year.  Three digits, if ``%0l''.
+
+%m:: Month number, 01 to 12 (same as strftime(3)).
+
+%N:: The number of years since the event.  If preceded by o, ie ``%oN'', the
+number will be printed as an ordinal, ie ``14th'' instead of ``14''.
+
+%U:: The week number of the current week (same as strftime(3)).
+
+%Y:: Four digit year (same as strftime(3)).
+
+%y:: Two digit year (same as strfimte(3)).
+
+%%:: Literal %.
+
+
+Examples
+~~~~~~~~
+
+Print Joe's birthday, with a picture of Joe, and substitute his age, as an
+ordinal.  In 2001, this will say "Joe Bloggs' 129th birthday".
+
+---------------------------------------------------------
+1-1 Joe Bloggs' %oN birthday #<<image:joebloggs.jpg>> \
+                              #<<year:1872>>
+---------------------------------------------------------
+
+
+'.makediaryrc' file
+-------------------
+
+*makediary* will read several files containing configuartion information for
+the Personal Information page.  The files are read in the order:
+
+* `.makediaryrc` in the user's home directory
+* '.makediaryrc' in the current directory
+* 'makediaryrc' in the current directory
+
+
+The values in these files are merged.  Values from a later file override values
+obtained from an earlier file.
+
+The files must be in ini-file format, and should contain a section called
+"Personal Information".  The key-value pairs in that section are used to
+populate the Personal Information page.  The defined keys are:
+
+* Name
+
+* Phone
+
+* Mobile (or Cell)
+
+* Email (or Email address)
+
+* Address
+
+* Work phone
+
+* Work fax
+
+* Work address
+
+* Emergency Contact 1
+
+* Emergency Contact 2
+
+* Emergency Contact 3
+
+* Emergency Contact 4
+
+(It is intended that '.makediaryrc' will one day hold all of the
+information needed by *makediary*, including that now kept in the
+'.calendar' file.)
+
+.An example '.makediaryrc' file:
+----------------------------------
+[Personal Information]
+Name = Russell Steicke
+Email = russells@adelie.cx
+----------------------------------
+
+EXAMPLES
+--------
+
+.Two pages on letter paper
+-----------------------------------------------------
+makediary --page-size=half-letter | \
+psselect -p2- | \
+pstops -p letter '2:0L(8.5in,0)+1L(8.5in,5.5in)'  \
+> out.ps
+-----------------------------------------------------
+
+
+BUGS
+----
+
+The extensions to the '.calendar' format are really ugly.  There should really
+be a better way of specifying events etc.  The backward compatibility with
+pcal(1) is not as useful as I imagined it would be.  Two ideas are to use a
+simple database format (perhaps nosql(1)), or use the user's palm data,
+exported from evolution(1) or somewhere.
+
+AUTHOR
+------
+
+Russell Steicke <russells@adelie.cx>
+
+COPYRIGHT
+---------
+
+Copyright (C) 2002-2009 Russell Steicke.  Released under the terms of the GNU
+General Public License, but dedicated to the public domain at the beginning of
+the tenth calendar year after publishing (ie the start of 2019 for version 0.2.96).
+
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+VERSION
+-------
+
+0.2.96
+
+SEE ALSO
+--------
+
+calendar(1), pcal(1), psselect(1), pstops(1), units(1).

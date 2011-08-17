@@ -2,15 +2,4 @@
 
 # Make the makediary man page.
 
-
-pod2man  --center="User Commands" \
-         --release="User Commands" \
-         man/makediary.pod \
-         man/makediary.1
-
-pod2html --header \
-         --infile=man/makediary.pod \
-         --outfile=man/makediary.1.html
-
-gzip -c man/makediary.1 > man/makediary.1.gz
-
+make -C man
