@@ -1,6 +1,5 @@
 #!/bin/sh -x
 
-git cat-file blob master:man/makediary.pod | \
-pod2html --css http://russells.github.com/russells.github.com.css | \
-grep -v '<\<hr\>' > makediary.1.html
+git cat-file blob master:man/makediary.1.txt > makediary.1.txt
+asciidoc -b xhtml11 -d manpage -a stylesheet=`pwd`/russells.github.com.css makediary.1.txt
 
