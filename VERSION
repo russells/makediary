@@ -1,4 +1,4 @@
-0.2.96
+0.2.97
 
 The first line of this file is the version number of makediary.  This
 number must match the number in setup.py.
@@ -17,7 +17,7 @@ Everything else is ignored.
 
 - makediary/__init__.py.
 
-- man/makediary.pod, including the copyright expiry date.
+- man/makediary.1.txt, including the copyright expiry date.
 
 - debian/changelog.
 

@@ -1,8 +1,26 @@
-makediary (0.2.96-1) unstable; urgency = low
+makediary (0.2.97-1) unstable; urgency = low
 
   * Allow using pcal to generate the list of events.
+  * Use a more pythonic way of joining a list of strings.
+  * Document more of the .calendar differences from pcal.
+  * Remove -E from pcal invocation.
+  * Create a new layout more suitable for work diaries.
+  * Allow opt -A in pcal .calendar files.
+  * Add missing comma in usage strings.
+  * Hack around the python installation paths.
+  * Make calendars on the bottom centred around the current month.
+  * Stop printing the usage message unexpectedly.
+  * Stop using sys.argv[0] in error messages.
+  * Minor changes to the usage message layout.
+  * Make sure the image mode is acceptable to the EPS converter.
+  * Allow the cover page to be an image.
+  * Allow EPS files to span two pages.
+  * Corrections to debian/control.
+  * Start the month calendars on Monday.
+  * Print the 14 possible yearly calendars.
+  * Convert docco from perlpod to asciidoc.
 
- -- Russell Steicke <russells@adelie.cx>  Sat, 19 Dec 2009 16:00:00 +0900
+ -- Russell Steicke <russells@adelie.cx>  Wed, 16 Aug 2011 21:00:00 +0900
 
 makediary (0.2.3-1) unstable; urgency=low
 

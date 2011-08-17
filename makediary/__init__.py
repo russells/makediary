@@ -3,7 +3,7 @@
 """A package for printing book style diaries."""
 
 
-__version__ = '0.2.96'
+__version__ = '0.2.97'
 
 __all__ = ['makediary',
            'DotCalendar',
