@@ -3,6 +3,7 @@ dot-calendar*
 .makediaryrc
 /*.pdf
 /*.ps
+/*.eps
 dist
 dist-deb
 build
