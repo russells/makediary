@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
-# Transform sed1line.txt into the guts of sed-ref.tex.
+# Transform sed1line.txt or awk1line.txt into the guts of sed-ref.tex or
+# awk-ref.tex.
 
 import sys
 import re
@@ -26,6 +27,7 @@ latex_escape_dict = {
     '{'    : '\\{',
     '}'    : '\\}',
     '~'    : '\\~{}',
+    '%'    : '\\%',
     }
 
 

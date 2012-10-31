@@ -42,6 +42,7 @@ class DiaryInfo:
                "address-pages=",
                "appointments",
                "appointment-width=",
+               "awk-ref",
                "colour",
                "colour-images",
                "cover-image=",
@@ -287,6 +288,8 @@ class DiaryInfo:
                     sys.exit(1)
             elif opt[0] == "--appointments":
                 self.appointments = True
+            elif opt[0] == "--awk-ref":
+                self.standardEPSRef( 'awk', ['Awk reference'] )
             elif opt[0] == "--colour" or opt[0] == "--colour-images":
                 self.colour = True
             elif opt[0] == "--cover-image":

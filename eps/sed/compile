@@ -6,7 +6,7 @@ rm -f sed.???.eps
 (
     set -e -x
     cat sed-input-header.tex
-    ./compile-sed.py < sed1line-input.txt
+    ../compile-1line.py < sed1line-input.txt
     cat sed-input-trailer.tex
 ) > sed.tex
 

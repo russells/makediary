@@ -261,6 +261,10 @@ work:::
     Print <n> two-page planner years, starting with the diary year.  Defaults
     to 2, ie the diary year and the following year.
 
+--awk-ref::
+
+    Print an awk reference page.  (Equivalent to '--ref=awk"|Awk reference"').
+
 --sed-ref::
 
     Print a sed reference page.  (Equivalent to '--ref=sed"|sed reference"').
