@@ -45,6 +45,11 @@ OPTIONS
     width of the day.  Defaults to 35%.  The '%' sign is optional.  Implies
     '--appointments'.
 
+--awk-ref::
+
+    Print the awk reference page.  (Equivalent to '--ref=awk"|Awk
+    reference"'.)
+
 --colour::
 
     When printing images, output colour.  By default, images are converted to
@@ -55,6 +60,11 @@ OPTIONS
 
     This is an alias for '--colour'.  It's more descriptive, as this option
     only applies to images.
+
+--conversions-ref::
+
+    Print the double conversion tables reference page.  (Equivalent to
+    '--ref=conversions"|Double conversion tables"'.)
 
 --cover-image=<imagefile>::
 

@@ -111,7 +111,7 @@ class DiaryInfo:
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
                   "    [--page-y-offset=Ymm] [--pdf] [--planner-years=n] \n",
                   "    [--pcal] [--pcal-planner] [--perpetual-calendars]\n",
-                  "    [--ref=<refname>] [--conversions-ref]\n",
+                  "    [--ref=<refname>] [--awk-ref] [--conversions-ref]\n",
                   "    [--sed-ref] [--sh-ref] [--units-ref] [--unix-ref] [--vi[m]-ref]\n",
                   "    [--weeks-before=n] [--weeks-after=n] [--week-to-opening]\n",
                   "    [--help] [--version]\n",
