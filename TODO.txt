@@ -12,18 +12,6 @@ Images in EPS format get printed at 0,0.  Use translate to put them in the
 correct place.
 
 
-* Figure out the data structures for DotCalendar.  MOSTLY DONE
-This will probably be a dictionary of dates.  Each dictionary will be
-another data structure containing a list of events that happen on that day.
-
-
-* DotCalendar extensions to pcal format
-Anything that needs to be extended (the thing I am thinking about is the
-search path for image files), could be done with special formatted
-comments.  A comment that matches '^#<<(?P<name>[^:]+):(?P<value>.*)>>
-could be used to set a name:value configuration pair.
-
-
 * Data structures
 Sort out the data structures for each day and event.  Currently there is a
 level of indirection missing in the list of events on a particular day.
@@ -33,16 +21,6 @@ level of indirection missing in the list of events on a particular day.
 Sort out whether the information about whether a day is a holiday or not is
 an attribute of the day, or an attribute of an event that occurs on that
 day.
-
-
-* %-substitution.  MOSTLY DONE
-
-This will be a lot of work.
-
-It is going to have to be done after the event is copied for each year,
-because some of the substitutions will be different in different years
-
-Mostly done.  Still need to sort out %[uUwW] and %[-+]N?[DWMY].
 
 
 * Invent my own config file format.
@@ -61,6 +39,7 @@ to hold that info.
 
 
 * Generalise the PostScript stuff.
+
 Some of this needs to be in a general PostScript drawing library.  Some
 other stuff (like day layouts) would be better also in a library, so then
 the application becomes a wrapper for that stuff, driven by the config
@@ -86,14 +65,6 @@ It currently barfs on the man page, trying to find .../makediary.1, but
 there is a .../makediary.1.gz file there.  This needs to be tested on a
 redhat box (I'm doing this with debian).  It may actually work on a distro
 that really does use rpm.
-
-
-* Put examples in the man page.
-
-Plain examples with use of the options.
-
-An example using "halfletter" paper size, then arranging the pages into a
-book with pstops.  DONE.
 
 
 * Fix EPS.
@@ -123,13 +94,7 @@ Look at using the output format from eg evolution, so we don't have to invent
 yet another file format.
 
 
-* Forward planner page (year to page, month to box).
-
-
 * Linux admin commands page.  :)
-
-
-* Measurements and conversions page.
 
 
 * Map of world with timezones page.
@@ -146,19 +111,6 @@ we wish to generate.  It should contain short (one line) descriptions of the
 page groups.
 
 
-* Add options to position the page on the paper.
-
-This will make it easier to print small pages on larger paper, by allowing the
-position of the pages to be specified in advance, and not having to move them
-around later with pstops.
-
-
-* Output PDF
-
-Probably requires a re-structure to abstract out the presentation stuff,
-then add PDF as another type of presentation.
-
-
 * Make makediary run as a web service.
 
 Suggested by Ben.  Run it as a CGI, perhaps, and have its output be a PDF file
@@ -173,13 +125,6 @@ Make a solstice.py module with these dates, perhaps?
 
 Print the solstice and equinox information in the same place as the moon phase
 information.
-
-
-* Allow printing EPS files across two pages.
-
-This will allow things like full page maps.  I should be able to print the
-whole EPS file one each page, scaled and clipped so it appears as a single map
-that spans the pages.
 
 
 * Allow more specific EPS inclusion.
