@@ -1,0 +1,134 @@
+\documentclass{article}
+% Copyright 2002-2004 Donald Bindner
+% Copyright 2004-2008 Russell Steicke
+% Permission is granted to copy, distribute and/or modify this
+% document under the terms of the GNU Free Documentation License,
+% Version 1.1 or any later version published by the Free Software
+% Foundation.
+
+\usepackage{multicol}
+\usepackage[T1]{fontenc}
+
+\setlength{\textheight}{11 in}
+\setlength{\textwidth}{7.5 in}
+\setlength{\hoffset}{-2 in}
+\setlength{\voffset}{-1 in}
+\setlength{\footskip}{12 pt}
+\setlength{\oddsidemargin}{1.5 in}
+\setlength{\evensidemargin}{1.5 in}
+\setlength{\topmargin}{13 pt}
+\setlength{\headheight}{12 pt}
+\setlength{\headsep}{0 in}
+
+\setlength{\parindent}{0 in}
+
+\ifx \pdfpagewidth \undefined
+\else
+ \pdfpagewidth=11in    % page width of PDF output
+ \pdfpageheight=8.5in  % page height of PDF output
+\fi
+
+\newcommand{\ctrl}{C-}
+
+%% % Right align last line of paragraphs.
+%% % This works, except that it right aligns every paragraph, including the
+%% % headings.  And it also right aligns the only line of short paragraphs.
+%% % Can it be put inside an environment?
+%% % http://texnik.de/cgi-bin/mainFAQ.cgi?file=paragraph/paragraph
+%% \leftskip=0pt plus 1fil
+%% \rightskip=-\leftskip
+%% \parfillskip=\leftskip
+%% \parindent=0pt
+
+
+% This is intended to be a list environment suitable for typesetting one
+% item of the sed examples.  This compiles fine, but when I used it I get
+% an error from LaTeX:
+%
+%  ! LaTeX Error: Something's wrong--perhaps a missing \item.
+%
+%  See the LaTeX manual or LaTeX Companion for explanation.
+%  Type  H <return>  for immediate help.
+%   ...
+%
+%  l.77 \begin{sedlist}
+%                      \item[{\ensuremath\bullet}] double space a file
+\newenvironment{sedlist}{
+  \begin{list}
+    {\ensuremath\bullet}
+    { \setlength{\topsep}{0pt}
+      \setlength{\partopsep}{0pt}
+      \setlength{\parsep}{0pt}
+      \slshape
+    }
+  \end{list}
+}
+
+
+
+\begin{document}
+\pagestyle{empty}
+\fontsize{9}{10}\selectfont
+
+%% % Test the sedlist.
+%% \begin{sedlist}
+%% \item foo
+%% \item bar
+%% \end{sedlist}
+
+\newcommand{\cmd}[2]{{\ensuremath\bullet~}#1:~\hfill\texttt{#2}\par\vskip2pt}
+\newcommand{\head}[1]{{\large\textbf{#1}}\hfill\par
+\vskip 2pt
+\hrule
+\vskip 4pt}
+\newcommand{\bs}{\ensuremath\backslash}
+
+%\begin{multicols}{2}
+
+%\vskip 15pt
+
+HANDY ONE-LINE SCRIPTS FOR AWK{\hfill}30 April 2008\\
+Compiled by Eric Pement - eric [at] pement.org{\hfill}version 0.27
+
+Latest version of this file (in English) is usually at:
+   http://www.pement.org/awk/awk1line.txt
+
+This file will also be available in other languages:
+   Chinese  - http://ximix.org/translation/awk1line\_zh-CN.txt
+
+\vskip 1.5ex
+USAGE:
+\vskip 1.5ex
+\begin{tabular}{rll}
+   Unix: & \texttt{awk '/pattern/ \{print "\$1"\}'}    & standard Unix shells \\
+DOS/Win: & \texttt{awk '/pattern/ \{print "\$1"\}'}    & compiled with DJGPP, Cygwin \\
+         & \texttt{awk "/pattern/ \{print \bs{}"\$1\bs{}"\}"}  & GnuWin32, UnxUtils, Mingw \\
+\end{tabular}
+
+\vskip 1.5ex
+Note that the DJGPP compilation (for DOS or Windows-32) permits an awk
+script to follow Unix quoting syntax \texttt{'/like/ \{"this"\}'}. HOWEVER, if the
+command interpreter is CMD.EXE or COMMAND.COM, single quotes will not
+protect the redirection arrows (<, >) nor do they protect pipes (|).
+These are special symbols which require "double quotes" to protect them
+from interpretation as operating system directives. If the command
+interpreter is bash, ksh or another Unix shell, then single and double
+quotes will follow the standard Unix usage.
+
+\vskip 1.5ex
+Users of MS-DOS or Microsoft Windows must remember that the percent
+sign (\%) is used to indicate environment variables, so this symbol must
+be doubled (\%\%) to yield a single percent sign visible to awk.
+
+\vskip 1.5ex
+If a script will not need to be quoted in Unix, DOS, or CMD, then I
+normally omit the quote marks. If an example is peculiar to GNU awk,
+the command 'gawk' will be used. Please notify me if you find errors or
+new commands to add to this list (total length under 65 characters). I
+usually try to put the shortest script first. To conserve space, I
+normally use '1' instead of '\{print\}' to print each line. Either one
+will work.
+
+\vskip 1.5ex
+
+%%%%% Start of processed input.

@@ -42,6 +42,7 @@ class DiaryInfo:
                "address-pages=",
                "appointments",
                "appointment-width=",
+               "awk-ref",
                "colour",
                "colour-images",
                "cover-image=",
@@ -287,6 +288,8 @@ class DiaryInfo:
                     sys.exit(1)
             elif opt[0] == "--appointments":
                 self.appointments = True
+            elif opt[0] == "--awk-ref":
+                self.standardEPSRef( 'awk', ['Awk reference'] )
             elif opt[0] == "--colour" or opt[0] == "--colour-images":
                 self.colour = True
             elif opt[0] == "--cover-image":
@@ -1404,7 +1407,7 @@ class EmptyPage(PostscriptPage):
 
 class VersionPage(PostscriptPage):
     def body(self):
-        fontSize = 2.2*self.di.pageHeight/210.0
+        fontSize = 2.1*self.di.pageHeight/210.0
         linex = fontSize*6
         s=""
         versionString = self.postscriptEscape(versionNumber)
@@ -1416,7 +1419,7 @@ class VersionPage(PostscriptPage):
             + "%5.3f %5.3f M (%s) SH\n" % (linex, fontSize*12, versionString) \
             + "%5.3f %5.3f M (%s) SH\n" % (linex, fontSize*10, dateString) \
             + "%5.3f %5.3f M (%s) SH\n" % (linex, fontSize*8, urlString)
-        liney = self.di.pageHeight*0.8
+        liney = self.di.pageHeight*0.9
         s = s + "%5.3f %5.3f M (Command:) SH\n" % (linex, liney)
         liney = liney - fontSize*1.25
         s = s + "%5.3f %5.3f M (   %s) SH\n" % (linex, liney, self.di.myname)
