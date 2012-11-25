@@ -45,6 +45,7 @@ class DiaryInfo:
                "awk-ref",
                "colour",
                "colour-images",
+               "conversions-ref",
                "cover-image=",
                "cover-page-image=",
                "day-to-page",
@@ -110,7 +111,7 @@ class DiaryInfo:
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
                   "    [--page-y-offset=Ymm] [--pdf] [--planner-years=n] \n",
                   "    [--pcal] [--pcal-planner] [--perpetual-calendars]\n",
-                  "    [--ref=<refname>]\n",
+                  "    [--ref=<refname>] [--conversions-ref]\n",
                   "    [--sed-ref] [--sh-ref] [--units-ref] [--unix-ref] [--vi[m]-ref]\n",
                   "    [--weeks-before=n] [--weeks-after=n] [--week-to-opening]\n",
                   "    [--help] [--version]\n",
@@ -292,6 +293,8 @@ class DiaryInfo:
                 self.standardEPSRef( 'awk', ['Awk reference'] )
             elif opt[0] == "--colour" or opt[0] == "--colour-images":
                 self.colour = True
+            elif opt[0] == "--conversions-ref":
+                self.standardEPSRef( 'conversions', ['Double conversion tables'] )
             elif opt[0] == "--cover-image":
                 self.coverImage = opt[1]
             elif opt[0] == "--cover-page-image":

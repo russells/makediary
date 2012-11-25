@@ -1,0 +1,150 @@
+\documentclass{article}
+% Copyright 2002-2004 Donald Bindner
+% Copyright 2004-2008 Russell Steicke
+% Permission is granted to copy, distribute and/or modify this
+% document under the terms of the GNU Free Documentation License,
+% Version 1.1 or any later version published by the Free Software
+% Foundation.
+
+
+
+% This latex file is processed by an awk script that calculates the
+% appropriate conversion factors and writes the lines.
+
+% Changes lines that start with ``do-conversions'' to LaTeX code for a
+% table containing the conversion factors for 1 to 9 of one unit into the
+% other.
+
+% There are two types of lines
+
+% do-conversions U1 U2
+
+% Makes a table for converting between U1 and U2.  U1 and U2 are used as
+% the titles in the table.
+
+% do-conversions U1 N1 U2 N2
+
+% Makes a table for converting between U1 and U2.  N1 and N2 are used as
+% the titles in the table.  N1 and N2 should not contain white space, as
+% that would be split by awk into multiple fields.  To put a space in the
+% names, use '~' characters.  To use superscript or subscript, put the
+% relevant part of the name into math mode with dollar signs.
+
+
+\usepackage{multicol}
+
+\setlength{\textheight}{11 in}
+\setlength{\textwidth}{7.5 in}
+\setlength{\hoffset}{-2 in}
+\setlength{\voffset}{-1 in}
+\setlength{\footskip}{12 pt}
+\setlength{\oddsidemargin}{1.5 in}
+\setlength{\evensidemargin}{1.5 in}
+\setlength{\topmargin}{13 pt}
+\setlength{\headheight}{12 pt}
+\setlength{\headsep}{0 in}
+
+\setlength{\parindent}{0 in}
+
+\ifx \pdfpagewidth \undefined
+\else
+ \pdfpagewidth=8.5in   % page width of PDF output
+ \pdfpageheight=11in   % page height of PDF output
+\fi
+
+\newcommand{\ctrl}{C-}
+
+\begin{document}
+\thispagestyle{empty}
+\fontsize{9}{10}\selectfont
+
+\newcommand{\cmd}[2]{#1 \hfill \texttt{#2}\par}
+\newcommand{\head}[1]{{\large\textbf{#1}}\par
+\vskip 2pt
+\hrule
+\vskip 4pt}
+\newcommand{\conversion}[2]{#1 $=$ \hfill{}#2\par}
+
+\begin{multicols}{3}
+
+\vbox{\head{Weight, mass, force}
+do-conversions lb kg
+}
+\vbox{
+do-conversions pounds grams
+}
+\vbox{
+do-conversions ounces grams
+}
+\vbox{
+do-conversions brton British~tons tonne tonnes
+}
+\vbox{
+do-conversions uston US~tons brton British~tons
+}
+\vbox{
+do-conversions lbf pounds~force~(lbf) N Newtons
+}
+
+\vskip 10pt
+
+\vbox{\head{Length}
+do-conversions inch tribarleycorn mm mm
+}
+\vbox{
+do-conversions miles km
+}
+
+\vskip 10pt
+
+\vbox{\head{Pressure}
+do-conversions lbf/inch^2 lb/in$^2$ hPa hPa
+}
+
+\vskip 10pt
+
+\vbox{\head{Area}
+do-conversions foot^2 foot$^2$ m^2 m$^2$
+}
+\vbox{
+do-conversions intacre acres hectare hectares
+}
+\vbox{
+do-conversions mile^2 mile$^2$ intacres acres
+}
+\vbox{
+do-conversions mile^2 mile$^2$ km^2 km$^2$
+}
+
+\vskip 10pt
+
+\vbox{\head{Volume}
+do-conversions pints litres
+}
+\vbox{
+do-conversions brgallon gallons litre litres
+}
+\vbox{
+do-conversions usgallon US~gallons brgallon gallons
+}
+\vbox{
+do-conversions inch^3 cubic~inch cm^3 cc
+}
+
+\vskip 10pt
+
+\vbox{\head{Heat and power}
+do-conversions      calorie calories joule Joules
+}
+\vbox{
+do-conversions      btu   BTU   joule Joules
+}
+\vbox{
+do-conversions      horsepower kilowatts
+}
+
+\end{multicols}
+
+\end{document}
+
+
