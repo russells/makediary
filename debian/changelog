@@ -1,3 +1,11 @@
+makediary (0.2.98-1) unstable;
+
+  * Add an awk reference page.
+  * Add a page of two way conversions.
+  * Fix incorrect page sizes in .tex files.
+
+ -- Russell Steicke <russells@adelie.cx>  Mon, 26 Nov 2012 21:00:00 +0800
+
 makediary (0.2.97-1) unstable; urgency = low
 
   * Allow using pcal to generate the list of events.
