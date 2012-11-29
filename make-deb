@@ -28,8 +28,8 @@ git ls-tree -z --name-only -r HEAD \
    | ( cd $_DEB_BUILD_DIR  &&  tar xvf - )
 
 cd $_DEB_BUILD_DIR
-./make-man
-./make-eps
+make man
+make eps
 
 fakeroot dpkg-buildpackage -uc -us
 

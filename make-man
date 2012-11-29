@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# Make the makediary man page.
-
-make -C man

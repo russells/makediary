@@ -12,8 +12,8 @@ set -e -x
 [ -f setup.py ]
 [ -d makediary ]
 
-./make-man
-./make-eps
+make man
+make eps
 
 rm -rf dist build MANIFEST
 

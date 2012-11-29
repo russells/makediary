@@ -1,7 +1,0 @@
-#!/bin/sh
-
-set -e -x
-
-latex vi.001.tex && dvips -E -o vi.001.eps vi.001.dvi
-latex vi.002.tex && dvips -E -o vi.002.eps vi.002.dvi
-
