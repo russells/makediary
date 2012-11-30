@@ -27,7 +27,10 @@
     printf("\\textbf{%s}& &\\textbf{%s}\\\\\n", inunitname, outunitname);
     for (i=1; i<=9; i++) {
 	#printf("%8.4f&%d&%8.4f\\\\\n", $4*i, i, i/$4);
-	printf("%g&%d&%g\\\\\n", i/conversion, i, i*conversion);
+	s = sprintf("%g&%d&%g\\\\\n", i/conversion, i, i*conversion);
+	s = gensub(/e\+0?([0-9]+)/, "$\\\\times10^{\\1}$", "g", s);
+	s = gensub(/e-0?([0-9]+)/, "$\\\\times10^{-\\1}$", "g", s);
+	printf("%s", s);
     }
     printf("\\end{tabular}\n\\par\n");
 

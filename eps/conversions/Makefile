@@ -1,6 +1,7 @@
 
-conversions.eps: conversions.dvi
-	dvips -E -o conversions.eps  conversions.dvi
+conversions.001.eps: conversions.dvi
+	dvips -E -i -o conversions.eps  conversions.dvi
+	for f in *.0?? ; do mv $$f $$f.eps ; done
 
 conversions.dvi: conversions.tex
 	latex conversions.tex
@@ -12,4 +13,4 @@ conversions.tex: conversions-input.tex compile-conversions.awk
 
 .PHONY: clean
 clean:
-	rm -f conversions.???
+	rm -f conversions.??? conversions.0?? conversions.0??.eps

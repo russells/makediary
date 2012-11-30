@@ -55,7 +55,7 @@
 \newcommand{\ctrl}{C-}
 
 \begin{document}
-\thispagestyle{empty}
+\pagestyle{empty}
 \fontsize{9}{10}\selectfont
 
 \newcommand{\cmd}[2]{#1 \hfill \texttt{#2}\par}
@@ -92,13 +92,19 @@ do-conversions lbf pounds~force~(lbf) N Newtons
 do-conversions inch tribarleycorn mm mm
 }
 \vbox{
+do-conversions feet m
+}
+\vbox{
+do-conversions yards m
+}
+\vbox{
 do-conversions miles km
 }
-
-\vskip 10pt
-
-\vbox{\head{Pressure}
-do-conversions lbf/inch^2 lb/in$^2$ hPa hPa
+\vbox{
+do-conversions nauticalmile Nautical~mile km km
+}
+\vbox{
+do-conversions angstrom \r{A}ngstr\"{o}m inch tribarleycorn
 }
 
 \vskip 10pt
@@ -115,6 +121,12 @@ do-conversions mile^2 mile$^2$ intacres acres
 \vbox{
 do-conversions mile^2 mile$^2$ km^2 km$^2$
 }
+\vbox{
+do-conversions intacre acres km^2 km$^2$
+}
+\vbox{
+do-conversions 100feet^2 square m^2 m$^2$
+}
 
 \vskip 10pt
 
@@ -125,10 +137,37 @@ do-conversions pints litres
 do-conversions brgallon gallons litre litres
 }
 \vbox{
+do-conversions usgallon US~gallons litre litres
+}
+\vbox{
 do-conversions usgallon US~gallons brgallon gallons
 }
 \vbox{
-do-conversions inch^3 cubic~inch cm^3 cc
+do-conversions inch^3 tribarleycorn$^3$ cm^3 cc
+}
+\vbox{
+do-conversions yard^3 cubic~yard m^3 m$^3$
+}
+\vbox{
+do-conversions barrels litres
+}
+\vbox{
+do-conversions bushels litres
+}
+\vbox{
+do-conversions millilitre ml cm^3 cc
+}
+
+\vskip 10pt
+
+\vbox{\head{Pressure}
+do-conversions lbf/inch^2 lb/in$^2$ hPa hPa
+}
+\vbox{
+do-conversions hPa hPa atmosphere atmosphere
+}
+\vbox{
+do-conversions lbf/inch^2 lb/in$^2$ atmosphere atmosphere
 }
 
 \vskip 10pt
@@ -145,6 +184,10 @@ do-conversions      horsepower kilowatts
 
 \end{multicols}
 
+% Put a miniscule dot at the bottom of the last page to force that page to
+% be full.  This simulates the text floating to the top of the eps page.
+\vspace{\fill}
+{\tiny .}
 \end{document}
 
 
