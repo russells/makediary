@@ -171,6 +171,7 @@ class DiaryInfo:
         self.subtitleFontSize = 4.0     #
         self.subtitleFontName = "Helvetica" #
         self.personalinfoFontName = "Times-Bold" #
+        self.personalinfoFixedFontName = "Courier-Bold" #
         self.titleY = -1                # Distance from bottom to title, calc from page size
         self.titleLineY = -1            #
         self.titleGray = 0.8            # Background for titles on some pages
@@ -1868,7 +1869,8 @@ class PersonalInformationPage(PostscriptPage):
         s = s \
             + self.do1line( co, [ ("Name"   , ("Name",),        ),        ] ,0) \
             + self.do1line( co, [ ("Phone"  , ("Phone",)        ),
-                                  ("Mobile" , ("Mobile","Cell") ),        ] ,0) \
+                                  (("Mobile", "Cell"),
+                                   ("Mobile", "Cell") ),                  ] ,0) \
             + self.do1line( co, [ ("Email"  , ("Email",
                                                "Email address") ),        ] ,0) \
             + self.do1line( co, [ ("Address", ("Address", )     ),        ] ,0) \
@@ -1876,7 +1878,8 @@ class PersonalInformationPage(PostscriptPage):
             + self.do1line( co, [                                         ] ,0) \
             + self.do1line( co, [ ("Work"   , (             )   ),        ] ,0) \
             + self.do1line( co, [ ("Phone"  , ("Work phone",)   ),
-                                  ("Fax"    , ("Work fax",)     ),        ] ,0) \
+                                  (("Mobile", "Cell"),
+                                   ("Work mobile", "Work cell") ),        ] ,0) \
             + self.do1line( co, [ ("Email"  , ("Work email",)   ),        ] ,0) \
             + self.do1line( co, [ ("Address", ("Work address",) ),        ] ,0) \
             + self.do1line( co, [                                         ] ,0) \
@@ -1902,21 +1905,42 @@ class PersonalInformationPage(PostscriptPage):
         infofontsize = fontsize * 1.1 # Times font appears smaller than helvetica
         nelements = len(title_info_pairs)
         thiselement = 0
+        nameindex = 0
         for title_info in title_info_pairs:
-            title = self.postscriptEscape(title_info[0])
+            titles = title_info[0]
+            infos = title_info[1]
+            info_index_count = 0
+            info_index = 0
+            info_string = None
+            for info in infos:
+                if config.has_option("Personal Information", info):
+                    info_string = config.get("Personal Information", info)
+                    info_index = info_index_count
+                    break
+                else:
+                    info_index_count += 1
+            if isinstance(titles, tuple):
+                # If there is no info specified for this title, the index defaults to 0, so we
+                # get the first of the possible titles when a tuple is supplied.
+                title_string = titles[info_index]
+            else:
+                title_string = titles
+
+            title = self.postscriptEscape(title_string)
             s = s + "/%s %5.3f selectfont\n" % (self.di.subtitleFontName,fontsize)
             s = s + "%5.3f %5.3f M (%s) SH \n" % (self.pWidth * thiselement / nelements, texty,
                                                   title)
-            for info_name in title_info[1]:
-                if config.has_option("Personal Information", info_name):
-                    info_raw = config.get("Personal Information", info_name)
-                    # This is deliberately printed in the previous font.
-                    s = s + "( - ) SH\n"
-                    info = self.postscriptEscape(info_raw)
+            if info_string:
+                info = self.postscriptEscape(info_string)
+                # This is deliberately printed in the previous font.
+                s = s + "( - ) SH\n"
+                if "email" in title_string.lower():
+                    s = s + "/%s %5.3f selectfont\n" % (self.di.personalinfoFixedFontName,
+                                                        infofontsize)
+                else:
                     s = s + "/%s %5.3f selectfont\n" % (self.di.personalinfoFontName,
                                                         infofontsize)
-                    s = s + "(%s) SH\n" % info
-                    break
+                s = s + "(%s) SH\n" % info
             thiselement += 1
         liney = self.pHeight - self.linenum * self.linespacing
         if linethick:
@@ -2954,6 +2978,7 @@ class Diary:
             "%%+ font Helvetica\n" \
             "%%+ font Helvetica-Oblique\n" \
             "%%+ font Courier\n" \
+            "%%+ font Courier-Bold\n" \
             "%%Pages: (atend)\n" \
             "%%PageOrder: Ascend\n" \
             "%%Orientation: Portrait\n" \
@@ -3067,6 +3092,7 @@ class Diary:
             "%%IncludeResource: font Helvetica\n" \
             "%%IncludeResource: font Helvetica-Oblique\n" \
             "%%IncludeResource: font Courier\n" \
+            "%%IncludeResource: font Courier-Bold\n" \
             "%%IncludeResource: procset MakediaryProcs\n" \
             + "%%%%IncludeFeature: *PageSize %s\n" % self.di.paperSize.title() \
             + "%%EndSetup\n"

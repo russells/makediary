@@ -489,7 +489,9 @@ populate the Personal Information page.  The defined keys are:
 
 * Work phone
 
-* Work fax
+* Work mobile (or Work cell)
+
+* Work email
 
 * Work address
 
