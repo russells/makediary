@@ -192,6 +192,13 @@ work:::
     Make the line spacing on diary pages <d> millimetres.  <d> can be a
     floating point number.
 
+--man-page=<M>::
+
+    Include a printed UNIX manual page in the output, just after the reference
+    pages.  <M> can be "name(section)" (eg ls(1)), or "name,section" (eg ls,8.)
+    If you use "name(section)", you will have to quote the argument to prevent
+    the shell interpreting the parentheses.
+
 --moon::
 
     Print pictures of phases of the moon in the title of the day at each phase.

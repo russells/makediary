@@ -61,6 +61,7 @@ class DiaryInfo:
                "large-planner",
                "layout=",
                "line-spacing=",
+               "man-page=",
                "margins-multiplier=",
                "moon",
                "northern-hemisphere-moon",
@@ -106,7 +107,7 @@ class DiaryInfo:
                   "    [--event-images]\n",
                   "    [--image-page=IMAGEFILE[,title]] [--image-2page=IMAGEFILE[,title]]\n",
                   "    [--large-planner] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
-                  "    [--layout=LAYOUT] [--northern-hemisphere-moon]\n",
+                  "    [--layout=LAYOUT] [--man-page=MANPAGE] [--northern-hemisphere-moon]\n",
                   "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
                   "    [--page-y-offset=Ymm] [--pdf] [--planner-years=n] \n",
@@ -204,6 +205,7 @@ class DiaryInfo:
         self.nWeeksAfter = 0
         self.smiley = True
         self.imagePages = []
+        self.manPages = []
         self.epsPages = []
         self.title = None
         self.pdf = False
@@ -335,6 +337,8 @@ class DiaryInfo:
                     self.shortUsage()
             elif opt[0] == "--line-spacing":
                 self.lineSpacing = self.floatOption("line-spacing",opt[1])
+            elif opt[0] == "--man-page":
+                self.manPageOption(opt[1])
             elif opt[0] == "--margins-multiplier":
                 multiplier = self.floatOption("margins-multiplier",opt[1])
                 self.tMargin = self.tMargin * multiplier
@@ -488,6 +492,24 @@ class DiaryInfo:
         except ValueError,reason:
             sys.stderr.write("Error converting integer: " + str(reason) + "\n")
             self.shortUsage()
+
+
+    def manPageOption(self, opt):
+        match = re.match('''^([_a-z0-9][-_a-z0-9:\.]*)\(([1-9])\)$''', opt, re.IGNORECASE)
+        if match:
+            self.manPages.append( (match.group(1), match.group(2)) )
+            return
+        match = re.match('''^([_a-z0-9][-_a-z0-9:\.]*),([1-9])$''', opt, re.IGNORECASE)
+        if match:
+            self.manPages.append( (match.group(1), match.group(2)) )
+            return
+
+        match = re.match('''^([_a-z0-9][-_a-z0-9:\.]*)$''', opt, re.IGNORECASE)
+        if match:
+            self.manPages.append( (match.group(1), None) )
+            return
+
+        print >>sys.stderr, "%s: unknown man page: %s" % (sys.argv[0], opt)
 
 
     def setStartDate(self,date):
@@ -1144,11 +1166,16 @@ class EPSFilePage(PostscriptPage):
     def body(self):
         s = ''
 
-        try:
-            epsfile = open(self.epsfilename, 'r')
-        except IOError, reason:
-            print >>sys.stderr, "Can't open %s: %s" % (self.epsfilename, str(reason))
-            return "%% +++ Error opening %s: %s\n" % (self.epsfilename, str(reason))
+        # If we were supplied a string, it's a file name, otherwise we assume it's a file like
+        # object.
+        if isinstance(self.epsfilename, ''.__class__):
+            try:
+                epsfile = open(self.epsfilename, 'r')
+            except IOError, reason:
+                print >>sys.stderr, "Can't open %s: %s" % (self.epsfilename, str(reason))
+                return "%% +++ Error opening %s: %s\n" % (self.epsfilename, str(reason))
+        else:
+            epsfile = self.epsfilename
 
         errmsg, boundingbox = self.findBoundingBoxInEPS(self.epsfilename, epsfile)
         if errmsg:
@@ -1395,6 +1422,113 @@ class TwoEPSFilePages(EPSFilePage):
               + HalfEPSFilePage(self.dinfo, epsfilepathname,
                                 title2, HalfEPSFilePage.RIGHT).page()
         return s
+
+
+# ############################################################################################
+
+# Pages that contain a printed man page.
+
+class ManPagePages(PostscriptPage):
+    def __init__(self, dinfo, manPageInfo ):
+        self.dinfo = dinfo
+        self.manPageInfo = manPageInfo
+
+    def page(self):
+        # Get the output from running man.
+        try:
+            if self.manPageInfo[1] is None:
+                # No man section specified
+                man_args = ('man', '-t', self.manPageInfo[0])
+                man_par_name = self.manPageInfo[0]
+                man_nonpar_name = self.manPageInfo[0]
+            else:
+                man_args = ('man', '-t', self.manPageInfo[1], self.manPageInfo[0])
+                man_par_name = "%s(%s)" % (self.manPageInfo[0], self.manPageInfo[1])
+                man_nonpar_name = "%s %s" % (self.manPageInfo[1], self.manPageInfo[0])
+            man_process = subprocess.Popen(man_args,
+                                           shell=False,
+                                           stdin=open('/dev/null'),
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE,
+                                           close_fds=True)
+            #print str(man_process)
+            man_stdout, man_stderr = man_process.communicate()
+            man_returncode = man_process.returncode
+            if man_returncode:
+                print >>sys.stderr, "%s: cannot get man page for %s: (%d):\n%s" % \
+                      (sys.argv[0], man_par_name, man_returncode, man_stderr)
+                return "%% -- Cannot run man -t %s\n" % man_nonpar_name
+        except OSError, e:
+            print >>sys.stderr, "%s: cannot run ``man -t %s'': (%d):\n%s" % \
+                  (sys.argv[0], man_nonpar_name, e.errno, e.strerror)
+            return "%% -- Cannot run man -t %s %s\n" % man_nonpar_name
+
+        # Convert the man output into EPS.
+        try:
+            eps_process = subprocess.Popen(('ps2eps'),
+                                           shell=False,
+                                           stdin=subprocess.PIPE,
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE,
+                                           close_fds=True)
+            eps_stdout, eps_stderr = eps_process.communicate(man_stdout)
+            eps_returncode = eps_process.returncode
+            if eps_returncode:
+                print >>sys.stderr, "%s: error running ps2eps: (%d):\n%s" % \
+                      (sys.argv[0], eps_returncode, eps_stderr)
+                return "% -- Cannot run ps2eps\n"
+        except OSError, e:
+            print >>sys.stderr, "%s: cannot run ps2eps: (%d):\n%s" % \
+                  (sys.argv[0], e.errno, e.strerror)
+            return "% -- Cannot run ps2eps\n"
+
+        # We don't need these any more.
+        man_stdout = None
+        man_stderr = None
+        eps_stderr = None
+
+        # Prepare the return string.
+        s = ''
+
+        # Now for each page, add our page with the EPS in it.  We loop until psselect tells us
+        # that it has reached the end.  It does that by returning a completely empty page,
+        # rather than with an error or return code.
+        pageNumber = 1
+        while True:
+            #print >>sys.stderr, "Getting page %d" % pageNumber
+            try:
+                pss_process = subprocess.Popen(('psselect', '-p%d'%pageNumber),
+                                               shell=False,
+                                               stdin=subprocess.PIPE,
+                                               stdout=subprocess.PIPE,
+                                               stderr=subprocess.PIPE,
+                                               close_fds=True)
+                pss_stdout, pss_stderr = pss_process.communicate(eps_stdout)
+                pss_returncode = pss_process.returncode
+                if pss_returncode:
+                    print >>sys.stderr, "%s: cannot get page %d using psselect: (%d):\n%s" % \
+                          (sys.argv[0], pageNumber, pss_returncode, pss_stderr)
+                    s += "%% Cannot run psselect -p%d\n" % pageNumber
+                    return s
+            except OSError, e:
+                print >>sys.stderr, "%s: cannot get page %d: (%d):\n%s" % \
+                      (sys.argv[0], pageNumber, pss_returncode, pss_stderr)
+                s += "%% Cannot get page %d" % pageNumber
+                return s
+
+            # Check to see if the page was extracted, or if psselect just gave us an empty
+            # page, which is what it does when we ask for a page after the end of the document.
+            if not re.search('''^%%Page:''', pss_stdout, re.MULTILINE):
+                return s
+
+            # Get our diary page, with the EPS page embedded.
+            epsString = StringIO.StringIO(pss_stdout)
+            s += EPSFilePage(self.dinfo, epsString).page()
+
+            pageNumber += 1
+
+
+        return "%% -- man %s(%s)\n" % self.manPageInfo
 
 
 # ############################################################################################
@@ -3259,6 +3393,9 @@ class Diary:
                 if di.evenPage:
                     w( EmptyPage(di).page() )
                 w( TwoEPSFilePages(di, eps_fileName, eps_title1, eps_title2).page() )
+
+        for manPageInfo in di.manPages:
+            w( ManPagePages(di, manPageInfo).page() )
 
         for i in range(di.nNotesPages):
             w( NotesPage(di).page() )
