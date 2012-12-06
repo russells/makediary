@@ -23,7 +23,7 @@
     print "conversion=" conversion >"/dev/stderr";
 
     printf("\\vskip 5pt\n");
-    printf("\\begin{tabular}{p{0.4\\columnwidth}p{0.1\\columnwidth}p{0.4\\columnwidth}}\n");
+    printf("\\begin{tabular}{|p{0.4\\columnwidth}p{0.1\\columnwidth}p{0.4\\columnwidth}}\n");
     printf("\\textbf{%s}& &\\textbf{%s}\\\\\n", inunitname, outunitname);
     for (i=1; i<=9; i++) {
 	#printf("%8.4f&%d&%8.4f\\\\\n", $4*i, i, i/$4);
