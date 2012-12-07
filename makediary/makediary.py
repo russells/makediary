@@ -55,6 +55,7 @@ class DiaryInfo:
                "eps-page=",
                "eps-2page=",
                "event-images",
+               "expense-pages=",
                "help",
                "image-page=",
                "image-2page=",
@@ -104,7 +105,7 @@ class DiaryInfo:
                   "    [--cover-page-image=IMAGE] [--day-to-page]\n",
                   "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
                   "    [--eps-page=epsfile[|title]] [--eps-2page=epsfile[|title1[|title2]]]\n",
-                  "    [--event-images]\n",
+                  "    [--event-images] [--expense-pages=0|2|4]\n",
                   "    [--image-page=IMAGEFILE[,title]] [--image-2page=IMAGEFILE[,title]]\n",
                   "    [--large-planner] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
                   "    [--layout=LAYOUT] [--man-page=MANPAGE] [--northern-hemisphere-moon]\n",
@@ -212,6 +213,7 @@ class DiaryInfo:
         self.pcal = False
         self.pcalPlanner = False
         self.perpetualCalendars = False
+        self.nExpensePages = 2
 
         self.configOptions = ConfigParser()
         self.configOptions.read( (expanduser("~/.makediaryrc"), ".makediaryrc", "makediaryrc") )
@@ -314,6 +316,14 @@ class DiaryInfo:
                 self.epsFilePageOption(opt[1], 1)
             elif opt[0] == "--eps-2page":
                 self.epsFilePageOption(opt[1], 2)
+            elif opt[0] == "--expense-pages":
+                if opt[1] == '0' or opt[1] == '2' or opt[1] == '4':
+                    self.nExpensePages = int(opt[1])
+                else:
+                    print >>sys.stderr, \
+                          "%s: number of expense pages must be 0, 2, or 4 (not \"%s\")." % \
+                          (sys.argv[0], opt[1])
+                    self.shortUsage()
             elif opt[0] == "--perpetual-calendars":
                 self.perpetualCalendars = True
             elif opt[0] == "--ref":
@@ -3373,8 +3383,10 @@ class Diary:
             else:
                 w( EmptyPage(di).page() )
 
-        w( TwoExpensePages().page(di) )
-        #self.w( FourExpensePages().page(di) )
+        if di.nExpensePages == 2:
+            w( TwoExpensePages().page(di) )
+        elif di.nExpensePages == 4:
+            w( FourExpensePages().page(di) )
 
         for epsPage in di.epsPages:
             try:

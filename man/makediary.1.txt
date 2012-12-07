@@ -141,6 +141,12 @@ at the top of a page without a title, specify that title as a single space.
     Print images next to events, where they are specified.  If this is not
     specified, the events will be printed without images.
 
+--expense-pages=<n>::
+
+    Specify the number of expense pages to print.  <n> can be 0, 2 (two
+    pages with six months each), or 4 (four pages with three months each.)
+    The default is 2.
+
 --help::
 
     Display a usage message and exit.
