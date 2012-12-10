@@ -147,6 +147,11 @@ at the top of a page without a title, specify that title as a single space.
     pages with six months each), or 4 (four pages with three months each.)
     The default is 2.
 
+--gridded-notes::
+
+    Make notes pages have gridded lines, instead of just horizontal writing
+    lines.  The gridded lines are dotted.
+
 --help::
 
     Display a usage message and exit.
