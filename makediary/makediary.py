@@ -192,7 +192,7 @@ class DiaryInfo:
         self.coverPageImage = None      # Pic for the whole cover page.
         self.appointments = False       # Different "styles" for different people.
         self.appointmentTimes = True    # Print appointment times or not
-        self.appointmentWidth = 0.35    # Width of appointments (as proportion)
+        self.appointmentWidth = 35      # Width of appointments (as percentage)
         self.colour = False             # If true, print images in colour
         self.moon = False               # If true, print moon phases
         self.northernHemisphereMoon = False # If true, print northern hemisphere moon phases
