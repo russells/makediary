@@ -3466,13 +3466,14 @@ class Diary:
                 break
             w( DiaryPage(di).page() )
 
+        # If specified, add a number of whole weeks after, probably in the next year.
+        if di.nWeeksAfter:
+            dw = di.dt + (7*di.nWeeksAfter)
+            while di.dt < dw:
+                w( DiaryPage(di).page() )
         # Finish at the end of a week
         while di.dt.day_of_week != DateTime.Monday:
             w( DiaryPage(di).page() )
-        # And get a multiple of whole weeks in the next year
-        for i in range(0,di.nWeeksAfter):
-            for j in range(0,4):        # 4 pages per week
-                w( DiaryPage(di).page() )
 
         # Notes pages at the rear
         for i in range(di.nNotesPages):
