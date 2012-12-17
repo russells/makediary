@@ -1628,14 +1628,26 @@ class CoverPage(PostscriptPage):
             title = "%04d-%02d" % (self.di.dtbegin.year, (self.di.dtbegin.year+1) % 100)
 
         s =   "% --- cover page\n" \
+            + "10 dict begin /boxwidth %5.3f def /xleft %5.3f def /title (%s) def\n" % \
+            (xright - xleft, xleft, self.postscriptEscape(title)) \
+            + "/textheight %5.3f def /textxcentre %5.3f def /textycentre %5.3f def\n" % \
+            (textheight, textxcentre, textycentre) \
             + "% border around the cover page\n" \
             + "%5.3f %5.3f %5.3f %5.3f %5.3f boxLBRT\n" % \
-            (xleft,ybottom,xright,ytop,self.di.underlineThick) \
-            + "/Times-Roman %d selectfont\n" % textheight \
-            + "% find half of the width of the title string\n" \
-            + "(%s) dup SW pop 2 div\n" % self.postscriptEscape(title) \
-            + "% move that far left of the centre\n" \
-            + "%5.2f exch sub %5.2f M SH\n" % (textxcentre,textycentre)
+            (xleft,ybottom,xright,ytop,self.di.underlineThick)
+        # Now we find out how wide the title is, and if it's wider than the box we reduce the
+        # font to make it fit.
+        s = s \
+            + "/Times-Roman textheight selectfont\n" \
+            + "% find the width of the title string\n" \
+            + "/titlewidth title SW pop def\n" \
+            + "% If we have a wide title, print the title in a smaller font at the left side of the box.\n" \
+            + "% Otherwise, move left half the width and print there in the original font.\n" \
+            + "titlewidth boxwidth gt " \
+            + "{ /Times-Roman boxwidth titlewidth div textheight mul selectfont xleft textycentre M } " \
+            + "{ textxcentre title SW pop 2 div sub textycentre M }\n" \
+            + "ifelse\n" \
+            + "title SH\nend\n"
         if self.di.coverImage==None:
             if self.di.smiley:
                 smileysize = self.di.coverTitleFontSize
