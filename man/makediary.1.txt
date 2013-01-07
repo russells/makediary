@@ -308,6 +308,21 @@ work:::
     format.  If both '--start-date' and '--year' are both specified, the last
     one specified will take precedence.
 
+--title=<title>::
+
+    If a title is specified here, it will replace the year on the cover
+    page.  The title can have multiple lines (and it is possible to have
+    newline characters in an argument on the unix command line.)  If it has
+    multiple lines, they will be correctly split and displayed as multiple
+    lines.  Each line will be centred.
++
+
+If the title (or one of the lines of the title) is too wide to display in
+the space provided on the cover page, the font size will be reduced to make
+the width fit.  It is trivially easy to specify a title that has a number
+of short lines, and therefore doesn't fit in the vertical space as its size
+is too high.  It is up to the user to avoid this.
+
 --units-ref::
 
     Print the Units reference page.  (Equivalent to

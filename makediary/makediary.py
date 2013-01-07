@@ -1628,26 +1628,44 @@ class CoverPage(PostscriptPage):
             title = "%04d-%02d" % (self.di.dtbegin.year, (self.di.dtbegin.year+1) % 100)
 
         s =   "% --- cover page\n" \
-            + "10 dict begin /boxwidth %5.3f def /xleft %5.3f def /title (%s) def\n" % \
-            (xright - xleft, xleft, self.postscriptEscape(title)) \
+            + "10 dict begin /availablewidth %5.3f def /xleft %5.3f def /title (%s) def\n" % \
+            (0.90*(xright - xleft), xleft, self.postscriptEscape(title.replace('\n','\\n'))) \
             + "/textheight %5.3f def /textxcentre %5.3f def /textycentre %5.3f def\n" % \
             (textheight, textxcentre, textycentre) \
             + "% border around the cover page\n" \
             + "%5.3f %5.3f %5.3f %5.3f %5.3f boxLBRT\n" % \
             (xleft,ybottom,xright,ytop,self.di.underlineThick)
+
         # Now we find out how wide the title is, and if it's wider than the box we reduce the
         # font to make it fit.
-        s = s \
-            + "/Times-Roman textheight selectfont\n" \
+        titlestrings = title.split('\n')
+
+        s = s + "/Times-Roman textheight selectfont\n" \
             + "% find the width of the title string\n" \
-            + "/titlewidth title SW pop def\n" \
-            + "% If we have a wide title, print the title in a smaller font at the left side of the box.\n" \
-            + "% Otherwise, move left half the width and print there in the original font.\n" \
-            + "titlewidth boxwidth gt " \
-            + "{ /Times-Roman boxwidth titlewidth div textheight mul selectfont xleft textycentre M } " \
-            + "{ textxcentre title SW pop 2 div sub textycentre M }\n" \
-            + "ifelse\n" \
-            + "title SH\nend\n"
+            + "/titlewidth 0\n"
+
+        for ts in titlestrings:
+            s = s + "(%s) SW pop max\n" % self.postscriptEscape(ts)
+        s = s + "def\n"
+
+        # If we have a wide title, print the title in a smaller font.
+        s = s + "titlewidth availablewidth gt " \
+            + "{ /textheight availablewidth titlewidth div textheight mul def } if\n" \
+            + "/Times-Roman textheight selectfont\n"
+
+        # If there is more than one line in the title, move up a bit and start there.
+        if len(titlestrings) > 1:
+            s = s + "/textycentre %5.3f %d textheight 2 div mul 1.1 mul add def\n" % \
+                (textycentre, len(titlestrings))
+
+        # Now print the titles.
+        for ts in titlestrings:
+            s = s + "(%s) dup textxcentre exch SW pop 2 div sub textycentre M SH\n" % \
+                self.postscriptEscape(ts) \
+                + "/textycentre textycentre textheight 1.1 mul sub def\n"
+
+        s = s + "end\n"
+
         if self.di.coverImage==None:
             if self.di.smiley:
                 smileysize = self.di.coverTitleFontSize
