@@ -3084,6 +3084,15 @@ class DiaryPage(PostscriptPage):
                      (self.dwidth/6.0)*monthprop,
                      self.bottomcalheight*monthprop,
                      self.di.getMonthCalendarPsFnCall(date.year, date.month) )
+            if self.di.evenPage and i == 5:
+                # Draw a box around the current month.  Make the box just inside the area set
+                # aside for the month.
+                s = s + "%5.3f %5.3f %5.3f %5.3f %5.3f boxLBWH\n" % \
+                    (self.pLeft+self.dwidth*5.02/6.0,
+                     self.pBottom+self.bottomcalheight*0.02,
+                     self.dwidth*0.96/6.0,
+                     self.bottomcalheight*0.96,
+                     0)
             date += DateTime.oneDay * 30
         return s
 
