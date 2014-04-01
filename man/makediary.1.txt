@@ -79,6 +79,12 @@ OPTIONS
     the text is replaced, including the year text, it may be a good idea to put
     the year in the image somewhere.
 
+--day-title-shading=all|holidays|none::
+
+    If "'all'", the title bar of every day in the diary is shaded in.  If
+    "'holidays'", only weekends and public holidays are shaded.  If
+    "'none'", no days have shaded title bars.  Defaults to "'all'".
+
 --day-to-page::
 
     This option is deprecated, and it is equivalent to '--layout=day-to-page'.

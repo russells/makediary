@@ -48,6 +48,7 @@ class DiaryInfo:
                "conversions-ref",
                "cover-image=",
                "cover-page-image=",
+               "day-title-shading=",
                "day-to-page",
                "debug-boxes",
                "debug-version",
@@ -104,6 +105,7 @@ class DiaryInfo:
                   "    [--address-pages=n] [--appointment-width=w] [--appointments]\n",
                   "    [--colour | --colour-images] [--cover-image=IMAGE]\n",
                   "    [--cover-page-image=IMAGE] [--day-to-page]\n",
+                  "    [--day-title-shading=all|holidays|none]\n"
                   "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
                   "    [--eps-page=epsfile[|title]] [--eps-2page=epsfile[|title1[|title2]]]\n",
                   "    [--event-images] [--expense-pages=0|2|4] [--gridded-notes]\n",
@@ -216,6 +218,7 @@ class DiaryInfo:
         self.perpetualCalendars = False
         self.nExpensePages = 2
         self.griddedNotesPages = False
+        self.dayTitleShading = "all"
 
         self.configOptions = ConfigParser()
         self.configOptions.read( (expanduser("~/.makediaryrc"), ".makediaryrc", "makediaryrc") )
@@ -306,6 +309,13 @@ class DiaryInfo:
                 self.coverImage = opt[1]
             elif opt[0] == "--cover-page-image":
                 self.coverPageImage = opt[1]
+            elif opt[0] == "--day-title-shading":
+                if opt[1] in ("all", "holidays", "none"):
+                    self.dayTitleShading = opt[1]
+                else:
+                    print >>sys.stderr, "day-title-shading must be all or holiday or none" \
+                        + " (not \"%s\")" % opt[1]
+                    self.shortUsage();
             elif opt[0] == "--day-to-page":
                 self.layout = "day-to-page"
             elif opt[0] == "--debug-boxes":
@@ -2694,13 +2704,32 @@ class DiaryPage(PostscriptPage):
                     #sys.stderr.write("%s is a holiday: %s\n" % (dd,str(event)))
                     isholiday = 1
 
-        # Draw the box around the title
-        if isholiday or dd.day_of_week==DateTime.Saturday or dd.day_of_week==DateTime.Sunday:
-            gr = self.weekendgray
+        isweekend = dd.day_of_week==DateTime.Saturday or dd.day_of_week==DateTime.Sunday
+
+        # Draw the box around the title.  Fill in the box with the appropriate shading, which
+        # is determined from the type of day and a user option.
+        if self.di.dayTitleShading == "all":
+            if isholiday or isweekend:
+                gr = self.weekendgray
+            else:
+                gr = self.otherdaygray
+        elif self.di.dayTitleShading == "holidays":
+            if isholiday or isweekend:
+                gr = self.otherdaygray
+            else:
+                gr = 0
+        elif self.di.dayTitleShading == "none":
+            gr = 0
         else:
-            gr = self.otherdaygray
-        s = s + "0 %5.3f %5.3f %5.3f %5.3f %5.3f boxLBWHgray\n" % \
-            (self.titleboxy, self.dwidth, self.titleboxsize, di.underlineThick, gr)
+            print >>sys.stderr, "Unknown day title shading: \"%s\"" % self.di.dayTitleShading
+            sys.exit(1)
+
+        if gr:
+            s = s + "0 %5.3f %5.3f %5.3f %5.3f %5.3f boxLBWHgray\n" % \
+                (self.titleboxy, self.dwidth, self.titleboxsize, di.underlineThick, gr)
+        else:
+            s = s + "0 %5.3f %5.3f %5.3f %5.3f boxLBWH\n" % \
+                (self.titleboxy, self.dwidth, self.titleboxsize, di.underlineThick)
 
         # Print the day name as the diary day header.
         s = s + "10 10 M /%s %5.2f selectfont " % (di.titleFontName, self.titlefontsize)
