@@ -300,7 +300,7 @@ class DiaryInfo:
                 if opt[1] in ("all", "holidays", "none"):
                     self.dayTitleShading = opt[1]
                 else:
-                    print >>sys.stderr, "day-title-shading must be all or holiday or none" \
+                    print >>sys.stderr, "day-title-shading must be all or holidays or none" \
                         + " (not \"%s\")" % opt[1]
                     self.shortUsage();
             elif opt[0] == "--day-to-page":
