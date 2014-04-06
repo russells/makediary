@@ -9,6 +9,20 @@ from PostscriptPage import PostscriptPage
 from EPSFilePages import EPSFilePage
 
 
+class NamedStringIO(StringIO.StringIO):
+    """A string IO class that holds an informative name.
+
+    The informative name is returned by __str__(), instead of
+    <StringIO.StringIO instance at 0xdeadbee>
+    """
+
+    def __init__(self, s, name):
+        self.name = name
+        StringIO.StringIO.__init__(self, s)
+
+    def __str__(self):
+        return self.name
+
 
 class ManPagePages(PostscriptPage):
     """Pages that contain a printed man page."""
@@ -105,8 +119,14 @@ class ManPagePages(PostscriptPage):
             if not re.search('''^%%Page:''', pss_stdout, re.MULTILINE):
                 return s
 
+            # Make up a name for the embedded document.
+            if self.manPageInfo[1] is None:
+                documentname = "man %s # page %d" % (self.manPageInfo[0], pageNumber)
+            else:
+                documentname = "man %s %s # page %d" % \
+                               (self.manPageInfo[1], self.manPageInfo[0], pageNumber)
             # Get our diary page, with the EPS page embedded.
-            epsString = StringIO.StringIO(pss_stdout)
+            epsString = NamedStringIO(pss_stdout, documentname)
             s += EPSFilePage(self.dinfo, epsString).page()
 
             pageNumber += 1
