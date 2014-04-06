@@ -9,20 +9,9 @@ Everything else is ignored.
 
 - setup.py.
 
-- makediary/makediary.py.
-
-- makediary/DotCalendar.py.
-
-- makediary/PaperSize.py.
-
-- makediary/__init__.py.
+- makediary/versionNumber.py
 
 - man/makediary.1.txt, including the copyright expiry date.
 
 - debian/changelog.
-
-- The version numbers in ~/bin/make-makediary-www and
-  ~/bin/export-makediary-to-burst.  ??
-
-- The version numbers in the web page.
 

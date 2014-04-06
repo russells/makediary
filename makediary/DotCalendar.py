@@ -4,8 +4,6 @@
 
 # vim: set shiftwidth=4 expandtab smartindent textwidth=95:
 
-__revision__ = """0.2.98"""
-
 import sys
 import os
 from os.path import expanduser

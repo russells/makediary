@@ -3,9 +3,6 @@
 # Maintain a dictionary of paper sizes.
 
 
-__revision__ = """0.2.98"""
-
-
 _paperSizes = {
     "a8"     : ( 52.211111, 74.083333 ),
     "a7"     : ( 74.083333, 104.775   ),
