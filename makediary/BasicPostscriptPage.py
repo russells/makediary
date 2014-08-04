@@ -130,10 +130,16 @@ class BasicPostscriptPage:
             % (self.di.underlineThick,self.pLeft,self.di.bMargin,self.pRight,self.di.bMargin)
         return s
 
-    def title(self,text1,text2=""):
+    def title(self,text1,text2="",bold=True):
+        if bold:
+            titleFontName = self.di.titleFontName
+            subtitleFontName = self.di.subtitleFontName
+        else:
+            titleFontName = self.di.titleFontNoBoldName
+            subtitleFontName = self.di.subtitleFontNoBoldName
         text1e = self.postscriptEscape(text1)
         s = self.topline()
-        s = s + "/%s %5.3f selectfont " % (self.di.titleFontName,self.di.titleFontSize)
+        s = s + "/%s %5.3f selectfont " % (titleFontName,self.di.titleFontSize)
         if self.di.evenPage:
             s = s + ("%5.3f %5.3f M (%s) SH\n" % (self.pLeft,self.di.titleY,text1e))
         else:
@@ -141,12 +147,12 @@ class BasicPostscriptPage:
                      (text1e,self.pRight,self.di.titleY))
         if text2 != "":
             text2e = self.postscriptEscape(text2)
-            s = s + "/%s %5.3f selectfont " % (self.di.subtitleFontName, self.di.subtitleFontSize)
+            s = s + "/%s %5.3f selectfont " % (subtitleFontName, self.di.subtitleFontSize)
             if self.di.evenPage:
                 s = s + "(%s) dup %5.3f exch SW pop sub %5.3f M SH\n" % \
                     (text2e,self.pRight,self.di.titleY)
             else:
-                s = "%5.3f %5.3f M (%s) SH\n" % (self.pLeft,self.di.titleY,text2e)
+                s = s + "%5.3f %5.3f M (%s) SH\n" % (self.pLeft,self.di.titleY,text2e)
         return s
 
 

@@ -29,6 +29,7 @@ from AddressPage             import AddressPage
 from NotesPage               import NotesPage
 from ExpensePages            import TwoExpensePages, FourExpensePages
 from DiaryPage               import DiaryPage
+from LogbookPage             import LogbookPage
 
 
 # ############################################################################################
@@ -149,20 +150,27 @@ class Diary:
             else:
                 w( EmptyPage(di).page() )
 
-        # Print diary pages until we see the end date
-        while 1:
-            if di.dt >= di.dtend:
-                break
-            w( DiaryPage(di).page() )
-
-        # If specified, add a number of whole weeks after, probably in the next year.
-        if di.nWeeksAfter:
-            dw = di.dt + (7*di.nWeeksAfter)
-            while di.dt < dw:
+        if di.layout == "logbook":
+            # The logbook layout is handled differently to other layouts.  For others,
+            # DiaryPage inspects the layout and changes its behaviour, but for logbook we use
+            # the layout directly here.
+            for n in range(di.nLogbookPages):
+                w( LogbookPage(di).page() )
+        else:
+            # Print diary pages until we see the end date
+            while 1:
+                if di.dt >= di.dtend:
+                    break
                 w( DiaryPage(di).page() )
-        # Finish at the end of a week
-        while di.dt.day_of_week != DateTime.Monday:
-            w( DiaryPage(di).page() )
+
+            # If specified, add a number of whole weeks after, probably in the next year.
+            if di.nWeeksAfter:
+                dw = di.dt + (7*di.nWeeksAfter)
+                while di.dt < dw:
+                    w( DiaryPage(di).page() )
+            # Finish at the end of a week
+            while di.dt.day_of_week != DateTime.Monday:
+                w( DiaryPage(di).page() )
 
         # Notes pages at the rear
         for i in range(di.nNotesPages):

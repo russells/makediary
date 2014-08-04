@@ -16,6 +16,7 @@ class CoverPage(PostscriptPage):
         picyprop = 0.8
         textycentre = (ytop-ybottom) * 0.66 + ybottom - textheight/2
         textxcentre = (xright-xleft)/2 + xleft
+        align = 'centre'
 
         s = ''
 
@@ -30,7 +31,16 @@ class CoverPage(PostscriptPage):
             s += self.image(self.di.coverPageImage, l, b, w, h)
             return s
 
-        if self.di.title is not None:
+        if self.di.layout=="logbook":
+            # Spaces at the start of these lines move all the lines to the right, and serve to
+            # set the font size from the longest string.  Spaces at the end move the lines off
+            # the right margin.
+            title = \
+                  '             Start date: 20___ /__ /__      \n' + \
+                  '\n' + \
+                  '     End date: 20___ /__ /__      '
+            align = 'right'
+        elif self.di.title is not None:
             title = self.di.title
         elif self.di.dtbegin.month==1 and self.di.dtbegin.day==1:
             title = "%d" % self.di.dtbegin.year
@@ -70,9 +80,13 @@ class CoverPage(PostscriptPage):
 
         # Now print the titles.
         for ts in titlestrings:
-            s = s + "(%s) dup textxcentre exch SW pop 2 div sub textycentre M SH\n" % \
-                self.postscriptEscape(ts) \
-                + "/textycentre textycentre textheight 1.1 mul sub def\n"
+            if align=='centre':
+                s = s + "(%s) dup textxcentre exch SW pop 2 div sub textycentre M SH\n" % \
+                    self.postscriptEscape(ts)
+            elif align=='right':
+                s = s + "(%s) dup %5.3f exch SW pop sub textycentre M SH\n" % \
+                    (self.postscriptEscape(ts), xright)
+            s = s + "/textycentre textycentre textheight 1.1 mul sub def\n"
 
         s = s + "end\n"
 

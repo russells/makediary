@@ -40,13 +40,16 @@ class DiaryInfo:
                "eps-2page=",
                "event-images",
                "expense-pages=",
+               "gridded-logbook",
                "gridded-notes",
+               "gridded",
                "help",
                "image-page=",
                "image-2page=",
                "large-planner",
                "layout=",
                "line-spacing=",
+               "logbook-pages=",
                "man-page=",
                "margins-multiplier=",
                "moon",
@@ -94,7 +97,8 @@ class DiaryInfo:
                   "    [--event-images] [--expense-pages=0|2|4] [--gridded-notes]\n",
                   "    [--image-page=IMAGEFILE[,title]] [--image-2page=IMAGEFILE[,title]]\n",
                   "    [--large-planner] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
-                  "    [--layout=LAYOUT] [--man-page=MANPAGE] [--northern-hemisphere-moon]\n",
+                  "    [--layout=LAYOUT] [--logbook-pages=N]\n",
+                  "    [--man-page=MANPAGE] [--northern-hemisphere-moon]\n",
                   "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
                   "    [--page-y-offset=Ymm] [--pdf] [--planner-years=n] \n",
@@ -114,7 +118,7 @@ class DiaryInfo:
     usageStrings.append("    appointment-width = 35%   planner-years = 2\n")
     usageStrings.append("    address-pages = 6         notes-pages = 6\n")
 
-    layouts = ( "day-to-page", "week-to-opening", "week-to-2-openings", "work" )
+    layouts = ( "day-to-page", "logbook", "week-to-opening", "week-to-2-openings", "work" )
     defaultLayout = "week-to-2-openings"
     usageStrings.append("  Layouts: " + ", ".join(layouts) + "\n")
     usageStrings.append("  Default layout: " + defaultLayout + "\n")
@@ -156,8 +160,10 @@ class DiaryInfo:
         self.coverTitleFontSize = 20.0  #
         self.titleFontSize = 7.0        #
         self.titleFontName = "Times-Bold" #
+        self.titleFontNoBoldName = "Times" #
         self.subtitleFontSize = 4.0     #
         self.subtitleFontName = "Helvetica" #
+        self.subtitleFontNoBoldName = "Helvetica" #
         self.personalinfoFontName = "Times-Bold" #
         self.personalinfoFixedFontName = "Courier-Bold" #
         self.titleY = -1                # Distance from bottom to title, calc from page size
@@ -200,8 +206,11 @@ class DiaryInfo:
         self.pcalPlanner = False
         self.perpetualCalendars = False
         self.nExpensePages = 2
+        self.griddedLogbookPages = False
         self.griddedNotesPages = False
+        self.griddedLogbookPages = False
         self.dayTitleShading = "all"
+        self.nLogbookPages = 100
 
         self.configOptions = ConfigParser()
         self.configOptions.read( (expanduser("~/.makediaryrc"), ".makediaryrc", "makediaryrc") )
@@ -330,6 +339,11 @@ class DiaryInfo:
                 self.standardEPSRef(name_and_titles[0], name_and_titles[1:])
             elif opt[0] == "--event-images":
                 self.drawEventImages = True
+            elif opt[0] == "--gridded":
+                self.griddedLogbookPages = True
+                self.griddedNotesPages = True
+            elif opt[0] == "--gridded-logbook":
+                self.griddedLogbookPages = True
             elif opt[0] == "--gridded-notes":
                 self.griddedNotesPages = True
             elif opt[0] == "--help":
@@ -348,6 +362,8 @@ class DiaryInfo:
                     self.shortUsage()
             elif opt[0] == "--line-spacing":
                 self.lineSpacing = self.floatOption("line-spacing",opt[1])
+            elif opt[0] == "--logbook-pages":
+                self.nLogbookPages = self.integerOption("logbook-pages",opt[1])
             elif opt[0] == "--man-page":
                 self.manPageOption(opt[1])
             elif opt[0] == "--margins-multiplier":

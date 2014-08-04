@@ -153,10 +153,20 @@ at the top of a page without a title, specify that title as a single space.
     pages with six months each), or 4 (four pages with three months each.)
     The default is 2.
 
+--gridded::
+
+    The same as '--gridded-logbook' and '--gridded-notes'.
+
+--gridded-logbook::
+
+    When printing logbook pages, do so with gridded dotted lines instead of
+    horizontal writing lines.  Has no effect unless '--layout=logbook' is
+    specified.
+
 --gridded-notes::
 
-    Make notes pages have gridded lines, instead of just horizontal writing
-    lines.  The gridded lines are dotted.
+    When printing notes pages, do so with gridded dotted lines instead of
+    horizontal writing lines.
 
 --help::
 
@@ -176,6 +186,7 @@ at the top of a page without a title, specify that title as a single space.
     right pages.
 
 --layout=day-to-page::
+--layout=logbook::
 --layout=week-to-opening::
 --layout=week-to-2-openings::
 --layout=work::
@@ -186,6 +197,14 @@ day-to-page:::
 
     Print one day to each page.  A year's worth of month calendars will be printed
     across the bottom of each opening in the day pages.
+
+logbook:::
+
+    Print plain ruled pages with a "+++20__/__/__+++" marker at the top for the
+    date to be written in.  The number of logbook pages defaults to 100, but can
+    be set with the '--logbook-pages=N' option.  The cover page is changed to
+    have spaces for start and end dates (unless '--cover-image' is specified.)
+    The other front matter pages are still printed as normal.
 
 week-to-opening:::
 
@@ -208,6 +227,10 @@ work:::
 
     Make the line spacing on diary pages <d> millimetres.  <d> can be a
     floating point number.
+
+--logbook-pages=<N>::
+
+    Specify the number of logbook pages to be printed in the logbook layout.
 
 --man-page=<M>::
 
