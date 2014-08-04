@@ -1,3 +1,26 @@
+makediary (0.3.0-1) unstable;
+
+ * Use make to construct the eps files.
+ * Let the conversions ref take multiple pages.
+ * Minor changes to the personal information page.
+ * Allow inclusion of man pages.
+ * Add a line to the side of each of the conversions tables.
+ * Move the clean-all script into the Makefile.
+ * Specify the number of expense pages.
+ * Make notes pages optionally gridded.
+ * Make the default appointment width work as expected.
+ * Correct the counting of weeks after the year.
+ * If the cover title is too long, reduce its font size.
+ * Allow the cover page title to span multiple lines.
+ * Allow removal of title shading for normal days or all days.
+ * Put a box around the current month in the work layout.
+ * Split makediary.py into class files.
+ * Fix an error in the day title shading error message.
+ * Make a string class that tells us the file it came from.
+ * Add a diary layout without dated pages - a "logbook".
+
+ -- Russell Steicke <russells@adelie.cx>  Mon,  4 Aug 2014 20:30:00 +0800
+
 makediary (0.2.98-1) unstable;
 
   * Add an awk reference page.
