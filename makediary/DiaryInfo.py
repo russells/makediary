@@ -95,7 +95,7 @@ class DiaryInfo:
                   "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
                   "    [--eps-page=epsfile[|title]] [--eps-2page=epsfile[|title1[|title2]]]\n",
                   "    [--event-images] [--expense-pages=0|2|4] [--gridded-notes]\n",
-                  "    [--image-page=IMAGEFILE[,title]] [--image-2page=IMAGEFILE[,title]]\n",
+                  "    [--image-page=IMGFILE[,title]] [--image-2page=IMGFILE[,title][,coverage]]\n",
                   "    [--large-planner] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
                   "    [--layout=LAYOUT] [--logbook-pages=N]\n",
                   "    [--man-page=MANPAGE] [--northern-hemisphere-moon]\n",
@@ -546,14 +546,36 @@ class DiaryInfo:
 
 
     def imagePageOption(self, option, npages):
-        commaindex = option.find(",")
-        if commaindex != -1:
-            self.imagePages.append( { "fileName" : option[0:commaindex],
-                                      "title"    : option[commaindex+1:],
-                                      "pages"    : npages } )
-        else:
-            self.imagePages.append( { "fileName" : option,
+        assert npages==1 or npages==2
+        commaparts = option.split(",", npages)
+        if len(commaparts) == 1:
+            self.imagePages.append( { "fileName" : commaparts[0],
                                       "title"    : "",
+                                      # npages can be 1 here, in which case the coverage option
+                                      # will be ignored by the ImageFilePages class.  It's just
+                                      # simpler to put it in here.
+                                      "coverage" : 0.5,
+                                      "pages"    : npages } )
+        elif len(commaparts) == 2:
+            self.imagePages.append( { "fileName" : commaparts[0],
+                                      "title"    : commaparts[1],
+                                      # npages can also be 1 here.
+                                      "coverage" : 0.5,
+                                      "pages"    : npages } )
+        elif len(commaparts) == 3:
+            coverage = self.floatOption(option, commaparts[2])
+            # Check the coverage for sanity.  It can be from 50% to 90%, and we allow it to be
+            # specified as in the ranges 0.5 to 0.9 or 50 to 90.
+            if not ((coverage >= 0.5 and coverage <= 0.9) \
+                    or (coverage >= 50 and coverage <= 90)):
+                sys.stderr.write("coverage of a 2 page image must be between 0.5 and 0.9" +
+                                 " (or 50 and 90) - I got %.2f\n" % coverage)
+                self.shortUsage()
+            if coverage > 1.0:
+                coverage = coverage / 100.0
+            self.imagePages.append( { "fileName" : commaparts[0],
+                                      "title"    : commaparts[1],
+                                      "coverage" : coverage,
                                       "pages"    : npages } )
 
 
@@ -562,7 +584,8 @@ class DiaryInfo:
         try:
             return float(s)
         except ValueError,reason:
-            sys.stderr.write("Error converting float: " + str(reason) + "\n")
+            sys.stderr.write("Error converting float: " + str(reason) + \
+                             ", from " + str(name) + "\n")
             self.shortUsage()
 
     def setPageSize(self,s):

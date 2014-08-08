@@ -64,7 +64,8 @@ class Diary:
             elif npages == 2:
                 if di.evenPage:
                     self.w( NotesPage(di).page() )
-                w( TwoImageFilePages(di, imagePage["fileName"], imagePage["title"]).page() )
+                w( TwoImageFilePages(di, imagePage["fileName"], imagePage["title"],
+                                     imagePage["coverage"]).page() )
             else:
                 print >>sys.stderr, "makediary: internal error:"
                 print >>sys.stderr, "-- image file (%s): imagePage['pages'] == %d" \
