@@ -1,7 +1,16 @@
 import sys
 import StringIO
 import Image
-import EpsImagePlugin
+try:
+    #print "EpsImagePlugin"
+    import EpsImagePlugin
+except:
+    try:
+        #print "PIL.EpsImagePlugin"
+        from PIL import EpsImagePlugin
+    except:
+        #print "PILcompat.EpsImagePlugin"
+        from PILcompat import EpsImagePlugin
 from os import getcwd
 from os.path import join as path_join
 from os.path import exists as path_exists
