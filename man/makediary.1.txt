@@ -85,10 +85,6 @@ OPTIONS
     "'holidays'", only weekends and public holidays are shaded.  If
     "'none'", no days have shaded title bars.  Defaults to "'all'".
 
---day-to-page::
-
-    This option is deprecated, and it is equivalent to '--layout=day-to-page'.
-
 --debug-boxes::
 
     Print dashed boxes around parts of the output for debugging the spacing.
@@ -391,9 +387,6 @@ gawk, then awk.
     Print the vi and vim reference pages.  The '--vi-ref' and '--vim-ref' options
     do exactly the same thing.  (Equivalent to '--ref=vi"|Vi reference|Vim
     extensions"'.)
-
---week-to-opening:: This option is deprecated, and is equivalent to
-    '--layout=week-to-opening'.
 
 --weeks-after=<N>::
 

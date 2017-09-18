@@ -33,7 +33,6 @@ class DiaryInfo:
                "cover-image=",
                "cover-page-image=",
                "day-title-shading=",
-               "day-to-page",
                "debug-boxes",
                "debug-version",
                "debug-whole-page-boxes",
@@ -78,7 +77,6 @@ class DiaryInfo:
                "unix-ref",
                "vi-ref",
                "vim-ref",
-               "week-to-opening",
                "weeks-before=",
                "weeks-after=",
                "version",
@@ -91,7 +89,7 @@ class DiaryInfo:
                   "    [--output-file=file] [--title=TITLE]\n",
                   "    [--address-pages=n] [--appointment-width=w] [--appointments]\n",
                   "    [--colour | --colour-images] [--cover-image=IMAGE]\n",
-                  "    [--cover-page-image=IMAGE] [--day-to-page]\n",
+                  "    [--cover-page-image=IMAGE]\n",
                   "    [--day-title-shading=all|holidays|none]\n",
                   "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
                   "    [--eps-page=epsfile[|title]] [--eps-2page=epsfile[|title1[|title2]]]\n",
@@ -106,7 +104,7 @@ class DiaryInfo:
                   "    [--pcal] [--pcal-planner] [--perpetual-calendars]\n",
                   "    [--ref=<refname>] [--awk-ref] [--conversions-ref]\n",
                   "    [--sed-ref] [--sh-ref] [--units-ref] [--unix-ref] [--vi[m]-ref]\n",
-                  "    [--weeks-before=n] [--weeks-after=n] [--week-to-opening]\n",
+                  "    [--weeks-before=n] [--weeks-after=n]\n",
                   "    [--help] [--version]\n",
                   ]
     sizesString = "|".join(PaperSize.getPaperSizeNames())
@@ -124,10 +122,10 @@ class DiaryInfo:
     usageStrings.append("  Layouts: " + ", ".join(layouts) + "\n")
     usageStrings.append("  Default layout: " + defaultLayout + "\n")
 
-    def usage(self, f=sys.stderr):
+    def usage(self, f=sys.stderr, code=1):
         for i in range(len(self.usageStrings)):
             f.write(self.usageStrings[i])
-        sys.exit(1)
+        sys.exit(code)
 
     def shortUsage(self, f=sys.stderr):
         print >>f, "%s --help for usage" % self.myname
@@ -270,6 +268,10 @@ class DiaryInfo:
         args = self.opts
         # The first week day should be settable by command line option.
         #calendar.setfirstweekday(MONDAY)
+
+        # Save the command line opts in here, and process them all at the end.
+        c = {}
+
         try:
             optlist,args = getopt.getopt(args,'',self.options)
         except getopt.error, reason:
@@ -278,164 +280,175 @@ class DiaryInfo:
         if len(args) != 0:
             sys.stderr.write("Unknown arg: %s\n" % args[0] )
             self.shortUsage()
+        # Gather all the command line options into a list so we can process them later.
         for opt in optlist:
-            if 0:  # Make it easier to move options around
+            assert len(opt) == 2
+            if 0:
                 pass
-            elif opt[0] == "--address-pages":
-                self.nAddressPages = self.integerOption("address-pages",opt[1])
-            elif opt[0] == "--appointment-width":
-                self.appointments = True
-                if opt[1][-1] == '%':
-                    optstr = opt[1][0:-1] # Strip an optional trailing '%'
-                else:
-                    optstr = opt[1]
-                self.appointmentWidth = self.floatOption("appointment-width",optstr)
-                if self.appointmentWidth < 0 or self.appointmentWidth > 100:
-                    sys.stderr.write("%s: appointment width must be >=0 and <=100\n" %
-                                     self.myname)
-                    sys.exit(1)
-            elif opt[0] == "--appointments":
-                self.appointments = True
-            elif opt[0] == "--awk-ref":
-                self.standardEPSRef( 'awk', ['Awk reference'] )
-            elif opt[0] == "--colour" or opt[0] == "--colour-images":
-                self.colour = True
-            elif opt[0] == "--conversions-ref":
-                self.standardEPSRef( 'conversions', ['Double conversion tables'] )
-            elif opt[0] == "--cover-image":
-                self.coverImage = opt[1]
-            elif opt[0] == "--cover-page-image":
-                self.coverPageImage = opt[1]
-            elif opt[0] == "--day-title-shading":
-                if opt[1] in ("all", "holidays", "none"):
-                    self.dayTitleShading = opt[1]
-                else:
-                    print >>sys.stderr, "day-title-shading must be all or holidays or none" \
-                        + " (not \"%s\")" % opt[1]
-                    self.shortUsage();
-            elif opt[0] == "--day-to-page":
-                self.layout = "day-to-page"
-            elif opt[0] == "--debug-boxes":
-                self.debugBoxes = 1
-            elif opt[0] == "--debug-whole-page-boxes":
-                self.debugWholePageBoxes = 1
-            elif opt[0] == "--debug-version":
-                self.debugVersion = True
-            elif opt[0] == "--eps-page":
-                self.epsFilePageOption(opt[1], 1)
-            elif opt[0] == "--eps-2page":
-                self.epsFilePageOption(opt[1], 2)
-            elif opt[0] == "--expense-pages":
-                if opt[1] == '0' or opt[1] == '2' or opt[1] == '4':
-                    self.nExpensePages = int(opt[1])
-                else:
-                    print >>sys.stderr, \
-                          "%s: number of expense pages must be 0, 2, or 4 (not \"%s\")." % \
-                          (sys.argv[0], opt[1])
-                    self.shortUsage()
-            elif opt[0] == "--perpetual-calendars":
-                self.perpetualCalendars = True
+            elif opt[0] == "--help":
+                # The help option bypasses all the others.
+                self.usage(sys.stdout, 0)
+            elif opt[0] == "--man-page":
+                # --man-page can be specified multiple times.
+                self.manPageOption(opt[1])
             elif opt[0] == "--ref":
+                # --ref can be specified multiple times.
                 name_and_titles = opt[1].split('|')
                 self.standardEPSRef(name_and_titles[0], name_and_titles[1:])
-            elif opt[0] == "--event-images":
-                self.drawEventImages = True
-            elif opt[0] == "--gridded":
-                self.griddedLogbookPages = True
-                self.griddedNotesPages = True
-            elif opt[0] == "--gridded-logbook":
-                self.griddedLogbookPages = True
-            elif opt[0] == "--gridded-notes":
-                self.griddedNotesPages = True
-            elif opt[0] == "--help":
-                self.usage(sys.stdout)
-            elif opt[0] == "--image-page":
-                self.imagePageOption(opt[1], 1)
-            elif opt[0] == "--image-2page":
-                self.imagePageOption(opt[1], 2)
-            elif opt[0] == "--large-planner":
-                self.largePlanner = True
-            elif opt[0] == "--layout":
-                if opt[1] in self.layouts:
-                    self.layout = opt[1]
-                else:
-                    print >>sys.stderr, "%s: Unknown layout %s" % (self.myname, opt[1])
-                    self.shortUsage()
-            elif opt[0] == "--line-spacing":
-                self.lineSpacing = self.floatOption("line-spacing",opt[1])
-            elif opt[0] == "--logbook-pages":
-                self.nLogbookPages = self.integerOption("logbook-pages",opt[1])
-            elif opt[0] == "--man-page":
-                self.manPageOption(opt[1])
-            elif opt[0] == "--margins-multiplier":
-                multiplier = self.floatOption("margins-multiplier",opt[1])
-                self.tMargin = self.tMargin * multiplier
-                self.bMargin = self.bMargin * multiplier
-                self.iMargin = self.iMargin * multiplier
-                self.oMargin = self.oMargin * multiplier
-            elif opt[0] == "--moon":
-                self.moon = True
-            elif opt[0] == "--northern-hemisphere-moon":
-                self.moon = True
-                self.northernHemisphereMoon = True
-            elif opt[0] == "--no-appointment-times":
-                self.appointmentTimes = False
-            elif opt[0] == "--no-smiley":
-                self.smiley = False
-            elif opt[0] == "--notes-pages":
-                self.nNotesPages = self.integerOption("notes-pages",opt[1])
-            elif opt[0] == '--output-file':
-                self.outName = opt[1]
-                self.outNameSet = True
-            elif opt[0] == "--page-registration-marks":
-                self.pageRegistrationMarks = True
-            elif opt[0] == "--page-size":
-                self.pageSize = opt[1]
-                self.setPageSize(self.pageSize)
-            elif opt[0] == "--page-x-offset":
-                self.pageXOffset = self.floatOption("page-x-offset", opt[1])
-            elif opt[0] == "--page-y-offset":
-                self.pageYOffset = self.floatOption("page-y-offset", opt[1])
-            elif opt[0] == "--pdf":
-                self.pdf = True
-            elif opt[0] == "--paper-size":
-                self.paperSize = opt[1]
-                self.setPaperSize(self.paperSize)
-            elif opt[0] == "--pcal":
-                self.pcal = True
-            elif opt[0] == '--pcal-planner':
-                self.pcal = True
-                self.pcalPlanner = True
-            elif opt[0] == "--planner-years":
-                self.nPlannerYears = self.integerOption("planner-years",opt[1])
-            elif opt[0] == "--version":
-                print "makediary, version " + versionNumber
-                sys.exit(0)
-            elif opt[0] == "--sed-ref":
-                self.standardEPSRef( 'sed', ['sed reference'] )
-            elif opt[0] == "--sh-ref":
-                self.standardEPSRef( 'sh', ['Shell and utility reference'] )
-            elif opt[0] == '--start-date':
-                self.setStartDate(DateTime.strptime(opt[1], '%Y-%m-%d'))
-            elif opt[0] == "--title":
-                self.title = opt[1]
-            elif opt[0] == "--units-ref":
-                self.standardEPSRef( 'units', ['Units'] )
-            elif opt[0] == "--unix-ref":
-                self.standardEPSRef( 'unix', ['Unix reference',] )
-            elif opt[0] == "--vim-ref" or opt[0] == "--vi-ref":
-                self.standardEPSRef( 'vi', ['Vi reference', 'Vim extensions'] )
-            elif opt[0] == "--week-to-opening":
-                self.layout = "week-to-opening"
-            elif opt[0] == "--weeks-after":
-                self.nWeeksAfter = self.integerOption("weeks-after",opt[1])
-            elif opt[0] == "--weeks-before":
-                self.nWeeksBefore = self.integerOption("weeks-before",opt[1])
-            elif opt[0] == '--year':
-                self.setStartDate(DateTime.DateTime(self.integerOption("year",opt[1])))
+            # Now all the standard args.
+            elif len(opt[1]) == 0:
+                # No argument, so just save the setting.
+                c[opt[0]] = True
             else:
-                print >>sys.stderr, "Unknown option: %s" % opt[0]
+                # Save the setting and the argument.
+                c[opt[0]] = opt[1]
+
+        ## FIXME - now some of these can be reordered.
+
+        # Now process all the gathered options.
+        if c.has_key("--address-pages"):
+            self.nAddressPages = self.integerOption("address-pages",c["--address-pages"])
+        if c.has_key("--appointment-width"):
+            self.appointments = True
+            aw = c["--appointment-width"]
+            if aw[-1] == '%':
+                optstr = aw[0:-1] # Strip an optional trailing '%'
+            else:
+                optstr = aw
+            self.appointmentWidth = self.floatOption("appointment-width",optstr)
+            if self.appointmentWidth < 0 or self.appointmentWidth > 100:
+                sys.stderr.write("%s: appointment width must be >=0 and <=100\n" %
+                                 self.myname)
+                sys.exit(1)
+        if c.has_key("--appointments"):
+            self.appointments = True
+        if c.has_key("--awk-ref"):
+            self.standardEPSRef( 'awk', ['Awk reference'] )
+        if c.has_key("--colour") or c.has_key("--colour-images"):
+            self.colour = True
+        if c.has_key("--conversions-ref"):
+            self.standardEPSRef( 'conversions', ['Double conversion tables'] )
+        if c.has_key("--cover-image"):
+            self.coverImage = c["--cover-image"]
+        if c.has_key("--cover-page-image"):
+            self.coverPageImage = c["--cover-page-image"]
+        if c.has_key("--day-title-shading"):
+            dts = c["--day-title-shading"]
+            if dts in ("all", "holidays", "none"):
+                self.dayTitleShading = dts
+            else:
+                print >>sys.stderr, "day-title-shading must be all or holidays or none" \
+                    + " (not \"%s\")" % dts
+                self.shortUsage();
+        if c.has_key("--debug-boxes"):
+            self.debugBoxes = 1
+        if c.has_key("--debug-whole-page-boxes"):
+            self.debugWholePageBoxes = 1
+        if c.has_key("--debug-version"):
+            self.debugVersion = True
+        if c.has_key("--eps-page"):
+            self.epsFilePageOption(c["--eps-page"], 1)
+        if c.has_key("--eps-2page"):
+            self.epsFilePageOption(c["--eps-2page"], 2)
+        if c.has_key("--expense-pages"):
+            ep = c["--expense-pages"]
+            if ep == '0' or ep == '2' or ep == '4':
+                self.nExpensePages = int(ep)
+            else:
+                print >>sys.stderr, \
+                      "%s: number of expense pages must be 0, 2, or 4 (not \"%s\")." % \
+                      (sys.argv[0], ep)
                 self.shortUsage()
+        if c.has_key("--perpetual-calendars"):
+            self.perpetualCalendars = True
+        if c.has_key("--event-images"):
+            self.drawEventImages = True
+        if c.has_key("--gridded"):
+            self.griddedLogbookPages = True
+            self.griddedNotesPages = True
+        if c.has_key("--gridded-logbook"):
+            self.griddedLogbookPages = True
+        if c.has_key("--gridded-notes"):
+            self.griddedNotesPages = True
+        if c.has_key("--image-page"):
+            self.imagePageOption(c["--image-page"], 1)
+        if c.has_key("--image-2page"):
+            self.imagePageOption(c["--image-2page"], 2)
+        if c.has_key("--large-planner"):
+            self.largePlanner = True
+        if c.has_key("--layout"):
+            l = c["--layout"]
+            if l in self.layouts:
+                self.layout = l
+            else:
+                print >>sys.stderr, "%s: Unknown layout %s" % (self.myname, l)
+                self.shortUsage()
+        if c.has_key("--line-spacing"):
+            self.lineSpacing = self.floatOption("line-spacing",c["--line-spacing"])
+        if c.has_key("--logbook-pages"):
+            self.nLogbookPages = self.integerOption("logbook-pages",c["--logbook-pages"])
+        if c.has_key("--margins-multiplier"):
+            multiplier = self.floatOption("margins-multiplier",c["--margine-multiplier"])
+            self.tMargin = self.tMargin * multiplier
+            self.bMargin = self.bMargin * multiplier
+            self.iMargin = self.iMargin * multiplier
+            self.oMargin = self.oMargin * multiplier
+        if c.has_key("--moon"):
+            self.moon = True
+        if c.has_key("--northern-hemisphere-moon"):
+            self.moon = True
+            self.northernHemisphereMoon = True
+        if c.has_key("--no-appointment-times"):
+            self.appointmentTimes = False
+        if c.has_key("--no-smiley"):
+            self.smiley = False
+        if c.has_key("--notes-pages"):
+            self.nNotesPages = self.integerOption("notes-pages",c["--notes-pages"])
+        if c.has_key("--page-registration-marks"):
+            self.pageRegistrationMarks = True
+        if c.has_key("--page-size"):
+            self.pageSize = c["--page-size"]
+            self.setPageSize(self.pageSize)
+        if c.has_key("--page-x-offset"):
+            self.pageXOffset = self.floatOption("page-x-offset", c["--page-x-offset"])
+        if c.has_key("--page-y-offset"):
+            self.pageYOffset = self.floatOption("page-y-offset", c["--page-y-offset"])
+        if c.has_key("--pdf"):
+            self.pdf = True
+        if c.has_key("--paper-size"):
+            self.paperSize = c["--paper-size"]
+            self.setPaperSize(self.paperSize)
+        if c.has_key("--pcal"):
+            self.pcal = True
+        if c.has_key("--pcal-planner"):
+            self.pcal = True
+            self.pcalPlanner = True
+        if c.has_key("--planner-years"):
+            self.nPlannerYears = self.integerOption("planner-years",c["--planner-years"])
+        if c.has_key("--version"):
+            print "makediary, version " + versionNumber
+            sys.exit(0)
+        if c.has_key("--sed-ref"):
+            self.standardEPSRef( 'sed', ['sed reference'] )
+        if c.has_key("--sh-ref"):
+            self.standardEPSRef( 'sh', ['Shell and utility reference'] )
+        if c.has_key("--start-date"):
+            self.setStartDate(DateTime.strptime(c["--start-date"], '%Y-%m-%d'))
+        if c.has_key("--title"):
+            self.title = c["--title"]
+        if c.has_key("--units-ref"):
+            self.standardEPSRef( 'units', ['Units'] )
+        if c.has_key("--unix-ref"):
+            self.standardEPSRef( 'unix', ['Unix reference',] )
+        if c.has_key("--vim-ref") or c.has_key("--vi-ref"):
+            self.standardEPSRef( 'vi', ['Vi reference', 'Vim extensions'] )
+        if c.has_key("--weeks-after"):
+            self.nWeeksAfter = self.integerOption("weeks-after",c["--weeks-after"])
+        if c.has_key("--weeks-before"):
+            self.nWeeksBefore = self.integerOption("weeks-before",c["--weeks-before"])
+        if c.has_key("--year"):
+            self.setStartDate(DateTime.DateTime(self.integerOption("year",c["--year"])))
+
         if self.pdf:
             # If the name is still diary.ps and it was not set by command line option, change
             # it to diary.pdf.
