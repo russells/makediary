@@ -404,6 +404,9 @@ class DiaryInfo:
             self.smiley = False
         if c.has_key("--notes-pages"):
             self.nNotesPages = self.integerOption("notes-pages",c["--notes-pages"])
+        if c.has_key("--output-file"):
+            self.outName = c["--output-file"]
+            self.outNameSet = True
         if c.has_key("--page-registration-marks"):
             self.pageRegistrationMarks = True
         if c.has_key("--page-size"):
