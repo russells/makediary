@@ -8,6 +8,7 @@ from mx import DateTime
 from ConfigParser import SafeConfigParser as ConfigParser
 from os.path import expanduser
 from math import pow
+import subprocess
 
 import PaperSize
 
