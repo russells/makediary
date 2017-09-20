@@ -74,7 +74,8 @@ class Diary:
         if di.evenPage:
             self.w( EmptyPage(di).page() )
 
-        w( TwoCalendarPages(di).page() )
+        if di.calendarPages:
+            w( TwoCalendarPages(di).page() )
 
         if di.perpetualCalendars:
             self.w( PerpetualCalendarPages(di).page() )

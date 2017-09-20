@@ -50,6 +50,11 @@ OPTIONS
     Print the awk reference page.  (Equivalent to '--ref=awk"|Awk
     reference"'.)
 
+--calendar-pages=yes|no::
+
+    Turn on or off the printing of calendar pages.  Default is on, unless
+    layout=logbook, when it is off.
+
 --colour::
 
     When printing images, output colour.  By default, images are converted to
@@ -320,8 +325,9 @@ work:::
 
 --planner-years=<n>::
 
-    Print <n> two-page planner years, starting with the diary year.  Defaults
-    to 2, ie the diary year and the following year.
+    Print <n> two-page planner years, starting with the diary year.
+    Defaults to 2, ie the diary year and the following year.  If
+    layout=logbook, defaults to 0.
 
 --awk-ref::
 

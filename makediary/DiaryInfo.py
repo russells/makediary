@@ -27,6 +27,7 @@ class DiaryInfo:
                "appointments",
                "appointment-width=",
                "awk-ref",
+               "calendar-pages=",
                "colour",
                "colour-images",
                "conversions-ref",
@@ -88,8 +89,8 @@ class DiaryInfo:
                   "Usage: %s [--year=year | --start-date=yyyy-mm-dd]\n",
                   "    [--output-file=file] [--title=TITLE]\n",
                   "    [--address-pages=n] [--appointment-width=w] [--appointments]\n",
-                  "    [--colour | --colour-images] [--cover-image=IMAGE]\n",
-                  "    [--cover-page-image=IMAGE]\n",
+                  "    [--calendar-pages=yes|no] [--colour | --colour-images]\n",
+                  "    [--cover-image=IMAGE] [--cover-page-image=IMAGE]\n",
                   "    [--day-title-shading=all|holidays|none]\n",
                   "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
                   "    [--eps-page=epsfile[|title]] [--eps-2page=epsfile[|title1[|title2]]]\n",
@@ -204,6 +205,7 @@ class DiaryInfo:
         self.pcal = False
         self.pcalPlanner = False
         self.perpetualCalendars = False
+        self.calendarPages = True
         self.nExpensePages = 2
         self.griddedLogbookPages = False
         self.griddedNotesPages = False
@@ -324,6 +326,8 @@ class DiaryInfo:
             self.appointments = True
         if c.has_key("--awk-ref"):
             self.standardEPSRef( 'awk', ['Awk reference'] )
+        if c.has_key("--calendar-pages"):
+            self.calendarPages = self.boolOption("calendar-pages", c["--calendar-pages"])
         if c.has_key("--colour") or c.has_key("--colour-images"):
             self.colour = True
         if c.has_key("--conversions-ref"):
@@ -380,6 +384,9 @@ class DiaryInfo:
             l = c["--layout"]
             if l in self.layouts:
                 self.layout = l
+                if self.layout == "logbook":
+                    self.calendarPages = False
+                    self.nPlannerYears = 0
             else:
                 print >>sys.stderr, "%s: Unknown layout %s" % (self.myname, l)
                 self.shortUsage()
@@ -536,6 +543,15 @@ class DiaryInfo:
         except ValueError,reason:
             sys.stderr.write("Error converting integer: " + str(reason) + "\n")
             self.shortUsage()
+
+
+    def boolOption(self, name, s):
+        if s in ('0', 'false', 'False', 'FALSE', 'no', 'NO'):
+            return False
+        if s in ('1', 'true', 'True', 'TRUE', 'yes', 'YES'):
+            return True
+        sys.stderr.write("Error converting bool for %s: %s\n" % (name, s))
+        self.shortUsage()
 
 
     def manPageOption(self, opt):
