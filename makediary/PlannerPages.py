@@ -143,7 +143,7 @@ class PlannerPage(PostscriptPage):
                             s = s + "%% events for %s\n" % dd.strftime("%Y-%m-%d")
                             # Clip to the current day box to avoid events text spilling outside
                             # that box.
-                            s = s + "gsave 0 %5.3f %5.3f %5.3f rectclip\n" % \
+                            s = s + "gsave 0 setgray 0 %5.3f %5.3f %5.3f rectclip\n" % \
                                 (dayb,self.monthwidth,self.lineheight)
                             se = "%5.3f %5.3f M " %(self.lineheight*1.1, dayb+self.textb) + \
                                  se + "\n"

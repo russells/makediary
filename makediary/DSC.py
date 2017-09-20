@@ -37,9 +37,16 @@ def preamble(di):
         "/SW {stringwidth} bind def /SC {scale} bind def\n" \
         "/SWP2D {SW pop 2 div} bind def\n" \
         "/D {def} bind def /ED {exch def} bind def\n" \
+        "/SRC {setrgbcolor} bind def\n" \
         + "/MM {%8.6f %8.6f SC} bind def\n" % (di.points_mm,di.points_mm) \
         + "matrix currentmatrix 0 get /originalXscale ED " \
-        "matrix currentmatrix 3 get /originalYscale ED\n"
+        "matrix currentmatrix 3 get /originalYscale ED\n" \
+        "/DONOTHING {} def\n"
+
+    p = p + "%\n% Some values\n" \
+        + "%% shading:    %s\n" % str(di.shading) \
+        + "%% lineColour: %s\n" % str(di.lineColour) \
+        + "%\n"
 
 
     # Code for printing boxes around things.  The linewidth must be set before using either
@@ -57,15 +64,45 @@ def preamble(di):
         "% print a box given <left bottom right top linethickness>\n" \
         "/boxLBRT { gsave SLW pathLBRT S grestore } def\n"
 
-    # Print a box with the current line width (in the current gray level), and fill it with
-    # the specfied gray.
+    # Print a box with the current line width (in the current gray level), and fill it with the
+    # specfied gray.  If a line colour has been specified, we fill it with that colour
+    # multiplied by the specified gray.
 
-    p = p + "% print a box and fill it <l b w h linethick gray\n" \
-        "/boxLBWHgray { gsave 2 dict begin /g ED /th ED 4 copy " \
-        "pathLBWH currentgray g setgray fill setgray th boxLBWH end grestore } def\n" \
-        "% print a box and fill it <l b r t linewidth gray\n" \
-        "/boxLBRTgray { gsave 2 dict begin /g ED /th ED 4 copy " \
-        "pathLBRT currentgray g setgray fill setgray th boxLBRT end grestore } def\n"
+    if di.shading:
+        fill = " fill "
+    else:
+        # Hack!
+        fill = " DONOTHING "
+
+    # The code <<g c add 2 dif 0.2 exp>> was determined experimentally.  It is intended to
+    # produce reasonable contrasing results for background colours for a range of
+    # user-specified foregroudnd colours.
+    save_rgb = \
+        " /gb g %5.3f add 2.0 div 0.2 exp D\n" % di.lineColour[2] + \
+        " /gg g %5.3f add 2.0 div 0.2 exp D\n" % di.lineColour[1] + \
+        " /gr g %5.3f add 2.0 div 0.2 exp D\n" % di.lineColour[0] + \
+        " gr gg gb SRC\n"
+    save_lbwh = " /h ED /w ED /b ED /l ED "
+    save_lbrt = " /t ED /r ED /b ED /l ED "
+    p = p + "% print a box and fill it <l b w h linethick gray>\n" \
+        "/boxLBWHgray { gsave 2 dict begin /g ED /th ED " + save_lbwh + \
+        "gsave" + save_rgb + \
+        "l b w h pathLBWH " + fill + "grestore l b w h th boxLBWH end grestore } def\n" \
+        \
+        "% print a box and fill it <l b r t linewidth gray>\n" \
+        "/boxLBRTgray { gsave 2 dict begin /g ED /th ED " + save_lbrt + \
+        "gsave" + save_rgb + \
+        "l b r t pathLBRT " + fill + "grestore l b r t th boxLBRT end grestore } def\n" \
+        \
+        "% gray box with no border <l b r t gray>\n" \
+        "/boxLBRTgraynoborder { gsave 2 dict begin /g ED " + save_lbrt + save_rgb + \
+        "l b r t pathLBRT " + fill + \
+        "end grestore } def\n" \
+        \
+        "% gray box with no border <l b w h gray>\n" \
+        "/boxLBWHgraynoborder { gsave 2 dict begin /g ED " + save_lbwh + save_rgb + \
+        "l b w h pathLBWH " + fill + \
+        " end grestore } def\n"
 
     # Code for printing dashed debugging boxes around things.  These defs need the dash
     # length supplied so that we can manually compensate for different scales.

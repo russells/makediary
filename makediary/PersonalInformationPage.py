@@ -108,7 +108,7 @@ class PersonalInformationPage(PostscriptPage):
                 else:
                     s = s + "/%s %5.3f selectfont\n" % (self.di.personalinfoFontName,
                                                         infofontsize)
-                s = s + "(%s) SH\n" % info
+                s = s + "(%s) gsave 0 setgray SH grestore\n" % info
             thiselement += 1
         liney = self.pHeight - self.linenum * self.linespacing
         if linethick:

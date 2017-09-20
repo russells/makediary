@@ -30,6 +30,9 @@ class BasicPostscriptPage:
                          self.di.paperHeight * self.di.points_mm) \
                         + "%%BeginPageSetup\n" \
                         + "SA MM\n"
+        if self.di.lineColour:
+            self.preamble = self.preamble \
+              + "%5.3f %5.3f %5.3f SRC\n" % (self.di.lineColour[0], self.di.lineColour[1], self.di.lineColour[2])
         if self.di.translatePage:
             self.preamble = self.preamble \
                             + "%5.3f %5.3f TR\n" % (self.di.translateXOffset,

@@ -23,3 +23,10 @@ opt -E
 29-3-2002*			Good Friday #<<short:Good Friday>>
 31-3-2002*			Easter Sunday
 1-4-2002*			Easter Monday #<<short:Easter Monday>>
+
+1-2				Someone's %oN birthday #<<recur>> \
+                                           #<<year:1970>> \
+                                           #<<warn:2 weeks>> \
+                                           #<<short:So>> \
+                                           #<<personal>>
+

@@ -32,9 +32,12 @@ class CalendarPage(PostscriptPage):
         bbottom = bottom + yheight + yvgap
         bs =   ("0 SLW %5.3f %5.3f M %5.3f %5.3f L " % (bleft,bbottom,bleft,btop)) \
              + ("%5.3f %5.3f L %5.3f %5.3f L " % (bright,btop,bright,bbottom)) \
-             + ("%5.3f %5.3f L " % (bleft,bbottom)) \
-             + "gsave %5.3f setgray fill grestore S\n" % ((1.0+self.di.titleGray)/2.0,)
-        s = s + bs
+             + ("%5.3f %5.3f L " % (bleft,bbottom))
+        if self.di.shading:
+            sh = "gsave %5.3f setgray fill grestore S\n" % ((1.0+self.di.titleGray)/2.0,)
+        else:
+            sh = "\n"
+        s = s + bs + sh
         yr = self.di.dtbegin.year
         for yd in ((yr-1, left, bottom + yheight*2.0 + yvgap*2.5 ),
                    (yr,   left, bottom + yheight + yvgap*1.5),
@@ -91,15 +94,19 @@ class HalfCalendarPage(PostscriptPage):
         bbottom = bottom + yheight + yvgap
         # Leave the inside margin side of the box without a line
         if self.di.evenPage:
-            bs = "%5.3f SLW " % self.di.underlineThick \
-                 + "%5.3f %5.3f M %5.3f %5.3f L " % (bright,bbottom,bleft,bbottom) \
-                 + "%5.3f %5.3f L %5.3f %5.3f L " % (bleft,btop,bright,btop) \
-                 + "gsave %5.3f setgray fill grestore S\n" % ((1.0+self.di.titleGray)/2.0,)
+            bs = \
+                "%5.3f %5.3f %5.3f %5.3f %5.3f boxLBRTgraynoborder " % \
+                (bleft,bbottom,bright,btop,self.di.titleGray) \
+                + "%5.3f SLW " % self.di.underlineThick \
+                + "%5.3f %5.3f M %5.3f %5.3f L " % (bright,bbottom,bleft,bbottom) \
+                + "%5.3f %5.3f L %5.3f %5.3f L S\n" % (bleft,btop,bright,btop)
         else:
-            bs = "%5.3f SLW " % self.di.underlineThick \
-                 + "%5.3f %5.3f M %5.3f %5.3f L " % (bleft,bbottom,bright,bbottom) \
-                 + "%5.3f %5.3f L %5.3f %5.3f L " % (bright,btop,bleft,btop) \
-                 + "gsave %5.3f setgray fill grestore S\n" % ((1.0+self.di.titleGray)/2.0,)
+            bs = \
+                "%5.3f %5.3f %5.3f %5.3f %5.3f boxLBRTgraynoborder " % \
+                (bleft,bbottom,bright,btop,self.di.titleGray) \
+                + "%5.3f SLW " % self.di.underlineThick \
+                + "%5.3f %5.3f M %5.3f %5.3f L " % (bleft,bbottom,bright,bbottom) \
+                + "%5.3f %5.3f L %5.3f %5.3f L S\n" % (bright,btop,bleft,btop)
         s = s + bs
 
         # Make a list detailing where the months are to go.  The list contains tuples of (year,

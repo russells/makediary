@@ -56,6 +56,9 @@ class EPSFilePage(PostscriptPage):
     def body(self):
         s = ''
 
+        # Ensure we start with black.
+        s = s + "0 setgray\n"
+
         # If we were supplied a string, it's a file name, otherwise we assume it's a file like
         # object.
         if isinstance(self.epsfilename, ''.__class__):

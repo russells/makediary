@@ -49,6 +49,7 @@ class DiaryInfo:
                "image-2page=",
                "large-planner",
                "layout=",
+               "line-colour=",
                "line-spacing=",
                "logbook-pages=",
                "man-page=",
@@ -72,6 +73,7 @@ class DiaryInfo:
                "ref=",
                "sed-ref",
                "sh-ref",
+               "shading=",
                "start-date=",
                "title=",
                "units-ref",
@@ -89,17 +91,18 @@ class DiaryInfo:
                   "Usage: %s [--year=year | --start-date=yyyy-mm-dd]\n",
                   "    [--output-file=file] [--title=TITLE]\n",
                   "    [--address-pages=n] [--appointment-width=w] [--appointments]\n",
-                  "    [--calendar-pages=yes|no] [--colour | --colour-images]\n",
+                  "    [--calendar-pages=yes|no]\n",
+                  "    [--colour | --colour-images] [--line-colour=COLOUR]\n",
                   "    [--cover-image=IMAGE] [--cover-page-image=IMAGE]\n",
-                  "    [--day-title-shading=all|holidays|none]\n",
+                  "    [--day-title-shading=all|holidays|none] [--shading=yes|no]\n",
                   "    [--debug-boxes] [--debug-whole-page-boxes] [--debug-version]\n",
                   "    [--eps-page=epsfile[|title]] [--eps-2page=epsfile[|title1[|title2]]]\n",
                   "    [--event-images] [--expense-pages=0|2|4] [--gridded-notes]\n",
                   "    [--image-page=IMGFILE[,title]] [--image-2page=IMGFILE[,title][,coverage]]\n",
                   "    [--large-planner] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
-                  "    [--layout=LAYOUT] [--logbook-pages=N]\n",
-                  "    [--man-page=MANPAGE] [--northern-hemisphere-moon]\n",
-                  "    [--no-appointment-times] [--no-smiley] [--notes-pages=n]\n",
+                  "    [--layout=LAYOUT] [--logbook-pages=N] [--man-page=MANPAGE]\n",
+                  "    [--northern-hemisphere-moon] [--no-appointment-times] [--no-smiley]\n",
+                  "    [--no-shading] [--notes-pages=n]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
                   "    [--page-y-offset=Ymm] [--pdf] [--planner-years=n] \n",
                   "    [--pcal] [--pcal-planner] [--perpetual-calendars]\n",
@@ -211,7 +214,9 @@ class DiaryInfo:
         self.griddedNotesPages = False
         self.griddedLogbookPages = False
         self.dayTitleShading = "all"
+        self.shading = True
         self.nLogbookPages = 100
+        self.lineColour = [0,0,0]
 
         self.configOptions = ConfigParser()
         self.configOptions.read( (expanduser("~/.makediaryrc"), ".makediaryrc", "makediaryrc") )
@@ -330,6 +335,12 @@ class DiaryInfo:
             self.calendarPages = self.boolOption("calendar-pages", c["--calendar-pages"])
         if c.has_key("--colour") or c.has_key("--colour-images"):
             self.colour = True
+        if c.has_key("--line-colour"):
+            self.setLineColour(c["--line-colour"])
+            self.dayTitleShading = "none"
+            self.shading = False
+        if c.has_key("--shading"):
+            self.shading = self.boolOption("shading", c["--shading"])
         if c.has_key("--conversions-ref"):
             self.standardEPSRef( 'conversions', ['Double conversion tables'] )
         if c.has_key("--cover-image"):
@@ -485,6 +496,33 @@ class DiaryInfo:
                     sys.exit(1)
         self.calcPageLayout()
         self.calcDateStuff()
+
+
+    def setLineColour(self, c):
+        if c == "red":
+            self.lineColour = [1,0,0]
+        elif c == "green":
+            self.lineColour = [0,1,0]
+        elif c == "blue":
+            self.lineColour = [0,0,1]
+        else:
+            try:
+                cols = c.split(',')
+                if len(cols) != 3:
+                    raise Exception("need three numbers")
+                r = float(cols[0])
+                if r < 0.0 or r > 1.0:
+                    raise Exception("red out of range")
+                g = float(cols[1])
+                if g < 0.0 or g > 1.0:
+                    raise Exception("green out of range")
+                b = float(cols[2])
+                if b < 0.0 or b > 1.0:
+                    raise Exception("blue out of range")
+                self.lineColour = (r,g,b)
+            except Exception, e:
+                print >>sys.stderr, "line colour wacky: %s: %s" % (c, e.message)
+                sys.exit(1)
 
 
     def epsFilePageOption(self, option, npages):

@@ -89,6 +89,8 @@ OPTIONS
     If "'all'", the title bar of every day in the diary is shaded in.  If
     "'holidays'", only weekends and public holidays are shaded.  If
     "'none'", no days have shaded title bars.  Defaults to "'all'".
+    Specifying a line colour <--line-colour> turns off all shading,
+    including this, unless it is reenabled with <--shading=yes>.
 
 --debug-boxes::
 
@@ -233,6 +235,15 @@ work:::
     Sunday share half a page.  Also has a year's worth of month calendars across
     the bottom of two pages.
 
+--line-colour=red::
+--line-colour=green::
+--line-colour=blue::
+--line-colour=r,g,b
+
+    Specify the colour for lines and text.  Also turns off shading of boxes
+    in the diary.  C<r,g,b> are floating point numbers from 0 to 1.  Red is
+    C<1,0,0>, blue is C<0,1,0>, green is C<0,0,1>.
+
 --line-spacing=<d>::
 
     Make the line spacing on diary pages <d> millimetres.  <d> can be a
@@ -341,6 +352,13 @@ work:::
 
     Print the Unix shell reference page.  (Equivalent to '--ref=sh"|Shell and
     utility reference"').
+
+--shading=<yes|no>::
+
+    Turn on or off box shading.  By default, the titles of weekend days,
+    the unused days on the planner pages, and some other titles are shaded.
+    Specifying a line colour turns off all shading.  Shading can be
+    reenabled with this option.
 
 --start-date=<yyyy-mm-dd>::
 
