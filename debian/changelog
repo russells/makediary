@@ -1,3 +1,15 @@
+makediary (0.3.1-1) unstable;
+
+ * Make a two page image optionally show more than half on each page.
+ * Handle the transition from PIL to pillow.
+ * Fix PDF generation.
+ * Command line rationalisation.
+ * Fix an error in command line processing.
+ * Make the calendar pages optional.
+ * Allow specification of a colour for lines and text.
+
+ -- Russell Steicke <russells@adelie.cx>  Wed, 20 Sep 2017 17:20:00 +0800
+
 makediary (0.3.0-1) unstable;
 
  * Use make to construct the eps files.
