@@ -541,7 +541,7 @@ class DiaryPage(PostscriptPage):
         line1y = y + size * 0.1
         line2y = y - size * 0.4
         s = "%% Moon for %d-%d-%d\n" % (dt.year, dt.month, dt.day)
-        s = s + "newpath 0 setgray 0.1 SLW /%s %5.3f selectfont " % \
+        s = s + "newpath 0.1 SLW /%s %5.3f selectfont " % \
             (di.subtitleFontName, fontsize)
         s = s + "%5.3f %5.3f %5.3f 0 360 arc S %% circle\n" % (x,y,radius)
 
