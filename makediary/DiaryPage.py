@@ -251,7 +251,7 @@ class DiaryPage(PostscriptPage):
         picx = startx
         y = starty
         s = ''
-        s = s + '%% events for %s\n' % str(date)
+        s = s + "%% events for %s\ngsave\n" % str(date)
 
         # First find out whether we are printing any images for this day.  If so, move all the
         # text to the right, out of the way of the images.
@@ -294,6 +294,7 @@ class DiaryPage(PostscriptPage):
                 y = y - 2*yspace
             else:
                 y = y - yspace
+        s = s + "grestore\n"
         return s
 
 
@@ -541,6 +542,9 @@ class DiaryPage(PostscriptPage):
         line1y = y + size * 0.1
         line2y = y - size * 0.4
         s = "%% Moon for %d-%d-%d\n" % (dt.year, dt.month, dt.day)
+        # Make sure the colour is right.
+        s = s + "gsave %5.3f %5.3f %5.3f SRC\n" % \
+            (self.di.lineColour[0], self.di.lineColour[1], self.di.lineColour[2])
         s = s + "newpath 0.1 SLW /%s %5.3f selectfont " % \
             (di.subtitleFontName, fontsize)
         s = s + "%5.3f %5.3f %5.3f 0 360 arc S %% circle\n" % (x,y,radius)
@@ -569,6 +573,7 @@ class DiaryPage(PostscriptPage):
                 s = s + self.drawMoonRightWhite(x, y, radius, size)
             s = s + "%5.3f %5.3f M (Third) SH %5.3f %5.3f M (Quarter) SH\n" % \
                 (linex,line1y, linex,line2y)
+        s = s + "grestore\n"
 
         return s
 
