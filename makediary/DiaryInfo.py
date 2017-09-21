@@ -121,7 +121,7 @@ class DiaryInfo:
     usageStrings.append("    appointment-width = 35%   planner-years = 2\n")
     usageStrings.append("    address-pages = 6         notes-pages = 6\n")
 
-    layouts = ( "day-to-page", "logbook", "week-to-opening", "week-to-2-openings", "work" )
+    layouts = ( "day-to-page", "logbook", "week-to-opening", "week-to-2-openings", "week-to-page", "work" )
     defaultLayout = "week-to-2-openings"
     usageStrings.append("  Layouts: " + ", ".join(layouts) + "\n")
     usageStrings.append("  Default layout: " + defaultLayout + "\n")
@@ -213,6 +213,7 @@ class DiaryInfo:
         self.griddedLogbookPages = False
         self.griddedNotesPages = False
         self.griddedLogbookPages = False
+        self.dayTitleBoxes = True
         self.dayTitleShading = "all"
         self.shading = True
         self.nLogbookPages = 100
@@ -310,9 +311,21 @@ class DiaryInfo:
                 # Save the setting and the argument.
                 c[opt[0]] = opt[1]
 
-        ## FIXME - now some of these can be reordered.
-
-        # Now process all the gathered options.
+        # Now process all the gathered options.  Look at the layout option first, so we can set
+        # things needed by the layout, and potentially change them later.
+        if c.has_key("--layout"):
+            l = c["--layout"]
+            if l in self.layouts:
+                self.layout = l
+                if self.layout == "logbook":
+                    self.calendarPages = False
+                    self.nPlannerYears = 0
+                elif self.layout == "week-to-page":
+                    self.dayTitleBoxes = False
+                    self.dayTitleShading = "none"
+            else:
+                print >>sys.stderr, "%s: Unknown layout %s" % (self.myname, l)
+                self.shortUsage()
         if c.has_key("--address-pages"):
             self.nAddressPages = self.integerOption("address-pages",c["--address-pages"])
         if c.has_key("--appointment-width"):
@@ -391,16 +404,6 @@ class DiaryInfo:
             self.imagePageOption(c["--image-2page"], 2)
         if c.has_key("--large-planner"):
             self.largePlanner = True
-        if c.has_key("--layout"):
-            l = c["--layout"]
-            if l in self.layouts:
-                self.layout = l
-                if self.layout == "logbook":
-                    self.calendarPages = False
-                    self.nPlannerYears = 0
-            else:
-                print >>sys.stderr, "%s: Unknown layout %s" % (self.myname, l)
-                self.shortUsage()
         if c.has_key("--line-spacing"):
             self.lineSpacing = self.floatOption("line-spacing",c["--line-spacing"])
         if c.has_key("--logbook-pages"):
@@ -494,6 +497,10 @@ class DiaryInfo:
                                      + str(reason) + "\n")
                     #self.usage()
                     sys.exit(1)
+        try:
+            self.setPageSize(self.pageSize)
+        except:
+            self.setPageSize(self.paperSize)
         self.calcPageLayout()
         self.calcDateStuff()
 

@@ -201,6 +201,7 @@ without a title by leaving the title empty.  eg '--image-2page=foo.png,,60'.
 --layout=logbook::
 --layout=week-to-opening::
 --layout=week-to-2-openings::
+--layout=week-to-page::
 --layout=work::
 
     Specify the layout of the diary day pages.  The default is week-to-2-openings.
@@ -228,6 +229,11 @@ week-to-2-openings:::
     The default layout has on the left side, three calendars and Monday, on the
     right side Tuesday and Wednesday, then on the next two pages, Thursday and
     Friday, and Saturday and Sunday.
+
+week-to-page:::
+
+    Has a whole week on each page, with each day taking up space across the
+    page.  No calendars are printed on the diary pages.
 
 work:::
 

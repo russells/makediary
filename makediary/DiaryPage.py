@@ -39,6 +39,8 @@ class DiaryPage(PostscriptPage):
 
         if di.layout == "week-to-opening":
             self.dheight = self.pHeight_diary/4.0
+        elif di.layout == "week-to-page":
+            self.dheight = self.pHeight_diary/7.0
         elif di.layout == "day-to-page":
             self.dheight = self.pHeight_diary * 0.9
             self.bottomcalheight = self.pHeight_diary - self.dheight
@@ -61,15 +63,21 @@ class DiaryPage(PostscriptPage):
             self.dwidthLines = self.pWidth
 
         # These are the settings that have the most effect on the layout of a day.
-        if di.layout == "week-to-opening":
-            # Smaller boxes when we cram a week into two pages
+        if di.layout == "week-to-opening" or di.layout == "week-to-page":
+            # Smaller boxes when we cram a week into one or two pages
             self.titleboxsize = di.lineSpacing * 1.2
         else:
             self.titleboxsize = di.lineSpacing * 1.4
         self.titleboxy = self.dheight - self.titleboxsize
         self.titlefontsize = self.titleboxsize * 0.63
         self.titlefonty = self.dheight - self.titleboxsize * 0.7
-        self.titlefontgap = self.titlefontsize * 0.5
+        if self.di.dayTitleBoxes:
+            # If we're printing boxes around the title, move the title text in slightly so it's
+            # inside the box.
+            self.titlefontgap = self.titlefontsize * 0.5
+        else:
+            # No boxes, so put the title text at the edge.
+            self.titlefontgap = 0
         self.subtitlefontsize = self.titleboxsize * 0.35
 
         # Number of writing lines
@@ -143,12 +151,13 @@ class DiaryPage(PostscriptPage):
             print >>sys.stderr, "Unknown day title shading: \"%s\"" % self.di.dayTitleShading
             sys.exit(1)
 
-        if gr:
-            s = s + "0 %5.3f %5.3f %5.3f %5.3f %5.3f boxLBWHgray\n" % \
-                (self.titleboxy, self.dwidth, self.titleboxsize, di.underlineThick, gr)
-        else:
-            s = s + "0 %5.3f %5.3f %5.3f %5.3f boxLBWH\n" % \
-                (self.titleboxy, self.dwidth, self.titleboxsize, di.underlineThick)
+        if self.di.dayTitleBoxes:
+            if gr:
+                s = s + "0 %5.3f %5.3f %5.3f %5.3f %5.3f boxLBWHgray\n" % \
+                    (self.titleboxy, self.dwidth, self.titleboxsize, di.underlineThick, gr)
+            else:
+                s = s + "0 %5.3f %5.3f %5.3f %5.3f boxLBWH\n" % \
+                    (self.titleboxy, self.dwidth, self.titleboxsize, di.underlineThick)
 
         # Print the day name as the diary day header.
         s = s + "10 10 M /%s %5.2f selectfont " % (di.titleFontName, self.titlefontsize)
@@ -361,6 +370,57 @@ class DiaryPage(PostscriptPage):
             + self.diaryDay() \
             + "RE\n"
         return s
+
+
+    def printMondayWTP(self):
+        s = '% -- Monday (WTP\n' \
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*6.0/7.0))) \
+            + self.diaryDay() \
+            + "RE\n"
+        return s
+
+    def printTuesdayWTP(self):
+        s = '% -- Tuesday (WTP\n' \
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*5.0/7.0))) \
+            + self.diaryDay() \
+            + "RE\n"
+        return s
+
+    def printWednesdayWTP(self):
+        s = '% -- Wednesday (WTP\n' \
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*4.0/7.0))) \
+            + self.diaryDay() \
+            + "RE\n"
+        return s
+
+    def printThursdayWTP(self):
+        s = '% -- Thursday (WTP\n' \
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*3.0/7.0))) \
+            + self.diaryDay() \
+            + "RE\n"
+        return s
+
+    def printFridayWTP(self):
+        s = '% -- Friday (WTP\n' \
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*2.0/7.0))) \
+            + self.diaryDay() \
+            + "RE\n"
+        return s
+
+    def printSaturdayWTP(self):
+        s = '% -- Saturday (WTP\n' \
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*1.0/7.0))) \
+            + self.diaryDay() \
+            + "RE\n"
+        return s
+
+    def printSundayWTP(self):
+        s = '% -- Sunday (WTP\n' \
+            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom)) \
+            + self.diaryDay() \
+            + "RE\n"
+        return s
+
 
     def largeDayOnPage(self):
         s = "% -- Day\n" \
@@ -611,6 +671,14 @@ class DiaryPage(PostscriptPage):
                     self.printMondayWTO() + \
                     self.printTuesdayWTO() + \
                     self.printWednesdayWTO()
+            elif self.di.layout == "week-to-page":
+                s = self.printMondayWTP() + \
+                    self.printTuesdayWTP() + \
+                    self.printWednesdayWTP() + \
+                    self.printThursdayWTP() + \
+                    self.printFridayWTP() + \
+                    self.printSaturdayWTP() + \
+                    self.printSundayWTP()
             else:
                 s = self.titleAndThreeMonthsAtTop() + self.bottomHalf();
         else:
