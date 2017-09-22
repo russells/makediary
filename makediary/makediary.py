@@ -152,6 +152,16 @@ class Diary:
             else:
                 w( EmptyPage(di).page() )
 
+
+        # Set the title for notes pages in the week-with-notes layout.  If we start at the
+        # start of a year, set it to the year.  Otherwise, empty.
+        if di.layout == "week-with-notes":
+            if di.dtbegin.month==1 and di.dtbegin.day==1:
+                wwnNotesTitle = "%d" % di.dtbegin.year
+            else:
+                wwnNotesTitle = ""
+
+
         if di.layout == "logbook":
             # The logbook layout is handled differently to other layouts.  For others,
             # DiaryPage inspects the layout and changes its behaviour, but for logbook we use
@@ -163,13 +173,19 @@ class Diary:
             while 1:
                 if di.dt >= di.dtend:
                     break
+                y1 = di.dt.year
                 w( DiaryPage(di).page() )
+                if di.layout == "week-with-notes":
+                    w( self.weekWithNotesNotesPage() )
 
             # If specified, add a number of whole weeks after, probably in the next year.
             if di.nWeeksAfter:
                 dw = di.dt + (7*di.nWeeksAfter)
                 while di.dt < dw:
                     w( DiaryPage(di).page() )
+                    if di.layout == "week-with-notes":
+                        w( self.weekWithNotesNotesPage() )
+
             # Finish at the end of a week
             while di.dt.day_of_week != DateTime.Monday:
                 w( DiaryPage(di).page() )
@@ -184,6 +200,23 @@ class Diary:
 
         w( DSC.postamble(self.di) )
 
+    def weekWithNotesNotesPage(self):
+        '''Return a Notes page with a year title.'''
+        # If we're in January and the date now is before the seventh, then the last
+        # week-to-page page crossed a year.  So print both years as our title.
+        y = self.di.dt.year
+        m = self.di.dt.month
+        d = self.di.dt.day
+        if m == 1 and d == 1:
+            # If the current day is 1 Jan, then the last page contained the last week of the
+            # year, and none of this year.  So the title should be last year.
+            return NotesPage(self.di, str(y-1)).page()
+        elif m == 1 and d <= 7 and d >= 2:
+            # From the 2nd to the 7th of Jan, the previous page must have had days from this
+            # year and last year.  So the title reflects that.
+            return NotesPage(self.di, str(y-1)+" - "+str(y)).page()
+        else:
+            return NotesPage(self.di, str(y)).page()
 
 
 # ############################################################################################

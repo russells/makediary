@@ -121,7 +121,8 @@ class DiaryInfo:
     usageStrings.append("    appointment-width = 35%   planner-years = 2\n")
     usageStrings.append("    address-pages = 6         notes-pages = 6\n")
 
-    layouts = ( "day-to-page", "logbook", "week-to-opening", "week-to-2-openings", "week-to-page", "work" )
+    layouts = ( "day-to-page", "logbook", "week-to-opening", "week-to-2-openings",
+                "week-to-page", "week-with-notes", "work" )
     defaultLayout = "week-to-2-openings"
     usageStrings.append("  Layouts: " + ", ".join(layouts) + "\n")
     usageStrings.append("  Default layout: " + defaultLayout + "\n")
@@ -320,7 +321,7 @@ class DiaryInfo:
                 if self.layout == "logbook":
                     self.calendarPages = False
                     self.nPlannerYears = 0
-                elif self.layout == "week-to-page":
+                elif self.layout == "week-to-page" or self.layout == "week-with-notes":
                     self.dayTitleBoxes = False
                     self.dayTitleShading = "none"
             else:

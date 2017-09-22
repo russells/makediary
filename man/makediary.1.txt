@@ -200,6 +200,7 @@ without a title by leaving the title empty.  eg '--image-2page=foo.png,,60'.
 --layout=day-to-page::
 --layout=logbook::
 --layout=week-to-opening::
+--layout=week-with-notes::
 --layout=week-to-2-openings::
 --layout=week-to-page::
 --layout=work::
@@ -223,6 +224,12 @@ week-to-opening:::
 
     Print a week to one opening.  This has, on the left side, three month calendars
     and Monday to Wednesday, and on the right side, Thursday to Sunday.
+
+week-with-notes:::
+
+    Left pages have one week (same as <week-to-opening>) and right pages
+    are notes pages.  The titles of the notes pages are changed to be the
+    year (or years) of the opposite page.
 
 week-to-2-openings:::
 

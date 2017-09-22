@@ -6,9 +6,15 @@ from PostscriptPage import PostscriptPage
 
 
 class NotesPage(PostscriptPage):
+
+    def __init__(self, dinfo, notesTitle="Notes"):
+        self.notesTitle = notesTitle
+        PostscriptPage.__init__(self, dinfo)
+
+
     def body(self):
 
-        s = "%--- Notes Page\n" + self.title("Notes") + self.bottomline()
+        s = "%--- Notes Page\n" + self.title(self.notesTitle) + self.bottomline()
         s = s + "SA %5.3f %5.3f TR 0 SLW\n" % (self.pLeft,self.pBottom)
 
         if self.di.griddedNotesPages:

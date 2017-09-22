@@ -39,7 +39,7 @@ class DiaryPage(PostscriptPage):
 
         if di.layout == "week-to-opening":
             self.dheight = self.pHeight_diary/4.0
-        elif di.layout == "week-to-page":
+        elif di.layout == "week-to-page" or di.layout == "week-with-notes":
             self.dheight = self.pHeight_diary/7.0
         elif di.layout == "day-to-page":
             self.dheight = self.pHeight_diary * 0.9
@@ -671,7 +671,7 @@ class DiaryPage(PostscriptPage):
                     self.printMondayWTO() + \
                     self.printTuesdayWTO() + \
                     self.printWednesdayWTO()
-            elif self.di.layout == "week-to-page":
+            elif self.di.layout == "week-to-page" or self.di.layout == "week-with-notes":
                 s = self.printMondayWTP() + \
                     self.printTuesdayWTP() + \
                     self.printWednesdayWTP() + \
