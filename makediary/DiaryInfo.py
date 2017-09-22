@@ -9,6 +9,7 @@ from ConfigParser import SafeConfigParser as ConfigParser
 from os.path import expanduser
 from math import pow
 import subprocess
+from versionNumber import versionNumber
 
 import PaperSize
 
