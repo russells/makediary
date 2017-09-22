@@ -1,3 +1,11 @@
+makediary (0.3.2-1) unstable;
+
+ * Make the moon respect the new colour.
+ * Create a week-to-page layout.
+ * Add a layout with a week on one page and notes on the other.
+
+ -- Russell Steicke <russells@adelie.cx>  Fri, 22 Sep 2017 19:10:00 +0800
+
 makediary (0.3.1-1) unstable;
 
  * Make a two page image optionally show more than half on each page.
