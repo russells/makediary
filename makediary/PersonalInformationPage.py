@@ -43,13 +43,18 @@ class PersonalInformationPage(PostscriptPage):
                                                "Email address") ),        ] ,0) \
             + self.do1line( co, [ ("Address", ("Address", )     ),        ] ,0) \
             + self.do1line( co, [                                         ] ,0) \
-            + self.do1line( co, [                                         ] ,0) \
-            + self.do1line( co, [ ("Work"   , (             )   ),        ] ,0) \
-            + self.do1line( co, [ ("Phone"  , ("Work phone",)   ),
-                                  (("Mobile", "Cell"),
-                                   ("Work mobile", "Work cell") ),        ] ,0) \
-            + self.do1line( co, [ ("Email"  , ("Work email",)   ),        ] ,0) \
-            + self.do1line( co, [ ("Address", ("Work address",) ),        ] ,0) \
+            + self.do1line( co, [                                         ] ,0)
+
+        if not self.di.personalInfoNoWork:
+            s = s \
+                + self.do1line( co, [ ("Work"   , (             )   ),        ] ,0) \
+                + self.do1line( co, [ ("Phone"  , ("Work phone",)   ),
+                                      (("Mobile", "Cell"),
+                                       ("Work mobile", "Work cell") ),        ] ,0) \
+                + self.do1line( co, [ ("Email"  , ("Work email",)   ),        ] ,0) \
+                + self.do1line( co, [ ("Address", ("Work address",) ),        ] ,0)
+
+        s = s \
             + self.do1line( co, [                                         ] ,0) \
             + self.do1line( co, [                                         ] ,0) \
             + self.do1line( co, [ ("Emergency Contacts", ()     ),        ] ,0) \

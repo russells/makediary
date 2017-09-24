@@ -347,6 +347,10 @@ work:::
     and this options makes *makediary* print them all, along with a list of recent
     and future years showing which calendar applies to each one.
 
+--personal-info-no-work::
+
+    Don't print the work section of the personal information page.
+
 --planner-years=<n>::
 
     Print <n> two-page planner years, starting with the diary year.

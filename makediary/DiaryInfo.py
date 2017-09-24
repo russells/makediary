@@ -70,6 +70,7 @@ class DiaryInfo:
                "pcal-planner",
                "pdf",
                "perpetual-calendars",
+               "personal-info-no-work",
                "planner-years=",
                "ref=",
                "sed-ref",
@@ -107,6 +108,7 @@ class DiaryInfo:
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
                   "    [--page-y-offset=Ymm] [--pdf] [--planner-years=n] \n",
                   "    [--pcal] [--pcal-planner] [--perpetual-calendars]\n",
+                  "    [--personal-info-no-work]\n",
                   "    [--ref=<refname>] [--awk-ref] [--conversions-ref]\n",
                   "    [--sed-ref] [--sh-ref] [--units-ref] [--unix-ref] [--vi[m]-ref]\n",
                   "    [--weeks-before=n] [--weeks-after=n]\n",
@@ -220,6 +222,7 @@ class DiaryInfo:
         self.shading = True
         self.nLogbookPages = 100
         self.lineColour = [0,0,0]
+        self.personalInfoNoWork = False
 
         self.configOptions = ConfigParser()
         self.configOptions.read( (expanduser("~/.makediaryrc"), ".makediaryrc", "makediaryrc") )
@@ -449,6 +452,8 @@ class DiaryInfo:
         if c.has_key("--pcal-planner"):
             self.pcal = True
             self.pcalPlanner = True
+        if c.has_key("--personal-info-no-work"):
+            self.personalInfoNoWork = True
         if c.has_key("--planner-years"):
             self.nPlannerYears = self.integerOption("planner-years",c["--planner-years"])
         if c.has_key("--version"):
