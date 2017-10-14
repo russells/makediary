@@ -262,6 +262,12 @@ work:::
     Make the line spacing on diary pages <d> millimetres.  <d> can be a
     floating point number.
 
+--line-thickness=<d>::
+
+    Make the line thickness on diary pages <d> millimetres.  <d> can be a
+    floating point number.  Some printers make zero width lines very thin,
+    and this is a way to make them more visible.
+
 --logbook-pages=<N>::
 
     Specify the number of logbook pages to be printed in the logbook layout.

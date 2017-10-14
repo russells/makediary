@@ -122,9 +122,10 @@ class BasicPostscriptPage:
         self.pHeight = self.pTop - self.pBottom
 
     def topline(self):
+        thickness = max(self.di.underlineThick, self.di.lineThickness)
         s = ""
         s = s + "%5.3f SLW 1 setlinecap %5.3f %5.3f M %5.3f %5.3f L S\n" \
-            % (self.di.underlineThick,self.pLeft,self.di.titleLineY,self.pRight,self.di.titleLineY)
+            % (thickness,self.pLeft,self.di.titleLineY,self.pRight,self.di.titleLineY)
         return s
 
     def bottomline(self):

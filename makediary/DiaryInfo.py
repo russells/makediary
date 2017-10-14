@@ -52,6 +52,7 @@ class DiaryInfo:
                "layout=",
                "line-colour=",
                "line-spacing=",
+               "line-thickness=",
                "logbook-pages=",
                "man-page=",
                "margins-multiplier=",
@@ -101,7 +102,8 @@ class DiaryInfo:
                   "    [--eps-page=epsfile[|title]] [--eps-2page=epsfile[|title1[|title2]]]\n",
                   "    [--event-images] [--expense-pages=0|2|4] [--gridded-notes]\n",
                   "    [--image-page=IMGFILE[,title]] [--image-2page=IMGFILE[,title][,coverage]]\n",
-                  "    [--large-planner] [--line-spacing=mm] [--margins-multiplier=f] [--moon]\n",
+                  "    [--large-planner] [--layout=LAYOUT] [--line-spacing=mm]\n",
+                  "    [--line-thickness=mm] [--margins-multiplier=f] [--moon]\n",
                   "    [--layout=LAYOUT] [--logbook-pages=N] [--man-page=MANPAGE]\n",
                   "    [--northern-hemisphere-moon] [--no-appointment-times] [--no-smiley]\n",
                   "    [--no-shading] [--notes-pages=n]\n",
@@ -178,6 +180,7 @@ class DiaryInfo:
         self.titleGray = 0.8            # Background for titles on some pages
         self.underlineThick = 0.2       # Thickness of title lines etc
         self.lineSpacing = 6.0          # Spacing for writing lines
+        self.lineThickness = 0          # Thickness of writing and other lines
         self.evenPage = 0               # even and odd pages
         self.out = None                 # Output file
         self.outName = 'diary.ps'       # Output file name
@@ -411,6 +414,8 @@ class DiaryInfo:
             self.largePlanner = True
         if c.has_key("--line-spacing"):
             self.lineSpacing = self.floatOption("line-spacing",c["--line-spacing"])
+        if c.has_key("--line-thickness"):
+            self.lineThickness = self.floatOption("line-thickness",c["--line-thickness"])
         if c.has_key("--logbook-pages"):
             self.nLogbookPages = self.integerOption("logbook-pages",c["--logbook-pages"])
         if c.has_key("--margins-multiplier"):

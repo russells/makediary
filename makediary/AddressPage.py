@@ -32,9 +32,10 @@ class AddressPage(PostscriptPage):
            self.di.underlineThick,self.di.titleGray)
         # Draw the separator lines between the titles
         s = s + "%5.3f SLW %5.3f %5.3f M 0 %5.3f RL S\n" % \
-            (self.di.underlineThick, self.left+self.namewidth, self.pTop, -self.tbheight)
+            (max(self.di.underlineThick,self.di.lineThickness),
+             self.left+self.namewidth, self.pTop, -self.tbheight)
         s = s + "%5.3f SLW %5.3f %5.3f M 0 %5.3f RL S\n" % \
-            (self.di.underlineThick, \
+            (max(self.di.underlineThick,self.di.lineThickness), \
              self.left+self.namewidth+self.addrwidth, self.pTop, -self.tbheight)
         # Now add the titles themselves
         s = s + "/%s %5.3f selectfont\n" % (self.di.subtitleFontName, self.fontsize)
@@ -50,7 +51,7 @@ class AddressPage(PostscriptPage):
 
     def addressBlock(self,b):
         s = ""
-        s = s + "%5.3f %5.3f M SA CP TR 0 SLW\n" % (self.pLeft,b)
+        s = s + "%5.3f %5.3f M SA CP TR %5.3f SLW\n" % (self.pLeft,b,self.di.lineThickness)
         s = s + "0 0 M 0 %5.3f RL %5.3f 0 RL 0 %5.3f RL %5.3f 0 RL S " % \
             (self.abheight,self.pWidth,-self.abheight,-self.pWidth) \
             + "%5.3f 0 M 0 %5.3f RL S " % (self.namewidth,self.abheight) \

@@ -182,7 +182,7 @@ class DiaryPage(PostscriptPage):
         # Draw all the writing lines, but if the appointments take up the whole width, don't
         # print the writing lines.
         if self.di.appointmentWidth != 100:
-            s = s + "0 SLW "
+            s = s + "%5.3f SLW " % self.di.lineThickness
             for lineno in range(self.nlines):
                 liney = self.titleboxy-(1+lineno)*di.lineSpacing
                 s = s + "0 %5.3f M %5.3f 0 RL S " % (liney,self.dwidthLines)
@@ -512,12 +512,13 @@ class DiaryPage(PostscriptPage):
                 + " RE\n"
             # Draw a box around the current month
             if i == 0:
-                s = s + "0 SLW %5.3f %5.3f M " % (c_left-c_boxborder,c_bottom-c_boxborder) \
+                s = s + "%5.3f SLW " % self.di.lineThickness\
+                    + "%5.3f %5.3f M " % (c_left-c_boxborder,c_bottom-c_boxborder) \
                     + "0 %5.3f RL %5.3f 0 RL " % (c_height+2*c_boxborder,c_width+2*c_boxborder) \
                     + "0 %5.3f RL %5.3f 0 RL S\n" % (-c_height-2*c_boxborder,-c_width-2*c_boxborder)
         # Now draw the lines just below the month calendars.
         l_y = c_bottom - di.lineSpacing - 1.3
-        s = s + "0 SLW\n"
+        s = s + "%5.3f SLW\n" % self.di.lineThickness
         while l_y > (di.lineSpacing * 0.3):
             s = s + "%5.3f %5.3f M %5.2f 0 RL S\n" % (c_indent,l_y,c_totalwidth)
             l_y = l_y - di.lineSpacing

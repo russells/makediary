@@ -15,7 +15,8 @@ class NotesPage(PostscriptPage):
     def body(self):
 
         s = "%--- Notes Page\n" + self.title(self.notesTitle) + self.bottomline()
-        s = s + "SA %5.3f %5.3f TR 0 SLW\n" % (self.pLeft,self.pBottom)
+        s = s + "SA %5.3f %5.3f TR %5.3f SLW\n" % \
+            (self.pLeft,self.pBottom,self.di.lineThickness)
 
         if self.di.griddedNotesPages:
             s = s + self.grid()
@@ -32,6 +33,7 @@ class NotesPage(PostscriptPage):
         # Recalculate line spacing to avoid dangling bottom lines.
         linespacing = float(self.pHeight) / float(nlines)
         for n in range(0,nlines):
+            s = s + "%5.3f SLW " % self.di.lineThickness
             s = s + "0 %5.3f M %5.3f 0 RL S\n" % (self.pHeight-linespacing*(n+1),
                                                   self.pWidth)
         return s

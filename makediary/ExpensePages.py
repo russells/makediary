@@ -40,7 +40,8 @@ class ExpensePage(PostscriptPage):
         #    (self.titleheight,self.monthheight,-self.titleheight,-self.monthheight) \
         #    + "gsave %5.3f setgray fill grestore S\n" % self.di.titleGray
         s = s + "0 0 %5.3f %5.3f %5.3f %5.3f boxLBRTgray\n" % \
-            (self.monthheight,self.titleheight,self.di.underlineThick,self.di.titleGray)
+            (self.monthheight,self.titleheight,
+             max(self.di.underlineThick,self.di.lineThickness),self.di.titleGray)
         # Now put the text into the box.
         s = s + "/%s %5.3f selectfont (%s) dup SWP2D %5.3f exch sub %5.3f M SH " % \
             (self.di.subtitleFontName,self.fontsize,
@@ -57,13 +58,14 @@ class ExpensePage(PostscriptPage):
         blockwidth = self.pWidth - self.titleheight
         s = s + "SA %5.3f %5.3f TR " % (blockl,ypos)
         s = s + "0 0 %5.3f %5.3f %5.3f boxLBRT\n" % \
-            (blockwidth, self.monthheight, self.di.underlineThick)
+            (blockwidth, self.monthheight, max(self.di.underlineThick,self.di.lineThickness))
         s = s + "% columns \n"
-        s = s + "%5.3f 0 M 0 %5.3f RL S %5.3f 0 M 0 %5.3f RL S\n" % \
-            (self.column1x,self.monthheight,self.column2x,self.monthheight)
+        s = s + "%5.3f SLW %5.3f 0 M 0 %5.3f RL S %5.3f 0 M 0 %5.3f RL S 0 SLW\n" % \
+            (self.di.lineThickness,
+             self.column1x,self.monthheight,self.column2x,self.monthheight)
         nlines = 1 + int(self.monthheight / self.di.lineSpacing)
         linespacing = self.monthheight / float(nlines)
-        s = s + "0 SLW "
+        s = s + "%5.3f SLW " % self.di.lineThickness
         for i in range(1,nlines):
             s = s + "0 %5.3f M %5.3f 0 RL S " % (i*linespacing,self.monthwidth)
         s = s + " RE\n"

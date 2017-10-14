@@ -117,9 +117,10 @@ class PersonalInformationPage(PostscriptPage):
             thiselement += 1
         liney = self.pHeight - self.linenum * self.linespacing
         if linethick:
-            s = s + "%5.2f SLW " % self.di.underlineThick
+            thickness = max(self.di.underlineThick, self.di.lineThickness)
         else:
-            s = s + "0   SLW "
+            thickness = self.di.lineThickness
+        s = s + "%5.3f SLW " % thickness
         s = s + "0 %5.3f M %5.3f 0 RL S\n" % (liney,self.pWidth)
         self.linenum = self.linenum + 1
         return s
