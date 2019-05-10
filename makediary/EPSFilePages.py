@@ -136,7 +136,7 @@ class EPSFilePage(PostscriptPage):
 
         epsp = self.embedEPS(self.epsfilename, epsfile)
         epsfile.close()
-        return s + epsp
+        return s + epsp + "RE\n"
 
 
 class HalfEPSFilePage(EPSFilePage):
