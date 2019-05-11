@@ -88,9 +88,9 @@ class BasicPostscriptPage:
 
     def page(self):
         if self.di.debugBoxes:
-            return self.preamble + self.debugPageBox() + self.body() + self.postamble
+            return self.preamble + self.debugPageBox() + self.body() + self.pageNumber() + self.postamble
         else:
-            return self.preamble + self.body() + self.postamble
+            return self.preamble + self.body() + self.pageNumber() + self.postamble
 
     def debugPageBox(self):
 
@@ -133,6 +133,60 @@ class BasicPostscriptPage:
         s = s + "%5.3f SLW 1 setlinecap %5.3f %5.3f M %5.3f %5.3f L S\n" \
             % (self.di.underlineThick,self.pLeft,self.di.bMargin,self.pRight,self.di.bMargin)
         return s
+
+
+    def pageNumber(self):
+        '''Blank out a section of the page, and put the page number in there.'''
+        if self.di.pageNumbers:
+
+            # Finding out the size of a string on the screen is harder than it
+            # sounds.  stringwidth gives a width and a zero, because the
+            # current point has not moved vertically.  As well as that, the
+            # characters are printed with the base at 0, and some of them
+            # project below 0.
+            #
+            # For the same reasons, finding the size of a white box to print
+            # behind the number is difficult.  We have to find out the size of
+            # a box with spaces at each end, and then guess how far above and
+            # below the text to make the y dimension.
+
+            fontsize = self.di.subtitleFontSize * 0.7
+            fontsizemultiplier = 1.5
+            s = ""
+            s += "%% Page number %d\n" % self.di.pageNumber
+            s += "5 dict begin\n"
+            s += "/%s %5.3f selectfont " % (self.di.subtitleFontName, fontsize)
+            s += "/pn (%d) def " % self.di.pageNumber
+            # Find out the width of the string, and the string with spaces at each end.
+            s += "pn SW pop /w ED ( ) SW pop 2 mul w add /bw ED "
+            s += "/h %5.3f def /bh %5.3f def\n" % (fontsize,
+                                                   fontsize*fontsizemultiplier)
+            if self.di.evenPage:
+                # On an even page, the number is on the left, to the right of the outer margin.
+                x = self.di.oMargin
+            else:
+                # On an odd page, the number is on the right, to the left of the outer margin.
+                x = self.di.pageWidth - self.di.oMargin
+            s += "/y %5.3f def " % (self.di.bMargin/2.0)
+            if self.di.evenPage:
+                # For even pages, we can print the page number starting at the x,y.
+                s += "/x %5.3f def " % x
+            else:
+                # For odd pages, we need to move the number left.
+                s += "/x %5.3f w sub def " % x
+            s += "\n"
+            s += "/bx bw w sub 2 div x exch sub def\n"
+            s += "/by bh h sub 1.4 div y exch sub def\n"
+            # Now we have the dictionary with x,y,w,h,bx,by,bh,bw,pn defined.
+
+            s += "1 1 1 SRC bx by bw bh pathLBWH fill\n"
+            #s += "0 0 0 SRC bx by bw bh 0 boxLBWH\n"
+            s += "0 0 0 SRC x y M pn SH\n"
+            s += "end\n"
+            return s
+        else:
+            return ""
+
 
     def title(self,text1,text2="",bold=True):
         if bold:

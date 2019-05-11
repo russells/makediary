@@ -62,6 +62,7 @@ class DiaryInfo:
                "no-smiley",
                "notes-pages=",
                "output-file=",
+               "page-numbers",
                "page-registration-marks",
                "page-size=",
                "page-x-offset=",
@@ -106,7 +107,7 @@ class DiaryInfo:
                   "    [--line-thickness=mm] [--margins-multiplier=f] [--moon]\n",
                   "    [--layout=LAYOUT] [--logbook-pages=N] [--man-page=MANPAGE]\n",
                   "    [--northern-hemisphere-moon] [--no-appointment-times] [--no-smiley]\n",
-                  "    [--no-shading] [--notes-pages=n]\n",
+                  "    [--no-shading] [--notes-pages=n] [--page-numbers]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
                   "    [--page-y-offset=Ymm] [--pdf] [--planner-years=n] \n",
                   "    [--pcal] [--pcal-planner] [--perpetual-calendars]\n",
@@ -201,6 +202,7 @@ class DiaryInfo:
         self.debugBoxes = False         # If true, draw faint boxes around things for debugging
         self.debugVersion = False       # If true, print version info on inside cover.
         self.debugWholePageBoxes = False# If true, draw faint boxes around all pages.
+        self.pageNumbers = False        # Print page numbers. where to cut.
         self.pageRegistrationMarks=False# Print marks to show where to cut.
         self.events = {}                # Events to draw on each page, from .calendar file.
         self.drawEventImages = False    # If true, draw event images
@@ -438,6 +440,8 @@ class DiaryInfo:
         if c.has_key("--output-file"):
             self.outName = c["--output-file"]
             self.outNameSet = True
+        if c.has_key("--page-numbers"):
+            self.pageNumbers = True
         if c.has_key("--page-registration-marks"):
             self.pageRegistrationMarks = True
         if c.has_key("--page-size"):
