@@ -5,8 +5,8 @@
 
 __version__ = '0.3.0'
 
-from DiaryInfo import DiaryInfo
-from BasicPostscriptPage import BasicPostscriptPage
+from makediary.DiaryInfo import DiaryInfo
+from makediary.BasicPostscriptPage import BasicPostscriptPage
 
 __all__ = ['makediary',
            'BasicPostscriptPage',

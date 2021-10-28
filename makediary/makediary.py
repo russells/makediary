@@ -4,32 +4,32 @@
 
 # Print a year diary.
 
-from versionNumber import versionNumber
+from makediary.versionNumber import versionNumber
 
 import sys
-import Moon
-from DiaryInfo import DiaryInfo
-from mx import DateTime
+import makediary.Moon
+from makediary.DiaryInfo import DiaryInfo
 from errno import EPIPE
 
-import DSC
-from BasicPostscriptPage     import BasicPostscriptPage
-from PostscriptPage          import PostscriptPage
-from EmptyPage               import EmptyPage
-from CoverPage               import CoverPage
-from VersionPage             import VersionPage
-from PersonalInformationPage import PersonalInformationPage
-from ImageFilePages          import ImageFilePage, TwoImageFilePages
-from EPSFilePages            import EPSFilePage, TwoEPSFilePages
-from CalendarPages           import TwoCalendarPages
-from ManPagePages            import ManPagePages
-from PerpetualCalendarPages  import PerpetualCalendarPages
-from PlannerPages            import TwoPlannerPages, FourPlannerPages, TwelvePlannerPages
-from AddressPage             import AddressPage
-from NotesPage               import NotesPage
-from ExpensePages            import TwoExpensePages, FourExpensePages
-from DiaryPage               import DiaryPage
-from LogbookPage             import LogbookPage
+from makediary                         import DSC
+from makediary.DT                      import DT
+from makediary.BasicPostscriptPage     import BasicPostscriptPage
+from makediary.PostscriptPage          import PostscriptPage
+from makediary.EmptyPage               import EmptyPage
+from makediary.CoverPage               import CoverPage
+from makediary.VersionPage             import VersionPage
+from makediary.PersonalInformationPage import PersonalInformationPage
+from makediary.ImageFilePages          import ImageFilePage, TwoImageFilePages
+from makediary.EPSFilePages            import EPSFilePage, TwoEPSFilePages
+from makediary.CalendarPages           import TwoCalendarPages
+from makediary.ManPagePages            import ManPagePages
+from makediary.PerpetualCalendarPages  import PerpetualCalendarPages
+from makediary.PlannerPages            import TwoPlannerPages, FourPlannerPages, TwelvePlannerPages
+from makediary.AddressPage             import AddressPage
+from makediary.NotesPage               import NotesPage
+from makediary.ExpensePages            import TwoExpensePages, FourExpensePages
+from makediary.DiaryPage               import DiaryPage
+from makediary.LogbookPage             import LogbookPage
 
 
 # ############################################################################################
@@ -39,9 +39,24 @@ class Diary:
     def __init__(self,diaryinfo):
         self.di = diaryinfo
         self.out = self.di.out
+        self.convert_to_bytes = False
 
     def w(self,s):
-        self.out.write(s)
+        # If we're writing straight to a file, we need a string.  If we're writing to a pipe
+        # that goes to ps2pdf, we need bytes.  There's not an obvious way to easily tell which
+        # when we get here.  So, if writing as a string fails the first time, we set a flag to
+        # tell us to always convert.
+
+        # Write as bytes, since the first write failed.
+        if self.convert_to_bytes:
+            self.out.write(bytes(s,'utf-8'))
+        else:
+            # Write as a string.  If that fails, write as bytes.
+            try:
+                self.out.write(s)
+            except TypeError:
+                self.convert_to_bytes = True
+                self.w(s)
 
     # print the whole diary
     def diary(self):
@@ -67,9 +82,9 @@ class Diary:
                 w( TwoImageFilePages(di, imagePage["fileName"], imagePage["title"],
                                      imagePage["coverage"]).page() )
             else:
-                print >>sys.stderr, "makediary: internal error:"
-                print >>sys.stderr, "-- image file (%s): imagePage['pages'] == %d" \
-                      % (imagePage['fileName'], npages)
+                print("makediary: internal error:", file=sys.stderr)
+                print("-- image file (%s): imagePage['pages'] == %d" \
+                      % (imagePage['fileName'], npages), file=sys.stderr)
                 sys.exit(1)
         if di.evenPage:
             self.w( EmptyPage(di).page() )
@@ -122,9 +137,9 @@ class Diary:
                 eps_fileName = epsPage["fileName"]
                 eps_title1 = epsPage["title1"]
                 eps_title2 = epsPage["title2"]
-            except KeyError, reason:
-                print >>sys.stderr, "KeyError: missing key for EPS page (%s): %s" % \
-                      (epsPage, str(reason))
+            except KeyError as reason:
+                print("KeyError: missing key for EPS page (%s): %s" % \
+                      (epsPage, str(reason)), file=sys.stderr)
                 continue
             if eps_pages == 1:
                 w( EPSFilePage(di, eps_fileName, eps_title1).page() )
@@ -141,7 +156,7 @@ class Diary:
             w( NotesPage(di).page() )
 
         # Ensure we start the diary pages on a Monday
-        while di.dt.day_of_week != DateTime.Monday: di.gotoPreviousDay()
+        while di.dt.day_of_week() != DT.Monday: di.gotoPreviousDay()
         # Now get a multiple of whole weeks of the previous year
         for i in range(0,7*di.nWeeksBefore): di.gotoPreviousDay()
 
@@ -170,7 +185,7 @@ class Diary:
                 w( LogbookPage(di).page() )
         else:
             # Print diary pages until we see the end date
-            while 1:
+            while True:
                 if di.dt >= di.dtend:
                     break
                 y1 = di.dt.year
@@ -180,14 +195,14 @@ class Diary:
 
             # If specified, add a number of whole weeks after, probably in the next year.
             if di.nWeeksAfter:
-                dw = di.dt + (7*di.nWeeksAfter)
+                dw = di.dt + DT.delta(7*di.nWeeksAfter)
                 while di.dt < dw:
                     w( DiaryPage(di).page() )
                     if di.layout == "week-with-notes":
                         w( self.weekWithNotesNotesPage() )
 
             # Finish at the end of a week
-            while di.dt.day_of_week != DateTime.Monday:
+            while di.dt.day_of_week() != DT.Monday:
                 w( DiaryPage(di).page() )
 
         # Notes pages at the rear
@@ -237,7 +252,7 @@ def go(myname, opts):
 if __name__=='__main__':
     try:
         go(sys.argv[0], sys.argv[1:])
-    except IOError, reason:
+    except IOError as reason:
         if reason.errno == EPIPE:
             sys.exit(1)
         else:

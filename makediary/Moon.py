@@ -8,7 +8,7 @@
 import sys
 import math
 import time
-from string import atoi
+from locale import atoi
 
 class MoonCalc:
 
@@ -155,7 +155,7 @@ class MoonCalc:
 
 if __name__=='__main__':
     if len(sys.argv) != 4:
-        print >>sys.stderr, "Usage: %s year month day" % sys.argv[0]
+        print("Usage: %s year month day" % sys.argv[0], file=sys.stderr)
         sys.exit(1)
     mc = MoonCalc()
     y = atoi(sys.argv[1])
@@ -163,8 +163,8 @@ if __name__=='__main__':
     d = atoi(sys.argv[3])
     phase = mc.calc_phase(y, m, d)
     quarter = mc.is_quarter(mc.calc_phase(y,m,d-1), phase, mc.calc_phase(y,m,d+1))
-    print "day = %04d-%02d-%02d, phase = %6.5f, quarter = %d [%s]" % \
-          (y,m,d, phase, quarter, mc.moonPhaseNames[quarter])
+    print("day = %04d-%02d-%02d, phase = %6.5f, quarter = %d [%s]" % \
+          (y,m,d, phase, quarter, mc.moonPhaseNames[quarter]))
 
 
 # This section is for emacs.

@@ -4,14 +4,14 @@ import re
 from os.path import join as path_join
 from os.path import exists as path_exists
 from glob import glob
-from mx import DateTime
-from ConfigParser import SafeConfigParser as ConfigParser
+from iniparse import SafeConfigParser as ConfigParser
 from os.path import expanduser
 from math import pow
 import subprocess
-from versionNumber import versionNumber
+from makediary.DT            import DT
+from makediary.versionNumber import versionNumber
 
-import PaperSize
+from makediary import PaperSize
 
 
 class DiaryInfo:
@@ -139,7 +139,7 @@ class DiaryInfo:
         sys.exit(code)
 
     def shortUsage(self, f=sys.stderr):
-        print >>f, "%s --help for usage" % self.myname
+        print("%s --help for usage" % self.myname, file=f)
         sys.exit(1)
 
     def __init__(self, myname, opts):
@@ -151,7 +151,8 @@ class DiaryInfo:
         # first init the instance variables.
         self.pageNumber = 0             # Page number count
         self.currentJDaysLeft = -1      # Days left in year
-        self.setStartDate(DateTime.DateTime(DateTime.now().year+1)) # Adjusted time, next year
+        dt = DT.now()
+        self.setStartDate(DT(dt.year+1, 1, 1)) # Adjusted time, next year
         self.paperSize = 'a5'            # Page sizes.  Default to a5.
         wh = PaperSize.getPaperSize(self.paperSize)
         self.pageWidth = wh[0]
@@ -269,12 +270,13 @@ class DiaryInfo:
 
         If addYear is true, we return '(YYYY) M_mMM_bB_eE', where YYYY is the four digit year.
         '''
-        dow_begin = DateTime.DateTime(year,  1,  1).day_of_week
-        dow_end   = DateTime.DateTime(year, 12, 31).day_of_week
+        dow_begin = DT(year,  1,  1).day_of_week()
+        dow_end   = DT(year, 12, 31).day_of_week()
         k = (month, dow_begin, dow_end)
-        if not self.monthCalendarList.has_key(k):
-            print >>sys.stderr, "makediary: internal error:"
-            print >>sys.stderr, "-- No month calendar for year=%s month=%s" % (str(year),str(month))
+        if not k in self.monthCalendarList:
+            print("makediary: internal error:", file=sys.stderr)
+            print("-- No month calendar for year=%s month=%s" % (str(year),str(month)),
+                  file=sys.stderr)
             sys.exit(1)
         procname = self.monthCalendarList[k]
         if addyear:
@@ -292,7 +294,7 @@ class DiaryInfo:
 
         try:
             optlist,args = getopt.getopt(args,'',self.options)
-        except getopt.error, reason:
+        except getopt.error as reason:
             sys.stderr.write( "Error parsing options: " + str(reason) + "\n")
             self.shortUsage()
         if len(args) != 0:
@@ -323,7 +325,7 @@ class DiaryInfo:
 
         # Now process all the gathered options.  Look at the layout option first, so we can set
         # things needed by the layout, and potentially change them later.
-        if c.has_key("--layout"):
+        if "--layout" in c:
             l = c["--layout"]
             if l in self.layouts:
                 self.layout = l
@@ -334,11 +336,11 @@ class DiaryInfo:
                     self.dayTitleBoxes = False
                     self.dayTitleShading = "none"
             else:
-                print >>sys.stderr, "%s: Unknown layout %s" % (self.myname, l)
+                print("%s: Unknown layout %s" % (self.myname, l), file=sys.stderr)
                 self.shortUsage()
-        if c.has_key("--address-pages"):
+        if "--address-pages" in c:
             self.nAddressPages = self.integerOption("address-pages",c["--address-pages"])
-        if c.has_key("--appointment-width"):
+        if "--appointment-width" in c:
             self.appointments = True
             aw = c["--appointment-width"]
             if aw[-1] == '%':
@@ -350,144 +352,143 @@ class DiaryInfo:
                 sys.stderr.write("%s: appointment width must be >=0 and <=100\n" %
                                  self.myname)
                 sys.exit(1)
-        if c.has_key("--appointments"):
+        if "--appointments" in c:
             self.appointments = True
-        if c.has_key("--awk-ref"):
+        if "--awk-ref" in c:
             self.standardEPSRef( 'awk', ['Awk reference'] )
-        if c.has_key("--calendar-pages"):
+        if "--calendar-pages" in c:
             self.calendarPages = self.boolOption("calendar-pages", c["--calendar-pages"])
-        if c.has_key("--colour") or c.has_key("--colour-images"):
+        if "--colour" in c or "--colour-images" in c:
             self.colour = True
-        if c.has_key("--line-colour"):
+        if "--line-colour" in c:
             self.setLineColour(c["--line-colour"])
             self.dayTitleShading = "none"
             self.shading = False
-        if c.has_key("--shading"):
+        if "--shading" in c:
             self.shading = self.boolOption("shading", c["--shading"])
-        if c.has_key("--conversions-ref"):
+        if "--conversions-ref" in c:
             self.standardEPSRef( 'conversions', ['Double conversion tables'] )
-        if c.has_key("--cover-image"):
+        if "--cover-image" in c:
             self.coverImage = c["--cover-image"]
-        if c.has_key("--cover-page-image"):
+        if "--cover-page-image" in c:
             self.coverPageImage = c["--cover-page-image"]
-        if c.has_key("--day-title-shading"):
+        if "--day-title-shading" in c:
             dts = c["--day-title-shading"]
             if dts in ("all", "holidays", "none"):
                 self.dayTitleShading = dts
             else:
-                print >>sys.stderr, "day-title-shading must be all or holidays or none" \
-                    + " (not \"%s\")" % dts
+                print("day-title-shading must be all or holidays or none" \
+                      + " (not \"%s\")" % dts, file=sys.stderr)
                 self.shortUsage();
-        if c.has_key("--debug-boxes"):
+        if "--debug-boxes" in c:
             self.debugBoxes = 1
-        if c.has_key("--debug-whole-page-boxes"):
+        if "--debug-whole-page-boxes" in c:
             self.debugWholePageBoxes = 1
-        if c.has_key("--debug-version"):
+        if "--debug-version" in c:
             self.debugVersion = True
-        if c.has_key("--eps-page"):
+        if "--eps-page" in c:
             self.epsFilePageOption(c["--eps-page"], 1)
-        if c.has_key("--eps-2page"):
+        if "--eps-2page" in c:
             self.epsFilePageOption(c["--eps-2page"], 2)
-        if c.has_key("--expense-pages"):
+        if "--expense-pages" in c:
             ep = c["--expense-pages"]
             if ep == '0' or ep == '2' or ep == '4':
                 self.nExpensePages = int(ep)
             else:
-                print >>sys.stderr, \
-                      "%s: number of expense pages must be 0, 2, or 4 (not \"%s\")." % \
-                      (sys.argv[0], ep)
+                print("%s: number of expense pages must be 0, 2, or 4 (not \"%s\")." % \
+                      (sys.argv[0], ep), file=sys.stderr)
                 self.shortUsage()
-        if c.has_key("--perpetual-calendars"):
+        if "--perpetual-calendars" in c:
             self.perpetualCalendars = True
-        if c.has_key("--event-images"):
+        if "--event-images" in c:
             self.drawEventImages = True
-        if c.has_key("--gridded"):
+        if "--gridded" in c:
             self.griddedLogbookPages = True
             self.griddedNotesPages = True
-        if c.has_key("--gridded-logbook"):
+        if "--gridded-logbook" in c:
             self.griddedLogbookPages = True
-        if c.has_key("--gridded-notes"):
+        if "--gridded-notes" in c:
             self.griddedNotesPages = True
-        if c.has_key("--image-page"):
+        if "--image-page" in c:
             self.imagePageOption(c["--image-page"], 1)
-        if c.has_key("--image-2page"):
+        if "--image-2page" in c:
             self.imagePageOption(c["--image-2page"], 2)
-        if c.has_key("--large-planner"):
+        if "--large-planner" in c:
             self.largePlanner = True
-        if c.has_key("--line-spacing"):
+        if "--line-spacing" in c:
             self.lineSpacing = self.floatOption("line-spacing",c["--line-spacing"])
-        if c.has_key("--line-thickness"):
+        if "--line-thickness" in c:
             self.lineThickness = self.floatOption("line-thickness",c["--line-thickness"])
-        if c.has_key("--logbook-pages"):
+        if "--logbook-pages" in c:
             self.nLogbookPages = self.integerOption("logbook-pages",c["--logbook-pages"])
-        if c.has_key("--margins-multiplier"):
-            multiplier = self.floatOption("margins-multiplier",c["--margine-multiplier"])
+        if "--margins-multiplier" in c:
+            multiplier = self.floatOption("margins-multiplier",c["--margins-multiplier"])
             self.tMargin = self.tMargin * multiplier
             self.bMargin = self.bMargin * multiplier
             self.iMargin = self.iMargin * multiplier
             self.oMargin = self.oMargin * multiplier
-        if c.has_key("--moon"):
+        if "--moon" in c:
             self.moon = True
-        if c.has_key("--northern-hemisphere-moon"):
+        if "--northern-hemisphere-moon" in c:
             self.moon = True
             self.northernHemisphereMoon = True
-        if c.has_key("--no-appointment-times"):
+        if "--no-appointment-times" in c:
             self.appointmentTimes = False
-        if c.has_key("--no-smiley"):
+        if "--no-smiley" in c:
             self.smiley = False
-        if c.has_key("--notes-pages"):
+        if "--notes-pages" in c:
             self.nNotesPages = self.integerOption("notes-pages",c["--notes-pages"])
-        if c.has_key("--output-file"):
+        if "--output-file" in c:
             self.outName = c["--output-file"]
             self.outNameSet = True
-        if c.has_key("--page-numbers"):
+        if "--page-numbers" in c:
             self.pageNumbers = True
-        if c.has_key("--page-registration-marks"):
+        if "--page-registration-marks" in c:
             self.pageRegistrationMarks = True
-        if c.has_key("--page-size"):
+        if "--page-size" in c:
             self.pageSize = c["--page-size"]
             self.setPageSize(self.pageSize)
-        if c.has_key("--page-x-offset"):
+        if "--page-x-offset" in c:
             self.pageXOffset = self.floatOption("page-x-offset", c["--page-x-offset"])
-        if c.has_key("--page-y-offset"):
+        if "--page-y-offset" in c:
             self.pageYOffset = self.floatOption("page-y-offset", c["--page-y-offset"])
-        if c.has_key("--pdf"):
+        if "--pdf" in c:
             self.pdf = True
-        if c.has_key("--paper-size"):
+        if "--paper-size" in c:
             self.paperSize = c["--paper-size"]
             self.setPaperSize(self.paperSize)
-        if c.has_key("--pcal"):
+        if "--pcal" in c:
             self.pcal = True
-        if c.has_key("--pcal-planner"):
+        if "--pcal-planner" in c:
             self.pcal = True
             self.pcalPlanner = True
-        if c.has_key("--personal-info-no-work"):
+        if "--personal-info-no-work" in c:
             self.personalInfoNoWork = True
-        if c.has_key("--planner-years"):
+        if "--planner-years" in c:
             self.nPlannerYears = self.integerOption("planner-years",c["--planner-years"])
-        if c.has_key("--version"):
-            print "makediary, version " + versionNumber
+        if "--version" in c:
+            print("makediary, version " + versionNumber)
             sys.exit(0)
-        if c.has_key("--sed-ref"):
+        if "--sed-ref" in c:
             self.standardEPSRef( 'sed', ['sed reference'] )
-        if c.has_key("--sh-ref"):
+        if "--sh-ref" in c:
             self.standardEPSRef( 'sh', ['Shell and utility reference'] )
-        if c.has_key("--start-date"):
-            self.setStartDate(DateTime.strptime(c["--start-date"], '%Y-%m-%d'))
-        if c.has_key("--title"):
+        if "--start-date" in c:
+            self.setStartDate(DT.strptime(c["--start-date"], '%Y-%m-%d'))
+        if "--title" in c:
             self.title = c["--title"]
-        if c.has_key("--units-ref"):
+        if "--units-ref" in c:
             self.standardEPSRef( 'units', ['Units'] )
-        if c.has_key("--unix-ref"):
+        if "--unix-ref" in c:
             self.standardEPSRef( 'unix', ['Unix reference',] )
-        if c.has_key("--vim-ref") or c.has_key("--vi-ref"):
+        if "--vim-ref" in c or "--vi-ref" in c:
             self.standardEPSRef( 'vi', ['Vi reference', 'Vim extensions'] )
-        if c.has_key("--weeks-after"):
+        if "--weeks-after" in c:
             self.nWeeksAfter = self.integerOption("weeks-after",c["--weeks-after"])
-        if c.has_key("--weeks-before"):
+        if "--weeks-before" in c:
             self.nWeeksBefore = self.integerOption("weeks-before",c["--weeks-before"])
-        if c.has_key("--year"):
-            self.setStartDate(DateTime.DateTime(self.integerOption("year",c["--year"])))
+        if "--year" in c:
+            self.setStartDate(DT(self.integerOption("year",c["--year"]), 1, 1))
 
         if self.pdf:
             # If the name is still diary.ps and it was not set by command line option, change
@@ -499,7 +500,7 @@ class DiaryInfo:
                         '-dAutoRotatePages=/None', # pdf2ps rotates some pages without this
                         '-sPAPERSIZE='+self.paperSize,
                         '-', self.outName)
-            #print >>sys.stderr, "Running "+str(pdfArgs)
+            #print("Running "+str(pdfArgs), file=sys.stderr)
             self.pdfProcess = subprocess.Popen(pdfArgs, stdin=subprocess.PIPE)
             self.out = self.pdfProcess.stdin
         else:
@@ -508,7 +509,7 @@ class DiaryInfo:
             else:
                 try:
                     self.out = open(self.outName,'w')
-                except IOError, reason:
+                except IOError as reason:
                     sys.stderr.write(("Error opening '%s': " % self.outName) \
                                      + str(reason) + "\n")
                     #self.usage()
@@ -543,8 +544,8 @@ class DiaryInfo:
                 if b < 0.0 or b > 1.0:
                     raise Exception("blue out of range")
                 self.lineColour = (r,g,b)
-            except Exception, e:
-                print >>sys.stderr, "line colour wacky: %s: %s" % (c, e.message)
+            except Exception as e:
+                print("line colour wacky: %s: %s" % (c, e.message), file=sys.stderr)
                 sys.exit(1)
 
 
@@ -569,7 +570,7 @@ class DiaryInfo:
             else:
                 title2 = None
         else:
-            print >>sys.stderr, "Strange number of pages for eps-page: %d" % npages
+            print("Strange number of pages for eps-page: %d" % npages, file=sys.stderr)
             return
         self.epsPages.append( {"fileName" : filename, "pages"  : npages,
                                "title1"   : title1,   "title2" : title2} )
@@ -583,8 +584,8 @@ class DiaryInfo:
         same_title = (1 == len(titles))
         files = self.findEPSFiles(name)
         if len(files) == 0:
-            print >>sys.stderr, "%s: cannot find ref files for \"%s\"" % \
-                (sys.argv[0], name)
+            print("%s: cannot find ref files for \"%s\"" % \
+                  (sys.argv[0], name), file=sys.stderr)
             return
         for f in files:
             if len(titles) > 0:
@@ -601,7 +602,7 @@ class DiaryInfo:
         """Convert an arg to an int."""
         try:
             return int(s)
-        except ValueError,reason:
+        except ValueError as reason:
             sys.stderr.write("Error converting integer: " + str(reason) + "\n")
             self.shortUsage()
 
@@ -630,13 +631,14 @@ class DiaryInfo:
             self.manPages.append( (match.group(1), None) )
             return
 
-        print >>sys.stderr, "%s: unknown man page: %s" % (sys.argv[0], opt)
+        print("%s: unknown man page: %s" % (sys.argv[0], opt), file=sys.stderr)
 
 
     def setStartDate(self,date):
-        self.dtbegin = DateTime.DateTime(date.year, date.month, date.day)
-        self.dt = DateTime.DateTime(date.year, date.month, date.day)
-        self.dtend = self.dt + DateTime.RelativeDateTime(years=1)
+        self.dtbegin = DT(date.year, date.month, date.day)
+        self.dt = DT(date.year, date.month, date.day)
+        #self.dtend = self.dt + DateTime.RelativeDateTime(years=1)
+        self.dtend = DT(date.year+1, date.month, date.day)
 
 
     def imagePageOption(self, option, npages):
@@ -677,7 +679,7 @@ class DiaryInfo:
         """Convert an arg to a float."""
         try:
             return float(s)
-        except ValueError,reason:
+        except ValueError as reason:
             sys.stderr.write("Error converting float: " + str(reason) + \
                              ", from " + str(name) + "\n")
             self.shortUsage()
@@ -686,7 +688,7 @@ class DiaryInfo:
         """Set the page size to a known size."""
         sizes = PaperSize.getPaperSize(s)
         if sizes is None:
-            print >>sys.stderr, "Unknown page size: %s" % s
+            print("Unknown page size: %s" % s, file=sys.stderr)
             self.shortUsage()
         self.pageWidth = sizes[0]
         self.pageHeight = sizes[1]
@@ -697,7 +699,7 @@ class DiaryInfo:
         """Set the paper size to a known size."""
         sizes = PaperSize.getPaperSize(s)
         if sizes is None:
-            print >>sys.stderr, "Unknown paper size: %s" % s
+            print("Unknown paper size: %s" % s, file=sys.stderr)
             self.shortUsage()
         self.paperWidth = sizes[0]
         self.paperHeight = sizes[1]
@@ -755,27 +757,31 @@ class DiaryInfo:
         return self.pageNumber
 
     def gotoNextDay(self):
-        self.dt = self.dt + DateTime.oneDay
+        self.dt = self.dt + DT.delta(1)
         self.calcDateStuff()
 
     def gotoPreviousDay(self):
-        self.dt = self.dt - DateTime.oneDay
+        self.dt = self.dt - DT.delta(1)
         self.calcDateStuff()
 
     def calcDateStuff(self):
         # Call this every time the day changes.
-        if self.dt.is_leapyear:
-            self.currentJDaysLeft = 366 - self.dt.day_of_year
+        def is_leapyear(y):
+            return ((y%4) == 0) and (((y%400) == 0) or ((y%100) != 0))
+        def jday(dt):
+            return dt.timetuple().tm_yday
+        if is_leapyear(self.dt.year):
+            self.currentJDaysLeft = 366 - jday(self.dt)
         else:
-            self.currentJDaysLeft = 365 - self.dt.day_of_year
+            self.currentJDaysLeft = 365 - jday(self.dt)
         #sys.stderr.write("calcDateStuff: currentsec = %d\n" % self.currentSecond )
 
 
     def readDotCalendar(self):
         if self.pcal:
-            import DotCalendarPcal as DotCalendar
+            from makediary import DotCalendarPcal as DotCalendar
         else:
-            import DotCalendar
+            from makediary import DotCalendar
         dc = DotCalendar.DotCalendar()
         years = []
         for i in range(self.nPlannerYears+4):
@@ -823,7 +829,7 @@ class DiaryInfo:
                 searchpaths = ['.']
             for p in sys.path:
                 searchpaths.append(p)
-            #print >>sys.stderr, "searchpath is %s" % str(searchpath)
+            #print("searchpath is %s" % str(searchpath), file=sys.stderr)
             for searchpath in searchpaths:
                 path = path_join(searchpath, "makediary", "eps", "%s" % name, "%s.eps" % name)
                 names = glob(path)

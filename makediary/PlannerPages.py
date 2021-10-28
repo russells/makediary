@@ -1,9 +1,9 @@
 import sys
-from mx import DateTime
 
-from DiaryInfo import DiaryInfo
-from DSC import preamble, postamble
-from PostscriptPage import PostscriptPage
+from makediary.DT             import DT
+from makediary.DiaryInfo      import DiaryInfo
+from makediary.DSC            import preamble, postamble
+from makediary.PostscriptPage import PostscriptPage
 
 
 class PlannerPage(PostscriptPage):
@@ -70,12 +70,12 @@ class PlannerPage(PostscriptPage):
     def monthColumn(self,l,b,month):
         s = "SA %5.3f %5.3f TR\n" % (l,b)
         s = s + "/%s %5.3f selectfont 0 SLW\n" % (self.di.subtitleFontName,self.fontsize)
-        dt = DateTime.DateTime(self.year, month)
+        dt = DT(self.year, month, 1)
         days = []
         # Add all the days into one flat list.
-        for day in range(0,dt.day_of_week):
+        for day in range(0,dt.day_of_week()):
             days.append(0)
-        for day in range(1, 1+dt.days_in_month):
+        for day in range(1, 1+dt.days_in_month()):
             days.append(day)
         # Bottom of the highest day box
         firstdayb = self.lineheight * (self.nlines - 1)
@@ -85,12 +85,12 @@ class PlannerPage(PostscriptPage):
             eventlist = None
             isholiday = 0
             if n<len(days)  and  days[n]!=0:
-                dd = DateTime.DateTime(self.year, month, days[n])
-                if self.di.events.has_key(dd):
+                dd = DT(self.year, month, days[n])
+                if dd in self.di.events:
                     #sys.stderr.write("%s has events\n" % dd)
                     eventlist = self.di.events[dd]
                     for event in eventlist:
-                        if event.has_key('holiday'):
+                        if 'holiday' in event:
                             #sys.stderr.write("%s is a holiday: %s\n" % (dd,str(event)))
                             isholiday = 1
             dayb = (self.nlines-n-2) * self.lineheight
@@ -100,7 +100,7 @@ class PlannerPage(PostscriptPage):
                     (dayb,self.monthwidth,self.lineheight,self.nondaygray)
             else:
                 # Fill the weekends and holidays slightly grey
-                if (n%7==DateTime.Saturday)  or  (n%7==DateTime.Sunday) or isholiday:
+                if (n%7==DT.Saturday)  or  (n%7==DT.Sunday) or isholiday:
                     s = s + "0 %5.3f %5.3f %5.3f %5.3f %5.3f boxLBWHgray " % \
                         (dayb,self.monthwidth,self.lineheight,self.titleboxThick,self.weekendgray)
                 # All the other days are white
@@ -118,13 +118,13 @@ class PlannerPage(PostscriptPage):
                         #sys.stderr.write("planner: events for %s: %s\n" % (str(dd),eventlist))
                         se = ""             # event list string
                         for event in eventlist:
-                            if event.has_key("short") and not event.has_key("_warning") \
+                            if "short" in event and "_warning" not in event \
                                 and event["short"] != ' ':
-                                if event.has_key("personal"):
+                                if "personal" in event:
                                     font = self.di.subtitleFontName + "-Oblique"
                                 else:
                                     font = self.di.subtitleFontName
-                                if event.has_key("small"):
+                                if "small" in event:
                                     eventFontSize = self.fontsize*0.3
                                 else:
                                     eventFontSize = self.fontsize*0.6
@@ -153,7 +153,7 @@ class PlannerPage(PostscriptPage):
         # Do the month titles (top and bottom). We attempt to make this localised, by using
         # strftime(), but that doesn't appear to work, even with LANG and LC_TIME set in the
         # environment.
-        monthname = DateTime.DateTime(2000,month).strftime("%B")
+        monthname = DT(2000,month,1).strftime("%B")
 
         for monthtb in (0.0, (self.lineheight*(self.nlines-1))):
             s = s + "0 %5.3f %5.3f %5.3f %5.3f %5.3f boxLBWHgray " % \
@@ -234,10 +234,10 @@ if __name__ == '__main__':
     from TitledPage import TitledPage
 
     di = DiaryInfo(sys.argv[0], sys.argv[1:])
-    y = DateTime.now().year+1
-    print preamble(di)
-    print TitledPage(di, sys.argv[0]).page()
-    print TwoPlannerPages(y, di).page()
-    print FourPlannerPages(y, di).page()
-    print TwelvePlannerPages(y, di).page()
-    print postamble(di)
+    y = DT.now().year+1
+    print(preamble(di))
+    print(TitledPage(di, sys.argv[0]).page())
+    print(TwoPlannerPages(y, di).page())
+    print(FourPlannerPages(y, di).page())
+    print(TwelvePlannerPages(y, di).page())
+    print(postamble(di))

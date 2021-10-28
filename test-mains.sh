@@ -22,12 +22,14 @@ else
 	Pylist=( "$@" )
 fi
 
-		PS="${BN}".ps
+PS="${BN}".ps
+
+export PYTHONPATH=`pwd`
 
 for f in "${Pylist[@]}" ; do
 
 	PS="$(basename "$f" .py)".ps
-	python $f --debug-boxes --paper-size=a4 --page-size=a4 > "$PS" || exit
+	python3 $f --debug-boxes --paper-size=a4 --page-size=a4 > "$PS" || exit
 	PSlist=( "${PSlist[@]}" $PS )
 
 done

@@ -1,8 +1,8 @@
 import sys
 
-from DiaryInfo import DiaryInfo
-from DSC import preamble, postamble
-from PostscriptPage import PostscriptPage
+from makediary.DiaryInfo      import DiaryInfo
+from makediary.DSC            import preamble, postamble
+from makediary.PostscriptPage import PostscriptPage
 
 
 class ImageFilePage(PostscriptPage):
@@ -62,7 +62,7 @@ class ImageFilePage(PostscriptPage):
             else:
                 return sclip + imgp
         else:
-            print >>sys.stderr, "Can't find %s" % self.imgfilename
+            print("Can't find %s" % self.imgfilename, file=sys.stderr)
             return "%% -- Can't find %s\n" % self.imgfilename
 
 
@@ -87,7 +87,7 @@ class TwoImageFilePages:
 
 if __name__ == '__main__':
     di = DiaryInfo(sys.argv[0], sys.argv[1:])
-    print preamble(di)
-    print ImageFilePage(di, './makediary-qrcode.png', './makediary-qrcode.png').page()
-    print TwoImageFilePages(di, './makediary-qrcode.png', './makediary-qrcode.png').page()
-    print postamble(di)
+    print(preamble(di))
+    print(ImageFilePage(di, './makediary-qrcode.png', './makediary-qrcode.png').page())
+    print(TwoImageFilePages(di, './makediary-qrcode.png', './makediary-qrcode.png').page())
+    print(postamble(di))

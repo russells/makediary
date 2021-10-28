@@ -1,9 +1,9 @@
 import sys
-from mx import DateTime
 
-from DiaryInfo import DiaryInfo
-from DSC import preamble, postamble
-from PostscriptPage import PostscriptPage
+from makediary.DT             import DT
+from makediary.DiaryInfo      import DiaryInfo
+from makediary.DSC            import preamble, postamble
+from makediary.PostscriptPage import PostscriptPage
 
 
 class PerpetualYear:
@@ -29,8 +29,8 @@ class PerpetualYear:
             c2years[c] = []
 
     def __init__(self, year):
-        d0 = DateTime.DateTime(year, 1, 1).day_of_week
-        d9 = DateTime.DateTime(year,12,31).day_of_week
+        d0 = DT(year, 1, 1).day_of_week()
+        d9 = DT(year,12,31).day_of_week()
         be_dow = (d0,d9)
         c = PerpetualYear.d2c[be_dow]
         # Append this year to the relevant list.
@@ -101,7 +101,7 @@ class FourPerpetualCalendarsPage(PostscriptPage):
                   2.0*mheight, -0.25*titlefontsize)
         mbottom = b + mheight
         for m in range(1,13):
-            dt = DateTime.DateTime(years[0], m)
+            dt = DT(years[0], m, 1)
             mleft = ml + (((m-1) % 6) * mwidth)
             # Because we make the months slightly smaller than the available space, they seem
             # to be shifted left.  When we are printing on an odd (right side) page, make them
@@ -171,7 +171,7 @@ if __name__ == '__main__':
 
     di = DiaryInfo(sys.argv[0], sys.argv[1:])
     pps = PerpetualCalendarPages(di)
-    print preamble(di)
-    print TitledPage(di, sys.argv[0]).page()
-    print pps.page()
-    print postamble(di)
+    print(preamble(di))
+    print(TitledPage(di, sys.argv[0]).page())
+    print(pps.page())
+    print(postamble(di))

@@ -1,23 +1,23 @@
 import sys
-import StringIO
-import Image
+import io
+import imageio as Image
 try:
-    #print "EpsImagePlugin"
+    #print("EpsImagePlugin")
     import EpsImagePlugin
 except:
     try:
-        #print "PIL.EpsImagePlugin"
+        #print("PIL.EpsImagePlugin")
         from PIL import EpsImagePlugin
     except:
-        #print "PILcompat.EpsImagePlugin"
+        #print("PILcompat.EpsImagePlugin")
         from PILcompat import EpsImagePlugin
 from os import getcwd
 from os.path import join as path_join
 from os.path import exists as path_exists
 
-from DiaryInfo import DiaryInfo
-from DSC import preamble, postamble
-from BasicPostscriptPage import BasicPostscriptPage
+from makediary.DiaryInfo           import DiaryInfo
+from makediary.DSC                 import preamble, postamble
+from makediary.BasicPostscriptPage import BasicPostscriptPage
 
 
 class PostscriptPage(BasicPostscriptPage):
@@ -36,7 +36,7 @@ class PostscriptPage(BasicPostscriptPage):
                 im = im.convert("RGB")
         else:
             im = im.convert("L")
-        epsfile = StringIO.StringIO()
+        epsfile = io.StringIO()
 
         rawxscale = float(xmaxsize)/xsize
         rawyscale = float(ymaxsize)/ysize
@@ -167,6 +167,6 @@ class PostscriptPage(BasicPostscriptPage):
 
 if __name__ == '__main__':
     di = DiaryInfo(sys.argv[0], sys.argv[1:])
-    print preamble(di)
-    print PostscriptPage(di).page()
-    print postamble(di)
+    print(preamble(di))
+    print(PostscriptPage(di).page())
+    print(postamble(di))

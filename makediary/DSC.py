@@ -1,18 +1,18 @@
 import sys
-from mx import DateTime
+from makediary.DT import DT
 
-from DiaryInfo import DiaryInfo
-from versionNumber import versionNumber
+from makediary.DiaryInfo     import DiaryInfo
+from makediary.versionNumber import versionNumber
 
 
 def preamble(di):
     """Return the document header as a string."""
     p =   "%!PS-Adobe-2.0\n" \
         + ("%% -- printed by %s %s, %s\n" % (di.myname, di.opts,
-                                             DateTime.now().strftime("%Y-%m-%dT%H%M%S%Z")))
+                                             DT.now().strftime("%Y-%m-%dT%H%M%S%Z")))
     p = p + "%%%%Creator: %s, by Russell Steicke, version: %s\n" % \
         (di.myname,versionNumber) \
-        + DateTime.now().strftime("%%%%CreationDate: %a, %d %b %Y %H:%M:%S %z\n") \
+        + DT.now().strftime("%%%%CreationDate: %a, %d %b %Y %H:%M:%S %z\n") \
         + "%%%%BoundingBox: 0 0 %.0f %.0f\n" % \
         (di.paperWidth * di.points_mm, di.paperHeight * di.points_mm)
     p = p + "%%DocumentNeededResources: font Times-Roman\n" \
@@ -209,11 +209,11 @@ def monthCalendars(di):
     # printing a calendar.
     for year in yearslist:
 
-        day_b = DateTime.DateTime(year,  1,  1).day_of_week
-        day_e = DateTime.DateTime(year, 12, 31).day_of_week
+        day_b = DT(year,  1,  1).day_of_week()
+        day_e = DT(year, 12, 31).day_of_week()
 
         for month in range(1,13):
-            mtime = DateTime.DateTime(year,month)
+            mtime = DT(year,month,1)
             # Work in a 1000-scaled world to make the numbers a bit easier.
             # "0 25 TR" here is to move things up very slightly, so that the
             # bottom line is not right on the bottom.  "25" should be calculated,
@@ -235,12 +235,12 @@ def monthCalendars(di):
                 + "%5.3f (S) SWP2D sub %5.3f M (S) SH\n" % (a7*5.5,a8*6.0) \
                 + "%5.3f (S) SWP2D sub %5.3f M (S) SH\n" % (a7*6.5,a8*6.0)
             thisweek = 0            # Used to calculate what line to print the week on
-            ndays = mtime.days_in_month
+            ndays = mtime.days_in_month()
             for day in range(1,ndays+1):
-                wday = DateTime.DateTime(year,month,day).day_of_week
+                wday = DT(year,month,day).day_of_week()
                 p = p + "(%d) dup SWP2D %3.2f exch sub %5.3f M SH\n" \
                     % (day, wday*a7+a7/2, (5-thisweek)*a8 )
-                if wday==DateTime.Sunday:
+                if wday==DT.Sunday:
                     thisweek = thisweek + 1
             p = p + "0 -25 TR "
             # Now draw a box around the month, just for boundary checking
@@ -255,5 +255,5 @@ def monthCalendars(di):
 
 if __name__ == '__main__':
     di = DiaryInfo(sys.argv[0], sys.argv[1:])
-    print preamble(di)
-    print postamble(di)
+    print(preamble(di))
+    print(postamble(di))

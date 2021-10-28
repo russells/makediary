@@ -1,8 +1,8 @@
 import sys
 
-from DiaryInfo import DiaryInfo
-from DSC import preamble, postamble
-from PostscriptPage import PostscriptPage
+from makediary.DiaryInfo      import DiaryInfo
+from makediary.DSC            import preamble, postamble
+from makediary.PostscriptPage import PostscriptPage
 
 
 class EPSFilePage(PostscriptPage):
@@ -64,15 +64,15 @@ class EPSFilePage(PostscriptPage):
         if isinstance(self.epsfilename, ''.__class__):
             try:
                 epsfile = open(self.epsfilename, 'r')
-            except IOError, reason:
-                print >>sys.stderr, "Can't open %s: %s" % (self.epsfilename, str(reason))
+            except IOError as reason:
+                print("Can't open %s: %s" % (self.epsfilename, str(reason)), file=sys.stderr)
                 return "%% +++ Error opening %s: %s\n" % (self.epsfilename, str(reason))
         else:
             epsfile = self.epsfilename
 
         errmsg, boundingbox = self.findBoundingBoxInEPS(self.epsfilename, epsfile)
         if errmsg:
-            print >>sys.stderr, "%s: %s" % (sys.argv[0], errmsg)
+            print("%s: %s" % (sys.argv[0], errmsg), file=sys.stderr)
             return "%% +++ %s\n" % self.postscriptEscape(errmsg)
 
         if self.epstitle:
@@ -177,16 +177,16 @@ class HalfEPSFilePage(EPSFilePage):
 
         try:
             epsfile = open(self.epsfilepathname, 'r')
-        except IOError, reason:
-            print >>sys.stderr, "%s: Can't open %s: %s" % (sys.argv[0],
+        except IOError as reason:
+            print("%s: Can't open %s: %s" % (sys.argv[0],
                                                            self.epsfilepathname,
-                                                           str(reason))
+                                                           str(reason)), file=sys.stderr)
             return "%% +++ Error opening %s: %s\n" % (pe(self.epsfilepathname),
                                                       pe(str(reason)))
 
         errmsg, boundingbox = self.findBoundingBoxInEPS(self.epsfilepathname, epsfile)
         if errmsg:
-            print >>sys.stderr, "%s: %s" % (sys.argv[0], errmsg)
+            print("%s: %s" % (sys.argv[0], errmsg), file=sys.stderr)
             return "%% +++ %s\n" % self.postscriptEscape(errmsg)
         s = s + "%% %s: bounding box = %s\n" % (self.__class__.__name__, str(boundingbox))
 
@@ -203,8 +203,8 @@ class HalfEPSFilePage(EPSFilePage):
 
         # Sanity check.  We can't operate with width or height <= 0.
         if eps_width <= 0 or eps_height <= 0:
-            print >>sys.stderr, "%s: Cannot work with this bounding box: %s (file: %s)" % \
-                (sys.argv[0], str(boundingbox), self.epsfilepathname)
+            print("%s: Cannot work with this bounding box: %s (file: %s)" % \
+                (sys.argv[0], str(boundingbox), self.epsfilepathname), file=sys.stderr)
             s += "%% Cannot work with this BoundingBox: %s\n" % str(boundingbox)
             return s
 
@@ -292,7 +292,7 @@ class TwoEPSFilePages(EPSFilePage):
 
         epsfilepathname = self.findEPSFile(self.epsfilename)
         if epsfilepathname is None:
-            print >>sys.stderr, "cannot find %s" % self.epsfilename
+            print("cannot find %s" % self.epsfilename, file=sys.stderr)
             return "%% %s: cannot find %s\n" % (self.__class__.__name__, self.epsfilename)
         s = s + "%% %s: found %s at %s\n" % (self.__class__.__name__,
                                              self.epsfilename, epsfilepathname)
@@ -315,7 +315,7 @@ if __name__ == '__main__':
     di = DiaryInfo(sys.argv[0], sys.argv[1:])
     #di.epsFilePageOption('eps/units/units.eps|EPS file units.eps', 1)
     #di.epsFilePageOption('eps/units/units.eps', 2)
-    print preamble(di)
-    print EPSFilePage(di, 'makediary-qrcode.eps').page()
-    print TwoEPSFilePages(di, 'makediary-qrcode.eps').page()
-    print postamble(di)
+    print(preamble(di))
+    print(EPSFilePage(di, 'makediary-qrcode.eps').page())
+    print(TwoEPSFilePages(di, 'makediary-qrcode.eps').page())
+    print(postamble(di))

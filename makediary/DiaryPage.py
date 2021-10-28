@@ -1,11 +1,11 @@
 import sys
-from mx import DateTime
 
-from DiaryInfo import DiaryInfo
-from DSC import preamble, postamble
-from PostscriptPage import PostscriptPage
-from TitledPage import TitledPage
-import Moon
+from makediary.DT             import DT
+from makediary.DiaryInfo      import DiaryInfo
+from makediary.DSC            import preamble, postamble
+from makediary.PostscriptPage import PostscriptPage
+from makediary.TitledPage     import TitledPage
+from makediary import Moon
 
 
 class DiaryPage(PostscriptPage):
@@ -121,17 +121,17 @@ class DiaryPage(PostscriptPage):
         s = "%%--- diary day for %d-%02d-%02d\n" % (dt.year,dt.month,dt.day)
 
         # Find out if this is a holiday.
-        dd = DateTime.DateTime(dt.year, dt.month, dt.day)
+        dd = DT(dt.year, dt.month, dt.day)
         isholiday = 0
-        if self.di.events.has_key(dd):
+        if dd in self.di.events:
             #sys.stderr.write("%s has events\n" % dd)
             eventlist = self.di.events[dd]
             for event in eventlist:
-                if event.has_key('holiday'):
+                if 'holiday' in event:
                     #sys.stderr.write("%s is a holiday: %s\n" % (dd,str(event)))
                     isholiday = 1
 
-        isweekend = dd.day_of_week==DateTime.Saturday or dd.day_of_week==DateTime.Sunday
+        isweekend = dd.day_of_week()==DT.Saturday or dd.day_of_week()==DT.Sunday
 
         # Draw the box around the title.  Fill in the box with the appropriate shading, which
         # is determined from the type of day and a user option.
@@ -148,7 +148,7 @@ class DiaryPage(PostscriptPage):
         elif self.di.dayTitleShading == "none":
             gr = 0
         else:
-            print >>sys.stderr, "Unknown day title shading: \"%s\"" % self.di.dayTitleShading
+            print('Unknown day title shading: \"%s\"' % self.di.dayTitleShading, file=sys.stderr)
             sys.exit(1)
 
         if self.di.dayTitleBoxes:
@@ -171,7 +171,7 @@ class DiaryPage(PostscriptPage):
             s = s + "(%s) dup %5.3f exch SW pop sub %5.3f M SH\n" % \
                 (dtext,self.dwidth-self.titlefontgap,self.titlefonty)
         # And draw the julian day as well
-        jtext = "%03d/%03d" % (dt.day_of_year, di.currentJDaysLeft)
+        jtext = "%03d/%03d" % (dt.jday(), di.currentJDaysLeft)
         s = s + "/%s %5.3f selectfont " % (di.subtitleFontName, self.subtitlefontsize)
         if di.evenPage:
             s = s + "(%s) dup %5.3f exch SW pop sub %5.3f M SH\n" % \
@@ -252,7 +252,7 @@ class DiaryPage(PostscriptPage):
         di = self.di
         date = di.dt
         #date = (dt.year, dt.month, dt.day)
-        if not di.events.has_key(date):
+        if not date in di.events:
             return
         eventlist = di.events[date]
         nevents = len(eventlist)
@@ -267,32 +267,32 @@ class DiaryPage(PostscriptPage):
         if di.drawEventImages:
             for i in range(nevents):
                 event = eventlist[i]
-                if event.has_key('image') \
-                        and not (event.has_key('_warning') and event['_warning']):
+                if 'image' in event \
+                        and not ('_warning' in event and event['_warning']):
                     textx = textx + 2.2*yspace
                     break
 
         for i in range(nevents):
             event = eventlist[i]
             # Print an image, unless this is a warning event.
-            if event.has_key('image') and di.drawEventImages \
-                    and not (event.has_key('_warning') and event['_warning']):
+            if 'image' in event and di.drawEventImages \
+                    and not ('_warning' in event and event['_warning']):
                 s = s + self.image(event['image'],
                                    picx + 0.1*di.lineSpacing, y - yspace + 0.1*di.lineSpacing,
                                    1.8*yspace, 1.8*yspace)
                 imageDrawn = True
             else:
                 imageDrawn = False
-            if event.has_key('small'):
+            if 'small' in event:
                 eventFontSize = yspace*0.3
             else:
                 eventFontSize = yspace*0.6
-            if event.has_key('personal'):
+            if 'personal' in event:
                 s = s + '/%s-Oblique %5.3f selectfont\n' % (di.subtitleFontName, eventFontSize)
             else:
                 s = s + '/%s %5.3f selectfont\n' % (di.subtitleFontName, eventFontSize)
 
-            if event.has_key('grey')  and  event['grey']:
+            if 'grey' in event  and  event['grey']:
                 s = s + "0.5 setgray "
             else:
                 s = s + "0 setgray "
@@ -470,7 +470,7 @@ class DiaryPage(PostscriptPage):
         s = "%--- three month calendars\n"
         # Page title.
         s = s + self.title(di.dt.strftime("%B %Y"),
-                           "Week %d" % di.dt.iso_week[1])
+                           "Week %d" % di.dt.isocalendar()[1])
         # Calculate the area we have for drawing.
         if di.layout == "week-to-opening" or di.layout == "day-to-page":
             b = di.bMargin + self.pHeight_diary*0.75
@@ -528,7 +528,7 @@ class DiaryPage(PostscriptPage):
 
 
     def getOffsetMonth(self, dt, offset):
-        '''Return a DateTime object corresponding to some time in the month indicated by the
+        '''Return a DT object corresponding to some time in the month indicated by the
         integer offset from the current month.'''
 
         if offset==0:
@@ -536,7 +536,7 @@ class DiaryPage(PostscriptPage):
         else:
             # Base this from the middle of the month, so we don't get strange month skip
             # effects when the current day is near the beginning or end of the month.
-            return DateTime.DateTime(dt.year, dt.month, 15) + 30.5 * DateTime.oneDay * offset
+            return DT(dt.year, dt.month, 15) + 30.5 * DT.delta(1) * offset
 
 
     def sixMonthsAtBottom(self):
@@ -546,13 +546,13 @@ class DiaryPage(PostscriptPage):
 
         # If we start on the 15th day of the relevant month, we can add or subtract 30 days
         # several times without worrying about crossing a month boundary when we don't want to.
-        date = DateTime.DateTime( self.di.openingCalendarsCurrentDate.year,
-                                  self.di.openingCalendarsCurrentDate.month,
-                                  15)
+        date = DT( self.di.openingCalendarsCurrentDate.year,
+                   self.di.openingCalendarsCurrentDate.month,
+                   15)
         if self.di.evenPage:
-            date -= DateTime.oneDay * 30 * 5
+            date -= DT.delta(1) * 30 * 5
         else:
-            date += DateTime.oneDay * 30
+            date += DT.delta(1) * 30
         s = "%% -- Bottom calendars, starting at %s\n" % date.strftime("%Y %m")
 
         # Proportion of the month box to fill.
@@ -574,7 +574,7 @@ class DiaryPage(PostscriptPage):
                      self.dwidth*0.96/6.0,
                      self.bottomcalheight*0.96,
                      0)
-            date += DateTime.oneDay * 30
+            date += DT.delta(1) * 30
         return s
 
 
@@ -588,8 +588,8 @@ class DiaryPage(PostscriptPage):
 
         # Calculate the current phase, and the previous and next day's phases
         dt = di.dt
-        dty = di.dt - DateTime.oneDay
-        dtt = di.dt + DateTime.oneDay
+        dty = di.dt - DT.delta(1)
+        dtt = di.dt + DT.delta(1)
         currentPhase = self.mooncalc.calc_phase(dt.year, dt.month, dt.day)
         previousPhase = self.mooncalc.calc_phase(dty.year, dty.month, dty.day)
         nextPhase = self.mooncalc.calc_phase(dtt.year, dtt.month, dtt.day)
@@ -662,11 +662,11 @@ class DiaryPage(PostscriptPage):
             s = self.sixMonthsAtBottom() + self.largeDayOnPage()
         elif self.di.layout == "work":
             s = self.sixMonthsAtBottom() + self.workLayoutTopDay()
-            if self.di.dt.day_of_week == DateTime.Saturday:
+            if self.di.dt.day_of_week() == DT.Saturday:
                 s += self.workLayoutSaturday() + self.workLayoutSunday()
             else:
                 s += self.workLayoutBottomDay()
-        elif self.di.dt.day_of_week == DateTime.Monday:
+        elif self.di.dt.day_of_week() == DT.Monday:
             if self.di.layout == "week-to-opening":
                 s = self.titleAndThreeMonthsAtTop() +  \
                     self.printMondayWTO() + \
@@ -695,9 +695,9 @@ class DiaryPage(PostscriptPage):
 
 if __name__ == '__main__':
     di = DiaryInfo(sys.argv[0], sys.argv[1:])
-    print preamble(di)
-    print TitledPage(di, sys.argv[0]).page()
+    print(preamble(di))
+    print(TitledPage(di, sys.argv[0]).page())
     for i in range(4):
         dp = DiaryPage(di)
-        print dp.page()
-    print postamble(di)
+        print(dp.page())
+    print(postamble(di))

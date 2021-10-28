@@ -1,10 +1,10 @@
 import sys
-from mx import DateTime
 
-from DiaryInfo import DiaryInfo
-from DSC import preamble, postamble
-from PostscriptPage import PostscriptPage
-from TitledPage import TitledPage
+from makediary.DT             import DT
+from makediary.DiaryInfo      import DiaryInfo
+from makediary.DSC            import preamble, postamble
+from makediary.PostscriptPage import PostscriptPage
+from makediary.TitledPage     import TitledPage
 
 
 class ExpensePage(PostscriptPage):
@@ -24,7 +24,7 @@ class ExpensePage(PostscriptPage):
 
     def titleblock(self,month,ypos):
         s = "%% title block: month=%d ypos=%5.3f\n" % (month,ypos)
-        monthname = DateTime.DateTime(self.di.dtbegin.year,month).strftime("%B")
+        monthname = DT(self.di.dtbegin.year,month,1).strftime("%B")
         if self.di.evenPage:
             titlex = self.pLeft + self.titleheight
             titley = ypos
@@ -102,8 +102,8 @@ class TwoExpensePages:
 
 if __name__ == '__main__':
     di = DiaryInfo(sys.argv[0], sys.argv[1:])
-    print preamble(di)
-    print TitledPage(di, sys.argv[0]).page()
-    print TwoExpensePages().page(di)
-    print FourExpensePages().page(di)
-    print postamble(di)
+    print(preamble(di))
+    print(TitledPage(di, sys.argv[0]).page())
+    print(TwoExpensePages().page(di))
+    print(FourExpensePages().page(di))
+    print(postamble(di))

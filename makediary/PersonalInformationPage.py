@@ -1,8 +1,8 @@
 import sys
 
-from DSC import preamble, postamble
-from DiaryInfo import DiaryInfo
-from PostscriptPage import PostscriptPage
+from makediary.DSC            import preamble, postamble
+from makediary.DiaryInfo      import DiaryInfo
+from makediary.PostscriptPage import PostscriptPage
 
 
 class PersonalInformationPage(PostscriptPage):
@@ -129,6 +129,6 @@ class PersonalInformationPage(PostscriptPage):
 if __name__ == '__main__':
     di = DiaryInfo(sys.argv[0], sys.argv[1:])
     pip = PersonalInformationPage(di)
-    print preamble(di)
-    print pip.page()
-    print postamble(di)
+    print(preamble(di))
+    print(pip.page())
+    print(postamble(di))

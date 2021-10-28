@@ -5,7 +5,7 @@ from distutils.core import setup
 
 # This version number must match the version number in VERSION.
 
-_makeDiaryVersion = '0.3.2'
+_makeDiaryVersion = '0.4.0'
 
 setup(name='makediary',
       description="""Make printed diaries.""",
@@ -18,7 +18,7 @@ setup(name='makediary',
 
       author='Russell Steicke',
       author_email='russells@adelie.cx',
-      url='http://6u.adelie.cx/makediary',
+      #url='http://6u.adelie.cx/makediary',
       version=_makeDiaryVersion,
       license="GPL",
       packages=['makediary'],

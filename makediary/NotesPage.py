@@ -1,8 +1,8 @@
 import sys
 
-from DiaryInfo import DiaryInfo
-from DSC import preamble, postamble
-from PostscriptPage import PostscriptPage
+from makediary.DiaryInfo      import DiaryInfo
+from makediary.DSC            import preamble, postamble
+from makediary.PostscriptPage import PostscriptPage
 
 
 class NotesPage(PostscriptPage):
@@ -57,7 +57,9 @@ class NotesPage(PostscriptPage):
         s = s + "%5.3f %5.3f M\n" % (self.pLeft,self.pBottom)
         # Print vertical lines, missing lines that go all the way to the top of the page.
         s = s + "% vertical lines\n"
-        for n in range(1,sbox)+range(sbox+1,vnlines-sbox)+range(vnlines-sbox+1,vnlines):
+        for n in list(range(1,sbox)) + \
+                 list(range(sbox+1,vnlines-sbox)) + \
+                 list(range(vnlines-sbox+1,vnlines)):
             s = s + "%5.3f 0 M 0 %5.3f RL S\n" % (self.pWidth - vlinespacing*n,
                                                   self.pHeight - 2 * hlinespacing)
         # Print the vertical lines that do go to the top of the page.
@@ -72,6 +74,6 @@ class NotesPage(PostscriptPage):
 if __name__ == '__main__':
     di = DiaryInfo(sys.argv[0], sys.argv[1:])
     np = NotesPage(di)
-    print preamble(di)
-    print np.page()
-    print postamble(di)
+    print(preamble(di))
+    print(np.page())
+    print(postamble(di))

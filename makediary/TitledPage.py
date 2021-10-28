@@ -1,8 +1,8 @@
 import sys
 
-from DiaryInfo import DiaryInfo
-from DSC import preamble, postamble
-from PostscriptPage import PostscriptPage
+from makediary.DiaryInfo      import DiaryInfo
+from makediary.DSC            import preamble, postamble
+from makediary.PostscriptPage import PostscriptPage
 
 
 class TitledPage(PostscriptPage):
@@ -16,6 +16,6 @@ class TitledPage(PostscriptPage):
 if __name__ == '__main__':
     di = DiaryInfo(sys.argv[0], sys.argv[1:])
     tp = TitledPage(di, "Titled page")
-    print preamble(di)
-    print tp.page()
-    print postamble(di)
+    print(preamble(di))
+    print(tp.page())
+    print(postamble(di))

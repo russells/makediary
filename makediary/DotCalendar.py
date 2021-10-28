@@ -9,7 +9,9 @@ import os
 from os.path import expanduser
 import re
 import copy
-from mx.DateTime import *
+#from mx.DateTime import * # With * we don't know what names are imported.
+#from datetime import *
+from makediary.DT import DT
 
 class DotCalendar:
 
@@ -190,7 +192,7 @@ class DotCalendar:
             name = expanduser(os.environ['DIARY_FILE'])
             if os.path.isfile(name):
                 return name
-        except KeyError, args:
+        except KeyError as args:
             pass
         try:
             #print "Trying DIARY_DIR"
@@ -198,7 +200,7 @@ class DotCalendar:
             name = os.path.join(diarydir, '.calendar')
             if os.path.isfile(name):
                 return name
-        except KeyError, args:
+        except KeyError as args:
             pass
         try:
             #print "Trying PCAL_DIR"
@@ -206,14 +208,14 @@ class DotCalendar:
             name = os.path.join(pcaldir, '.calendar')
             if os.path.isfile(name):
                 return name
-        except KeyError, args:
+        except KeyError as args:
             pass
         try:
             #print "Trying current dir"
             name = '.calendar'
             if os.path.isfile(name):
                 return name
-        except KeyError, args:
+        except KeyError as args:
             pass
         try:
             #print "Trying HOME"
@@ -221,7 +223,7 @@ class DotCalendar:
             name = os.path.join(home, '.calendar')
             if os.path.isfile(name):
                 return name
-        except KeyError, args:
+        except KeyError as args:
             pass
         return None
 
@@ -263,7 +265,7 @@ class DotCalendar:
                 self.debug("match: %s\n" % m)
                 self.debug("--- dictionary groups\n")
                 gd = m.groupdict()
-                for gk in gd.keys():
+                for gk in list(gd.keys()):
                     g = gd.get(gk)
                     if g is None:
                         self.debug("Group %s is None\n" % gk)
@@ -314,19 +316,19 @@ class DotCalendar:
             return None
         gd = match.groupdict()
         day = int(gd['day'])
-        if self.monthnames.has_key(gd['month']):
+        if gd['month'] in self.monthnames:
             month = self.monthnames[gd['month']]
         else:
             month = int(gd['month'])
-        year = -1
-        if gd.has_key('year'):
+        year = DT.ANYYEAR
+        if 'year' in gd:
             if gd['year'] is not None:
                 year = int(gd['year'])
         text = gd['text']
         # Hack warning....
-        if gd.has_key('holiday') and gd['holiday'] is not None:
+        if 'holiday' in gd and gd['holiday'] is not None:
             text = text + " #<<holiday>> "
-        self.addEvent(DateTime(year,month,day), text)
+        self.addEvent(DT(year,month,day), text)
         self.debug('re3: dmy=%d,%d,%d\n' % (day,month,year))
         return match
 
@@ -361,9 +363,9 @@ class DotCalendar:
         t = t.strip()
         event['pre text'] = t.strip()
         #event['text'] = self.percentSubEvent(event)
-        if date.year==-1:               # For every year
+        if date.year==DT.ANYYEAR:       # For every year
             for y in self.yearlist:
-                newdate = DateTime(y, date.month, date.day)
+                newdate = DT(y, date.month, date.day)
                 # We need a new copy here, or we just keep modifying the same one
                 newevent = copy.deepcopy(event)
                 self.addEventToDate(newdate, newevent)
@@ -374,9 +376,9 @@ class DotCalendar:
     def isHoliday(self, date):
         """Find out if a particular date is a holiday or not.  Weekend days are not counted as
         holidays, unless specified as a holiday previously."""
-        if datelist.has_key(date):
+        if date in datelist:
             d = datelist[date]
-            if d.has_key('holiday'):
+            if 'holiday' in d:
                 return 1
         return 0
 
@@ -476,12 +478,12 @@ class DotCalendar:
             i = i + 1
         event['text'] = text
         # Add the event to the date, creating the list for that date if necessary.
-        if not self.datelist.has_key(date):
+        if date not in self.datelist:
             self.datelist[date] = []
         self.datelist[date].append(event)
         
         # Now check for a warning period
-        if event.has_key('warn'):
+        if 'warn' in event:
             warn = event['warn']
             warnm = re.match('^\s*(?P<n>[0-9]+)\s+(?P<period>day|week|month)s?\s*$', warn, re.I)
             if warnm:
@@ -506,7 +508,7 @@ class DotCalendar:
                 warnevent['text'] = "(" + warnevent['text'] + " -- " + warntimetext + ")"
                 warnevent['_warning'] = 1
                 warnevent['_warndate'] = copy.deepcopy(date)
-                if not self.datelist.has_key(warndate):
+                if warndate not in self.datelist:
                     self.datelist[warndate] = []
                 self.datelist[warndate].append(warnevent)
 
@@ -528,7 +530,7 @@ class DotCalendar:
         while newmonth > 12:
             newmonth = newmonth - 12
             newyear = newyear + 1
-        return DateTime(newyear, newmonth, date.day, date.hour, date.minute, date.second)
+        return DT(newyear, newmonth, date.day, date.hour, date.minute, date.second)
 
 
 # End of class definition
@@ -542,20 +544,19 @@ if __name__ == '__main__':
         y = now().year
     d.setYears([y-1,y+1,y+2])
     d.addYear(y)
-    print "hasYear(2002)==%s" % d.hasYear(2002)
-    print "hasYear(2005)==%s" % d.hasYear(2005)
-    print "--- yearlist == %s" % d.yearlist
-    print
+    print("hasYear(2002)==%s" % d.hasYear(2002))
+    print("hasYear(2005)==%s" % d.hasYear(2005))
+    print("--- yearlist == %s" % d.yearlist)
+    print()
     d.readCalendarFile()
-    keys = d.datelist.keys()
-    keys.sort()
+    keys = sorted(d.datelist.keys())
     for key in keys:
-        print "date %s" % key
+        print("date %s" % key)
         for date in d.datelist[key]:
-            print "---"
+            print("---")
             for datekey in date:
-                print datekey,":",date[datekey]
-        print
-    print "Calendar file was %s" % d.cfilename
-    print "--- yearlist == %s" % d.yearlist
+                print(datekey,":",date[datekey])
+        print()
+    print("Calendar file was %s" % d.cfilename)
+    print("--- yearlist == %s" % d.yearlist)
 

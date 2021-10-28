@@ -1,8 +1,8 @@
 import sys
 
-from DiaryInfo import DiaryInfo
-from DSC import preamble, postamble
-from NotesPage import NotesPage
+from makediary.DiaryInfo import DiaryInfo
+from makediary.DSC       import preamble, postamble
+from makediary.NotesPage import NotesPage
 
 
 class LogbookPage(NotesPage):
@@ -23,6 +23,6 @@ class LogbookPage(NotesPage):
 if __name__ == '__main__':
     di = DiaryInfo(sys.argv[0], sys.argv[1:])
     np = LogbookPage(di)
-    print preamble(di)
-    print np.page()
-    print postamble(di)
+    print(preamble(di))
+    print(np.page())
+    print(postamble(di))

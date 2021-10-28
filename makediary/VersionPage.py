@@ -1,11 +1,10 @@
 import sys
 
-from mx import DateTime
-
-from DiaryInfo import DiaryInfo
-from DSC import preamble, postamble
-from PostscriptPage import PostscriptPage
-from versionNumber import versionNumber
+from makediary.DT             import DT
+from makediary.DiaryInfo      import DiaryInfo
+from makediary.DSC            import preamble, postamble
+from makediary.PostscriptPage import PostscriptPage
+from makediary.versionNumber  import versionNumber
 
 
 class VersionPage(PostscriptPage):
@@ -16,7 +15,7 @@ class VersionPage(PostscriptPage):
         linex = fontSize*6
         s=""
         versionString = self.postscriptEscape(versionNumber)
-        dateString = self.postscriptEscape(DateTime.now() \
+        dateString = self.postscriptEscape(DT.now() \
                                            .strftime("Generated at: %Y-%m-%dT%H:%M:%S%Z"))
         urlString = "http://adelie.cx/makediary/"
         s = s + "% --- Version page\n" \
@@ -44,6 +43,6 @@ class VersionPage(PostscriptPage):
 if __name__ == '__main__':
     di = DiaryInfo(sys.argv[0], sys.argv[1:])
     vp = VersionPage(di)
-    print preamble(di)
-    print vp.page()
-    print postamble(di)
+    print(preamble(di))
+    print(vp.page())
+    print(postamble(di))

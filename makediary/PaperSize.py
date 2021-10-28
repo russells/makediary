@@ -31,9 +31,14 @@ def getPaperSizeNames():
 
     """Return a list of the names of all the paper sizes."""
 
-    sizes = _paperSizes.keys()
-    sizes.sort()
-    return sizes
+    # FIXME - there is probably a more pythonic way of taking this copy.
+
+    sizes = list(_paperSizes.keys())
+    sizes_copy = [ ]
+    for size in sizes:
+        sizes_copy.append(size)
+    sizes_copy.sort()
+    return sizes_copy
 
 
 # This section is for emacs.

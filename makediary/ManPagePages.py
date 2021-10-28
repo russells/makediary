@@ -2,14 +2,14 @@ import sys
 import subprocess
 import re
 
-import StringIO
-from DiaryInfo import DiaryInfo
-from DSC import preamble, postamble
-from PostscriptPage import PostscriptPage
-from EPSFilePages import EPSFilePage
+from io import StringIO
+from makediary.DiaryInfo      import DiaryInfo
+from makediary.DSC            import preamble, postamble
+from makediary.PostscriptPage import PostscriptPage
+from makediary.EPSFilePages   import EPSFilePage
 
 
-class NamedStringIO(StringIO.StringIO):
+class NamedStringIO(StringIO):
     """A string IO class that holds an informative name.
 
     The informative name is returned by __str__(), instead of
@@ -18,7 +18,7 @@ class NamedStringIO(StringIO.StringIO):
 
     def __init__(self, s, name):
         self.name = name
-        StringIO.StringIO.__init__(self, s)
+        StringIO.__init__(self, s)
 
     def __str__(self):
         return self.name
@@ -53,12 +53,12 @@ class ManPagePages(PostscriptPage):
             man_stdout, man_stderr = man_process.communicate()
             man_returncode = man_process.returncode
             if man_returncode:
-                print >>sys.stderr, "%s: cannot get man page for %s: (%d):\n%s" % \
-                      (sys.argv[0], man_par_name, man_returncode, man_stderr)
+                print("%s: cannot get man page for %s: (%d):\n%s" % \
+                      (sys.argv[0], man_par_name, man_returncode, man_stderr), file=sys.stderr)
                 return "%% -- Cannot run man -t %s\n" % man_nonpar_name
-        except OSError, e:
-            print >>sys.stderr, "%s: cannot run ``man -t %s'': (%d):\n%s" % \
-                  (sys.argv[0], man_nonpar_name, e.errno, e.strerror)
+        except OSError as e:
+            print("%s: cannot run ``man -t %s'': (%d):\n%s" % \
+                  (sys.argv[0], man_nonpar_name, e.errno, e.strerror), file=sys.stderr)
             return "%% -- Cannot run man -t %s %s\n" % man_nonpar_name
 
         # Convert the man output into EPS.
@@ -72,12 +72,12 @@ class ManPagePages(PostscriptPage):
             eps_stdout, eps_stderr = eps_process.communicate(man_stdout)
             eps_returncode = eps_process.returncode
             if eps_returncode:
-                print >>sys.stderr, "%s: error running ps2eps: (%d):\n%s" % \
-                      (sys.argv[0], eps_returncode, eps_stderr)
+                print("%s: error running ps2eps: (%d):\n%s" % \
+                      (sys.argv[0], eps_returncode, eps_stderr), file=sys.stderr)
                 return "% -- Cannot run ps2eps\n"
-        except OSError, e:
-            print >>sys.stderr, "%s: cannot run ps2eps: (%d):\n%s" % \
-                  (sys.argv[0], e.errno, e.strerror)
+        except OSError as e:
+            print("%s: cannot run ps2eps: (%d):\n%s" % \
+                  (sys.argv[0], e.errno, e.strerror), file=sys.stderr)
             return "% -- Cannot run ps2eps\n"
 
         # We don't need these any more.
@@ -104,13 +104,13 @@ class ManPagePages(PostscriptPage):
                 pss_stdout, pss_stderr = pss_process.communicate(eps_stdout)
                 pss_returncode = pss_process.returncode
                 if pss_returncode:
-                    print >>sys.stderr, "%s: cannot get page %d using psselect: (%d):\n%s" % \
-                          (sys.argv[0], pageNumber, pss_returncode, pss_stderr)
+                    print("%s: cannot get page %d using psselect: (%d):\n%s" % \
+                          (sys.argv[0], pageNumber, pss_returncode, pss_stderr), file=sys.stderr)
                     s += "%% Cannot run psselect -p%d\n" % pageNumber
                     return s
-            except OSError, e:
-                print >>sys.stderr, "%s: cannot get page %d: (%d):\n%s" % \
-                      (sys.argv[0], pageNumber, pss_returncode, pss_stderr)
+            except OSError as e:
+                print("%s: cannot get page %d: (%d):\n%s" % \
+                      (sys.argv[0], pageNumber, pss_returncode, pss_stderr), file=sys.stderr)
                 s += "%% Cannot get page %d" % pageNumber
                 return s
 
@@ -140,7 +140,7 @@ if __name__ == '__main__':
     di.manPageOption('ls(1)')
     di.manPageOption('mkdir')
     di.manPageOption('umount,8')
-    print preamble(di)
+    print(preamble(di))
     for manPageInfo in di.manPages:
-        print ManPagePages(di, manPageInfo).page()
-    print postamble(di)
+        print(ManPagePages(di, manPageInfo).page())
+    print(postamble(di))
