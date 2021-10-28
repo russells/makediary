@@ -45,7 +45,6 @@ $P $MD --line-thickness=1
 $P $MD --margins-multiplier=3
 $P $MD --northern-hemisphere-moon
 $P $MD --no-appointment-times
-$P $MD --no-shading
 $P $MD --no-smiley
 $P $MD --notes-pages=0
 $P $MD --notes-pages=100

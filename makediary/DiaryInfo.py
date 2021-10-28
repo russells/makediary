@@ -107,7 +107,7 @@ class DiaryInfo:
                   "    [--line-thickness=mm] [--margins-multiplier=f] [--moon]\n",
                   "    [--layout=LAYOUT] [--logbook-pages=N] [--man-page=MANPAGE]\n",
                   "    [--northern-hemisphere-moon] [--no-appointment-times] [--no-smiley]\n",
-                  "    [--no-shading] [--notes-pages=n] [--page-numbers]\n",
+                  "    [--notes-pages=n] [--page-numbers]\n",
                   "    [--page-registration-marks] [--page-x-offset=Xmm]\n",
                   "    [--page-y-offset=Ymm] [--pdf] [--planner-years=n] \n",
                   "    [--pcal] [--pcal-planner] [--perpetual-calendars]\n",
