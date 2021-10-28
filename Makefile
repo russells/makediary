@@ -1,6 +1,6 @@
 # Make makediary stuff.
 
-default:
+default: eps man
 
 .PHONY: eps
 eps:
@@ -17,6 +17,6 @@ clean:
 
 .PHONY: realclean
 realclean: clean
-	rm -rf dist dist-deb build tmp MANIFEST
+	rm -rf build tmp
 	rm -f */*.pyc
 	find . -type f -name \*~ -print0 | xargs -0 rm -f
