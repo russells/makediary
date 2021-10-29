@@ -1,5 +1,11 @@
 -*- outline -*-
 
+* Make the tests better.
+The test program (./test-all-diary-types.sh) just tries to use every option
+to see what breaks.  At the least, save the output of each run so it can be
+inspected for flaws.
+
+Further, make the script look for return codes.
 
 * Images.
 EpsImagePlugin takes the number of pixels in the image, and makes that the

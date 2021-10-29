@@ -5,16 +5,11 @@ PostScript code for a year diary.  The diary can be on one of a range of
 paper sizes, and can have a number of different types of front matter
 pages.
 
-It's presented with a setup.py for python's distutils.  To make an
-installable package, do:
-
-  python setup.py bdist
-
-There are also debian packages, which work on my system but aren't
-guaranteed to work anywhere else.
-
 This is licensed under the GNU General Public Licence, see the file
 COPYING.
+
+After the end of the 10th year after any release, the licence is dropped and
+you can do what you want with it.  So that's the end of 2031 for version 0.4.0.
 
 For a very special reason, this used to be called cdp.  :)
 

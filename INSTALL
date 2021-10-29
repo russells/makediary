@@ -1,3 +1,12 @@
+# Build the man page and eps files. This is required before building any
+# python3 packages.
 make
+
+# Make the python package.
 python3 setup.py build
+
+# Make an installable python distribution (.tar.gz) in dist/.
+python3 setup.py bdist
+
+# Install the software locally.
 sudo python3 setup.py install
