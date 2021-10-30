@@ -1,4 +1,4 @@
-0.4.0
+0.4.1
 
 The first line of this file is the version number of makediary.  This
 number must match the number in setup.py.
@@ -7,11 +7,11 @@ Everything else is ignored.
 
 *** When changing the version number here, don't forget to also change:
 
-- setup.py.
+- setup.py
 
 - makediary/versionNumber.py
 
 - man/makediary.1.txt, including the copyright expiry date.
 
-- debian/changelog.
+- makediary/__init__.py
 

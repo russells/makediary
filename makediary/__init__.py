@@ -3,7 +3,7 @@
 """A package for printing book style diaries."""
 
 
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 
 #from makediary.DiaryInfo import DiaryInfo
 #from makediary.BasicPostscriptPage import BasicPostscriptPage

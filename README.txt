@@ -9,7 +9,7 @@ This is licensed under the GNU General Public Licence, see the file
 COPYING.
 
 After the end of the 10th year after any release, the licence is dropped and
-you can do what you want with it.  So that's the end of 2031 for version 0.4.0.
+you can do what you want with it.  So that's the end of 2031 for version 0.4.1.
 
 For a very special reason, this used to be called cdp.  :)
 
