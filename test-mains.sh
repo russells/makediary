@@ -2,12 +2,52 @@
 
 # set -x
 
-PSVIEWER=${PSVIEWER:-gv}
+function usage () {
+	cat 1>&2 <<EOF
+Usage: $0 [-V|--view] [--viewer=psviewer] [makediary/F.py ...]
+       $0 [-h|--help]
+EOF
+	exit 1
+}
+
+
+OPTS=$(getopt -o 'hV' --long 'help,view,viewer:' -n "$0" -- "$@")
+eval set -- "$OPTS"
+
+OptView=
+VIEWER=${VIEWER:-gv}
+
+while : ; do
+	case "$1" in
+	-h|--help)
+		shift
+		usage
+		;;
+	-V|--view)
+		OptView=yes
+		shift ;;
+	--viewer)
+		VIEWER="$2"
+		shift 2 ;;
+	--)
+		shift
+		break ;;
+	*)
+		echo 1>&2 Unknown option: "$1"
+		exit 1
+		;;
+	esac
+done
+
 
 Pylist=( )
-PSlist=( )
 
-if [ $# -eq 0 ] ; then
+if [ $# -ne 0 ] ; then
+	echo setting Pylist
+	Pylist=( $* )
+fi
+
+if [ ${#Pylist[*]} -eq 0 ] ; then
 	for f in makediary/*.py ; do
 		grep -q __main__ $f || continue
 		BN=$(basename $f .py)
@@ -19,11 +59,8 @@ if [ $# -eq 0 ] ; then
 		[ x"${BN}" == x"Moon" ] && continue
 		Pylist=( "${Pylist[@]}" "$f" )
 	done
-else
-	Pylist=( "$@" )
 fi
 
-PS="${BN}".ps
 
 export PYTHONPATH=`pwd`
 
@@ -34,11 +71,11 @@ for f in "${Pylist[@]}" ; do
 	PS=test-mains/"$(basename "$f" .py)".ps
 	python3 $f --debug-boxes --paper-size=a4 --page-size=a4 > "$PS"
 	PSlist=( "${PSlist[@]}" $PS )
-
+	if [ yes == "$OptView" ] ; then
+		echo -- viewing $PS
+		"$VIEWER" $PS
+		sleep 1
+	fi
 done
 
-for PS in "${PSlist[@]}" ; do
-	echo -- viewing $PS
-	"$PSVIEWER" $PS
-	sleep 1
-done
+
