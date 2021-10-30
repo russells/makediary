@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 # vim: set shiftwidth=4 expandtab smartindent textwidth=95:
 

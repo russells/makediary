@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Date/time class for makediary.
 
 import datetime
