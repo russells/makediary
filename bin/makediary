@@ -2,10 +2,10 @@
 
 # Run the diary program.
 
-from makediary import makediary
+from makediary import makediary_
 import sys
 
-makediary.go(sys.argv[0], sys.argv[1:])
+makediary_.go(sys.argv[0], sys.argv[1:])
 
 
 # This section is for emacs.

@@ -10,6 +10,7 @@ build
 makediaryrc
 MANIFEST
 pod2*.tmp
+/test-mains
 tmp
 *.bak
 *.pyc

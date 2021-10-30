@@ -14,7 +14,8 @@ if [ $# -eq 0 ] ; then
 		[ x"${BN}" == x"DotCalendarPcal" ] && continue
 		[ x"${BN}" == x"DotCalendar" ] && continue
 		[ x"${BN}" == x"DSC" ] && continue
-		[ x"${BN}" == x"makediary" ] && continue
+		[ x"${BN}" == x"DT" ] && continue
+		[ x"${BN}" == x"makediary_" ] && continue
 		[ x"${BN}" == x"Moon" ] && continue
 		Pylist=( "${Pylist[@]}" "$f" )
 	done
@@ -26,16 +27,18 @@ PS="${BN}".ps
 
 export PYTHONPATH=`pwd`
 
-for f in "${Pylist[@]}" ; do
+mkdir -p test-mains
 
-	PS="$(basename "$f" .py)".ps
-	python3 $f --debug-boxes --paper-size=a4 --page-size=a4 > "$PS" || exit
+for f in "${Pylist[@]}" ; do
+	echo -- running "$f"
+	PS=test-mains/"$(basename "$f" .py)".ps
+	python3 $f --debug-boxes --paper-size=a4 --page-size=a4 > "$PS"
 	PSlist=( "${PSlist[@]}" $PS )
 
 done
 
 for PS in "${PSlist[@]}" ; do
-	echo ----------- $PS
+	echo -- viewing $PS
 	"$PSVIEWER" $PS
 	sleep 1
 done
