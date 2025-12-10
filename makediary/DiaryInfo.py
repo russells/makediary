@@ -119,8 +119,8 @@ class DiaryInfo:
                   "    [--help] [--version]\n",
                   ]
     sizesString = "|".join(PaperSize.getPaperSizeNames())
-    usageStrings.append("    [--page-size=%s]\n" % sizesString)
-    usageStrings.append("    [--paper-size=%s]\n" % sizesString)
+    usageStrings.append(f"    [--page-size={sizesString}]\n")
+    usageStrings.append(f"    [--paper-size={sizesString}]\n")
     usageStrings.append("  Defaults:\n")
     usageStrings.append("    year = next year          line-spacing = 6.0mm\n")
     usageStrings.append("    page-size = a5            paper-size = a5\n")
@@ -131,8 +131,8 @@ class DiaryInfo:
     layouts = ( "day-to-page", "logbook", "week-to-opening", "week-to-2-openings",
                 "week-to-page", "week-with-notes", "work" )
     defaultLayout = "week-to-2-openings"
-    usageStrings.append("  Layouts: " + ", ".join(layouts) + "\n")
-    usageStrings.append("  Default layout: " + defaultLayout + "\n")
+    usageStrings.append(f"  Layouts: {', '.join(layouts)}\n")
+    usageStrings.append(f"  Default layout: {defaultLayout}\n")
 
     def usage(self, f=sys.stderr, code=1):
         for i in range(len(self.usageStrings)):
@@ -147,7 +147,7 @@ class DiaryInfo:
 
         self.myname = myname
         self.opts = opts
-        self.usageStrings[0] = self.usageStrings[0] % myname
+        self.usageStrings[0] = f"Usage: {myname} [--year=year | --start-date=yyyy-mm-dd]\n"
 
         # first init the instance variables.
         self.pageNumber = 0             # Page number count
@@ -257,9 +257,9 @@ class DiaryInfo:
         self.monthCalendarList = {}
         for i in range(7):
             for m in range(1,13):
-                self.monthCalendarList[ (m,i,i) ] = "M_m%02d_b%d_e%d" % (m,i,i)
+                self.monthCalendarList[ (m,i,i) ] = f"M_m{m:02d}_b{i}_e{i}"
                 i2 = (i+1) % 7
-                self.monthCalendarList[ (m,i,i2) ] = "M_m%02d_b%d_e%d" % (m,i,i2)
+                self.monthCalendarList[ (m,i,i2) ] = f"M_m{m:02d}_b{i}_e{i2}"
 
     def getMonthCalendarPsFnCall(self, year, month, addyear=True):
         '''Return the code to call a PostScript function that will print the appropriate
@@ -275,13 +275,13 @@ class DiaryInfo:
         dow_end   = DT(year, 12, 31).day_of_week()
         k = (month, dow_begin, dow_end)
         if not k in self.monthCalendarList:
-            print("makediary: internal error:", file=sys.stderr)
-            print("-- No month calendar for year=%s month=%s" % (str(year),str(month)),
+            print(f"makediary: internal error:", file=sys.stderr)
+            print(f"-- No month calendar for year={year} month={month}",
                   file=sys.stderr)
             sys.exit(1)
         procname = self.monthCalendarList[k]
         if addyear:
-            return (" (%d) " % year) + procname
+            return f" ({year}) " + procname
         else:
             return " () " + procname
 
@@ -296,10 +296,10 @@ class DiaryInfo:
         try:
             optlist,args = getopt.getopt(args,'',self.options)
         except getopt.error as reason:
-            sys.stderr.write( "Error parsing options: " + str(reason) + "\n")
+            sys.stderr.write(f"Error parsing options: {reason}\n")
             self.shortUsage()
         if len(args) != 0:
-            sys.stderr.write("Unknown arg: %s\n" % args[0] )
+            sys.stderr.write(f"Unknown arg: {args[0]}\n")
             self.shortUsage()
         # Gather all the command line options into a list so we can process them later.
         for opt in optlist:
@@ -337,7 +337,7 @@ class DiaryInfo:
                     self.dayTitleBoxes = False
                     self.dayTitleShading = "none"
             else:
-                print("%s: Unknown layout %s" % (self.myname, l), file=sys.stderr)
+                print(f"{self.myname}: Unknown layout {l}", file=sys.stderr)
                 self.shortUsage()
         if "--address-pages" in c:
             self.nAddressPages = self.integerOption("address-pages",c["--address-pages"])
@@ -350,8 +350,7 @@ class DiaryInfo:
                 optstr = aw
             self.appointmentWidth = self.floatOption("appointment-width",optstr)
             if self.appointmentWidth < 0 or self.appointmentWidth > 100:
-                sys.stderr.write("%s: appointment width must be >=0 and <=100\n" %
-                                 self.myname)
+                sys.stderr.write(f"{self.myname}: appointment width must be >=0 and <=100\n")
                 sys.exit(1)
         if "--appointments" in c:
             self.appointments = True
@@ -378,8 +377,7 @@ class DiaryInfo:
             if dts in ("all", "holidays", "none"):
                 self.dayTitleShading = dts
             else:
-                print("day-title-shading must be all or holidays or none" \
-                      + " (not \"%s\")" % dts, file=sys.stderr)
+                print(f"day-title-shading must be all or holidays or none (not \"{dts}\")", file=sys.stderr)
                 self.shortUsage();
         if "--debug-boxes" in c:
             self.debugBoxes = 1
@@ -396,8 +394,7 @@ class DiaryInfo:
             if ep == '0' or ep == '2' or ep == '4':
                 self.nExpensePages = int(ep)
             else:
-                print("%s: number of expense pages must be 0, 2, or 4 (not \"%s\")." % \
-                      (sys.argv[0], ep), file=sys.stderr)
+                print(f"{sys.argv[0]}: number of expense pages must be 0, 2, or 4 (not \"{ep}\").", file=sys.stderr)
                 self.shortUsage()
         if "--perpetual-calendars" in c:
             self.perpetualCalendars = True
@@ -501,7 +498,7 @@ class DiaryInfo:
                         '-dAutoRotatePages=/None', # pdf2ps rotates some pages without this
                         '-sPAPERSIZE='+self.paperSize,
                         '-', self.outName)
-            #print("Running "+str(pdfArgs), file=sys.stderr)
+            #print(f"Running {pdfArgs}", file=sys.stderr)
             self.pdfProcess = subprocess.Popen(pdfArgs, stdin=subprocess.PIPE)
             self.out = self.pdfProcess.stdin
         else:
@@ -511,8 +508,7 @@ class DiaryInfo:
                 try:
                     self.out = open(self.outName,'w')
                 except IOError as reason:
-                    sys.stderr.write(("Error opening '%s': " % self.outName) \
-                                     + str(reason) + "\n")
+                    sys.stderr.write(f"Error opening '{self.outName}': {reason}\n")
                     #self.usage()
                     sys.exit(1)
         try:
@@ -546,7 +542,7 @@ class DiaryInfo:
                     raise Exception("blue out of range")
                 self.lineColour = (r,g,b)
             except Exception as e:
-                print("line colour wacky: %s: %s" % (c, e.message), file=sys.stderr)
+                print(f"line colour wacky: {c}: {e}", file=sys.stderr)
                 sys.exit(1)
 
 
@@ -571,7 +567,7 @@ class DiaryInfo:
             else:
                 title2 = None
         else:
-            print("Strange number of pages for eps-page: %d" % npages, file=sys.stderr)
+            print(f"Strange number of pages for eps-page: {npages}", file=sys.stderr)
             return
         self.epsPages.append( {"fileName" : filename, "pages"  : npages,
                                "title1"   : title1,   "title2" : title2} )
@@ -585,8 +581,7 @@ class DiaryInfo:
         same_title = (1 == len(titles))
         files = self.findEPSFiles(name)
         if len(files) == 0:
-            print("%s: cannot find ref files for \"%s\"" % \
-                  (sys.argv[0], name), file=sys.stderr)
+            print(f"{sys.argv[0]}: cannot find ref files for \"{name}\"", file=sys.stderr)
             return
         for f in files:
             if len(titles) > 0:
@@ -604,7 +599,7 @@ class DiaryInfo:
         try:
             return int(s)
         except ValueError as reason:
-            sys.stderr.write("Error converting integer: " + str(reason) + "\n")
+            sys.stderr.write(f"Error converting integer: {reason}\n")
             self.shortUsage()
 
 
@@ -613,7 +608,7 @@ class DiaryInfo:
             return False
         if s in ('1', 'true', 'True', 'TRUE', 'yes', 'YES'):
             return True
-        sys.stderr.write("Error converting bool for %s: %s\n" % (name, s))
+        sys.stderr.write(f"Error converting bool for {name}: {s}\n")
         self.shortUsage()
 
 
@@ -632,7 +627,7 @@ class DiaryInfo:
             self.manPages.append( (match.group(1), None) )
             return
 
-        print("%s: unknown man page: %s" % (sys.argv[0], opt), file=sys.stderr)
+        print(f"{sys.argv[0]}: unknown man page: {opt}", file=sys.stderr)
 
 
     def setStartDate(self,date):
@@ -665,8 +660,7 @@ class DiaryInfo:
             # specified as in the ranges 0.5 to 0.9 or 50 to 90.
             if not ((coverage >= 0.5 and coverage <= 0.9) \
                     or (coverage >= 50 and coverage <= 90)):
-                sys.stderr.write("coverage of a 2 page image must be between 0.5 and 0.9" +
-                                 " (or 50 and 90) - I got %.2f\n" % coverage)
+                sys.stderr.write(f"coverage of a 2 page image must be between 0.5 and 0.9 (or 50 and 90) - I got {coverage:.2f}\n")
                 self.shortUsage()
             if coverage > 1.0:
                 coverage = coverage / 100.0
@@ -681,15 +675,14 @@ class DiaryInfo:
         try:
             return float(s)
         except ValueError as reason:
-            sys.stderr.write("Error converting float: " + str(reason) + \
-                             ", from " + str(name) + "\n")
+            sys.stderr.write(f"Error converting float: {reason}, from {name}\n")
             self.shortUsage()
 
     def setPageSize(self,s):
         """Set the page size to a known size."""
         sizes = PaperSize.getPaperSize(s)
         if sizes is None:
-            print("Unknown page size: %s" % s, file=sys.stderr)
+            print(f"Unknown page size: {s}", file=sys.stderr)
             self.shortUsage()
         self.pageWidth = sizes[0]
         self.pageHeight = sizes[1]
@@ -700,7 +693,7 @@ class DiaryInfo:
         """Set the paper size to a known size."""
         sizes = PaperSize.getPaperSize(s)
         if sizes is None:
-            print("Unknown paper size: %s" % s, file=sys.stderr)
+            print(f"Unknown paper size: {s}", file=sys.stderr)
             self.shortUsage()
         self.paperWidth = sizes[0]
         self.paperHeight = sizes[1]
