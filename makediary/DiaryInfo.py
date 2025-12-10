@@ -5,7 +5,7 @@ import re
 from os.path import join as path_join
 from os.path import exists as path_exists
 from glob import glob
-from iniparse import SafeConfigParser as ConfigParser
+from configparser import ConfigParser
 from os.path import expanduser
 from math import pow
 import subprocess
