@@ -49,6 +49,7 @@ class ManPagePages(PostscriptPage):
                                            stdin=open('/dev/null'),
                                            stdout=subprocess.PIPE,
                                            stderr=subprocess.PIPE,
+                                           text=True, encoding='utf-8',
                                            close_fds=True)
             #print str(man_process)
             man_stdout, man_stderr = man_process.communicate()
@@ -69,8 +70,9 @@ class ManPagePages(PostscriptPage):
                                            stdin=subprocess.PIPE,
                                            stdout=subprocess.PIPE,
                                            stderr=subprocess.PIPE,
+                                           text=True, encoding='utf-8',
                                            close_fds=True)
-            eps_stdout, eps_stderr = eps_process.communicate(man_stdout)
+            eps_stdout, eps_stderr = eps_process.communicate(input=man_stdout)
             eps_returncode = eps_process.returncode
             if eps_returncode:
                 print("%s: error running ps2eps: (%d):\n%s" % \
@@ -101,9 +103,14 @@ class ManPagePages(PostscriptPage):
                                                stdin=subprocess.PIPE,
                                                stdout=subprocess.PIPE,
                                                stderr=subprocess.PIPE,
+                                               text=True, encoding='utf-8',
                                                close_fds=True)
-                pss_stdout, pss_stderr = pss_process.communicate(eps_stdout)
+                pss_stdout, pss_stderr = pss_process.communicate(input=eps_stdout)
                 pss_returncode = pss_process.returncode
+                if pss_returncode and not pss_stdout:
+                    # A non-zero return code with an empty stdout means we've
+                    # gone past the end of the document.  This is not an error.
+                    return s
                 if pss_returncode:
                     print("%s: cannot get page %d using psselect: (%d):\n%s" % \
                           (sys.argv[0], pageNumber, pss_returncode, pss_stderr), file=sys.stderr)
@@ -115,10 +122,10 @@ class ManPagePages(PostscriptPage):
                 s += "%% Cannot get page %d" % pageNumber
                 return s
 
-            # Check to see if the page was extracted, or if psselect just gave us an empty
-            # page, which is what it does when we ask for a page after the end of the document.
+            # Check to see if the page was extracted.  If we got an empty page,
+            # it means we have reached the end.
             if not re.search('''^%%Page:''', pss_stdout, re.MULTILINE):
-                return s
+                break
 
             # Make up a name for the embedded document.
             if self.manPageInfo[1] is None:
