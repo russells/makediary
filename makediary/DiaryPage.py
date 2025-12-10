@@ -119,7 +119,7 @@ class DiaryPage(PostscriptPage):
 
             return s
 
-        s = "%%--- diary day for %d-%02d-%02d\n" % (dt.year,dt.month,dt.day)
+        s = f"%%--- diary day for {dt.year}-{dt.month:02d}-{dt.day:02d}\n"
 
         # Find out if this is a holiday.
         dd = DT(dt.year, dt.month, dt.day)
@@ -149,44 +149,40 @@ class DiaryPage(PostscriptPage):
         elif self.di.dayTitleShading == "none":
             gr = 0
         else:
-            print('Unknown day title shading: \"%s\"' % self.di.dayTitleShading, file=sys.stderr)
+            print(f'Unknown day title shading: "{self.di.dayTitleShading}"', file=sys.stderr)
             sys.exit(1)
 
         if self.di.dayTitleBoxes:
             if gr:
-                s = s + "0 %5.3f %5.3f %5.3f %5.3f %5.3f boxLBWHgray\n" % \
-                    (self.titleboxy, self.dwidth, self.titleboxsize, di.underlineThick, gr)
+                s = s + f"0 {self.titleboxy:5.3f} {self.dwidth:5.3f} {self.titleboxsize:5.3f} {di.underlineThick:5.3f} {gr:5.3f} boxLBWHgray\n"
             else:
-                s = s + "0 %5.3f %5.3f %5.3f %5.3f boxLBWH\n" % \
-                    (self.titleboxy, self.dwidth, self.titleboxsize, di.underlineThick)
+                s = s + f"0 {self.titleboxy:5.3f} {self.dwidth:5.3f} {self.titleboxsize:5.3f} {di.underlineThick:5.3f} boxLBWH\n"
 
         # Print the day name as the diary day header.
-        s = s + "10 10 M /%s %5.2f selectfont " % (di.titleFontName, self.titlefontsize)
+        s = s + f"10 10 M /{di.titleFontName} {self.titlefontsize:5.2f} selectfont "
         daynumber = dt.strftime("%d")
         if daynumber[0] == '0':
             daynumber = ' ' + daynumber[1]
         dtext = dt.strftime("%A, " + daynumber + " %B") # %e seems to be undocumented
         if di.evenPage:
-            s = s + "%5.3f %5.3f M (%s) SH\n" % (self.titlefontgap,self.titlefonty,dtext)
+            s = s + f"{self.titlefontgap:5.3f} {self.titlefonty:5.3f} M ({dtext}) SH\n"
         else:
-            s = s + "(%s) dup %5.3f exch SW pop sub %5.3f M SH\n" % \
-                (dtext,self.dwidth-self.titlefontgap,self.titlefonty)
+            s = s + f"({dtext}) dup {self.dwidth-self.titlefontgap:5.3f} exch SW pop sub {self.titlefonty:5.3f} M SH\n"
         # And draw the julian day as well
-        jtext = "%03d/%03d" % (dt.jday(), di.currentJDaysLeft)
-        s = s + "/%s %5.3f selectfont " % (di.subtitleFontName, self.subtitlefontsize)
+        jtext = f"{dt.jday():03d}/{di.currentJDaysLeft:03d}"
+        s = s + f"/{di.subtitleFontName} {self.subtitlefontsize:5.3f} selectfont "
         if di.evenPage:
-            s = s + "(%s) dup %5.3f exch SW pop sub %5.3f M SH\n" % \
-                (jtext, self.dwidth-self.titlefontgap, self.titlefonty)
+            s = s + f"({jtext}) dup {self.dwidth-self.titlefontgap:5.3f} exch SW pop sub {self.titlefonty:5.3f} M SH\n"
         else:
-            s = s + "%5.3f %5.3f M (%s) SH\n" % (self.titlefontgap,self.titlefonty,jtext)
+            s = s + f"{self.titlefontgap:5.3f} {self.titlefonty:5.3f} M ({jtext}) SH\n"
 
         # Draw all the writing lines, but if the appointments take up the whole width, don't
         # print the writing lines.
         if self.di.appointmentWidth != 100:
-            s = s + "%5.3f SLW " % self.di.lineThickness
+            s = s + f"{self.di.lineThickness:5.3f} SLW "
             for lineno in range(self.nlines):
                 liney = self.titleboxy-(1+lineno)*di.lineSpacing
-                s = s + "0 %5.3f M %5.3f 0 RL S " % (liney,self.dwidthLines)
+                s = s + f"0 {liney:5.3f} M {self.dwidthLines:5.3f} 0 RL S "
             s = s + "\n"
 
         # Put in the events for this day
@@ -230,20 +226,16 @@ class DiaryPage(PostscriptPage):
                 appTimes.append(None)
         # Make the appointment lines end at the same spot as the diary lines.
         appheight = di.lineSpacing #(self.nlines * di.lineSpacing) / len(appTimes)
-        s = s + '/%s %5.3f selectfont\n' % (di.subtitleFontName,
-                                            appheight*0.5)
+        s = s + f'/{di.subtitleFontName} {appheight*0.5:5.3f} selectfont\n'
         # Line thicknesses
         leftTh = di.underlineThick * 0.5
         bottomTh = 0
         for lineno in range(len(appTimes)):
-            s = s + "%5.3f SLW %5.3f %5.3f M 0 %5.3f RL CP S %5.3f SLW M %5.3f 0 RL S " % \
-                (leftTh, self.appLeft, self.titleboxy-appheight*lineno,
-                 -appheight, bottomTh, self.appWidth)
+            s = s + f"{leftTh:5.3f} SLW {self.appLeft:5.3f} {self.titleboxy-appheight*lineno:5.3f} M 0 {-appheight:5.3f} RL CP S {bottomTh:5.3f} SLW M {self.appWidth:5.3f} 0 RL S "
             if di.appointmentTimes and appTimes[lineno] is not None:
                 appx = self.appLeft + appheight*0.2
                 appy = self.titleboxy - appheight * (lineno+0.55)
-                s = s + " %5.3f %5.3f M (%s) SH\n" % \
-                    (appx,appy,self.postscriptEscape(appTimes[lineno]))
+                s = s + f" {appx:5.3f} {appy:5.3f} M ({self.postscriptEscape(appTimes[lineno])}) SH\n"
             else:
                 s = s + "\n"
         return s
@@ -261,7 +253,7 @@ class DiaryPage(PostscriptPage):
         picx = startx
         y = starty
         s = ''
-        s = s + "%% events for %s\ngsave\n" % str(date)
+        s = f"%% events for {date}\ngsave\n"
 
         # First find out whether we are printing any images for this day.  If so, move all the
         # text to the right, out of the way of the images.
@@ -289,17 +281,17 @@ class DiaryPage(PostscriptPage):
             else:
                 eventFontSize = yspace*0.6
             if 'personal' in event:
-                s = s + '/%s-Oblique %5.3f selectfont\n' % (di.subtitleFontName, eventFontSize)
+                s = s + f'/{di.subtitleFontName}-Oblique {eventFontSize:5.3f} selectfont\n'
             else:
-                s = s + '/%s %5.3f selectfont\n' % (di.subtitleFontName, eventFontSize)
+                s = s + f'/{di.subtitleFontName} {eventFontSize:5.3f} selectfont\n'
 
             if 'grey' in event  and  event['grey']:
                 s = s + "0.5 setgray "
             else:
                 s = s + "0 setgray "
-            s = s + "%5.3f %5.3f M" % (textx, y+(yspace*0.25))
+            s = s + f"{textx:5.3f} {y+(yspace*0.25):5.3f} M"
             st = self.postscriptEscape(event['text'])
-            s = s + ' (%s) SH 0 setgray\n' % st
+            s = s + f' ({st}) SH 0 setgray\n'
             if imageDrawn:
                 y = y - 2*yspace
             else:
@@ -310,64 +302,63 @@ class DiaryPage(PostscriptPage):
 
     def topHalf(self):
         s = "%--- diary page TOP half\n" \
-            + ("SA %5.3f %5.3f TR\n" % \
-               (self.pLeft,self.pBottom+(self.pHeight_diary/2))) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary/2):5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
 
     def bottomHalf(self):
         s = "%--- diary page BOTTOM half\n" \
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft,self.pBottom)) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom:5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
 
     def printMondayWTO(self):
         s = '% -- Monday\n' \
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*0.5))) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*0.5):5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
 
     def printTuesdayWTO(self):
         s = '% -- Tuesday\n' \
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*0.25))) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*0.25):5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
 
     def printWednesdayWTO(self):
         s = '% -- Wednesday\n' \
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom)) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom:5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
 
     def printThursdayWTO(self):
         s = '% -- Thursday\n' \
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*0.75))) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*0.75):5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
 
     def printFridayWTO(self):
         s = '% -- Friday\n' \
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*0.5))) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*0.5):5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
 
     def printSaturdayWTO(self):
         s = '% -- Saturday\n' \
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*0.25))) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*0.25):5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
 
     def printSundayWTO(self):
         s = '% -- Sunday\n' \
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom)) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom:5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
@@ -375,49 +366,49 @@ class DiaryPage(PostscriptPage):
 
     def printMondayWTP(self):
         s = '% -- Monday (WTP\n' \
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*6.0/7.0))) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*6.0/7.0):5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
 
     def printTuesdayWTP(self):
         s = '% -- Tuesday (WTP\n' \
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*5.0/7.0))) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*5.0/7.0):5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
 
     def printWednesdayWTP(self):
         s = '% -- Wednesday (WTP\n' \
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*4.0/7.0))) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*4.0/7.0):5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
 
     def printThursdayWTP(self):
         s = '% -- Thursday (WTP\n' \
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*3.0/7.0))) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*3.0/7.0):5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
 
     def printFridayWTP(self):
         s = '% -- Friday (WTP\n' \
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*2.0/7.0))) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*2.0/7.0):5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
 
     def printSaturdayWTP(self):
         s = '% -- Saturday (WTP\n' \
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+(self.pHeight_diary*1.0/7.0))) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*1.0/7.0):5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
 
     def printSundayWTP(self):
         s = '% -- Sunday (WTP\n' \
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom)) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom:5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
@@ -425,42 +416,35 @@ class DiaryPage(PostscriptPage):
 
     def largeDayOnPage(self):
         s = "% -- Day\n" \
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, self.pBottom+self.bottomcalheight)) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom+self.bottomcalheight:5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
 
     def workLayoutTopDay(self):
         s = "% -- top day\n"\
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, \
-                                        self.pBottom+self.bottomcalheight+self.dheight)) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom+self.bottomcalheight+self.dheight:5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
 
     def workLayoutBottomDay(self):
         s = "% -- bottom day\n"\
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft, \
-                                        self.pBottom+self.bottomcalheight)) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom+self.bottomcalheight:5.3f} TR\n") \
             + self.diaryDay() \
             + "RE\n"
         return s
 
     def workLayoutSaturday(self):
         s = "% -- Saturday on a work layout\n" \
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft,
-                                        self.pBottom
-                                        + self.bottomcalheight
-                                        + self.weekendDheight)) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom + self.bottomcalheight + self.weekendDheight:5.3f} TR\n") \
             + self.diaryDay(self.weekendDheight) \
             + "RE\n"
         return s
 
     def workLayoutSunday(self):
         s = "% -- Sunday on a work layout\n" \
-            + ("SA %5.3f %5.3f TR\n" % (self.pLeft,
-                                        self.pBottom
-                                        + self.bottomcalheight)) \
+            + (f"SA {self.pLeft:5.3f} {self.pBottom + self.bottomcalheight:5.3f} TR\n") \
             + self.diaryDay(self.weekendDheight) \
             + "RE\n"
         return s
@@ -481,10 +465,9 @@ class DiaryPage(PostscriptPage):
         w = self.pWidth
         h = self.pTop - b
         # Draw a really obvious box to see if the drawing space is correct.
-        #s = s + "SA 4 SLW 2 setlinecap %5.3f %5.3f TR\n" % (l,b) \
-        #      + "2 2 M 0 %5.3f RL %5.3f 0 RL 0 %5.3f RL %5.3f 0 RL S RE\n" % \
-        #      (h-4,w-4,-(h-4),-(w-4))
-        s = s + "SA %5.3f %5.3f TR\n" % (l,b)
+        #s = s + f"SA 4 SLW 2 setlinecap {l:5.3f} {b:5.3f} TR\n" \
+        #      + f"2 2 M 0 {h-4:5.3f} RL {w-4:5.3f} 0 RL 0 {-(h-4):5.3f} RL {-(w-4):5.3f} 0 RL S RE\n"
+        s = s + f"SA {l:5.3f} {b:5.3f} TR\n"
         if di.layout == "week-to-opening":
             c_bottom = h * 0.45
             c_height = h * 0.49
@@ -502,26 +485,24 @@ class DiaryPage(PostscriptPage):
         if c_gutter < 2*c_boxborder:
             c_width = (c_totalwidth - 4*c_boxborder)/3.0
             c_gutter = 2*c_boxborder
-        s = s + "%% c_bottom=%5.3f c_height=%5.3f c_width=%5.3f c_totalwidth=%5.3f c_gutter=%5.3f\n" % \
-              (c_bottom,c_height,c_width,c_totalwidth,c_gutter)
+        s = s + f"%% c_bottom={c_bottom:5.3f} c_height={c_height:5.3f} c_width={c_width:5.3f} c_totalwidth={c_totalwidth:5.3f} c_gutter={c_gutter:5.3f}\n"
         for i in (-1,0,1):
             c_d = self.getOffsetMonth(self.di.dt, i)
             c_left = c_indent + (i+1)*(c_width+c_gutter)
-            s = s +"%5.3f %5.3f M SA %5.3f %5.3f SC " % \
-                (c_left,c_bottom,c_width,c_height) \
+            s = s +f"{c_left:5.3f} {c_bottom:5.3f} M SA {c_width:5.3f} {c_height:5.3f} SC " \
                 + self.di.getMonthCalendarPsFnCall(c_d.year, c_d.month) \
                 + " RE\n"
             # Draw a box around the current month
             if i == 0:
-                s = s + "%5.3f SLW " % self.di.lineThickness\
-                    + "%5.3f %5.3f M " % (c_left-c_boxborder,c_bottom-c_boxborder) \
-                    + "0 %5.3f RL %5.3f 0 RL " % (c_height+2*c_boxborder,c_width+2*c_boxborder) \
-                    + "0 %5.3f RL %5.3f 0 RL S\n" % (-c_height-2*c_boxborder,-c_width-2*c_boxborder)
+                s = s + f"{self.di.lineThickness:5.3f} SLW " \
+                    + f"{c_left-c_boxborder:5.3f} {c_bottom-c_boxborder:5.3f} M " \
+                    + f"0 {c_height+2*c_boxborder:5.3f} RL {c_width+2*c_boxborder:5.3f} 0 RL " \
+                    + f"0 {-(c_height+2*c_boxborder):5.3f} RL {-(c_width+2*c_boxborder):5.3f} 0 RL S\n"
         # Now draw the lines just below the month calendars.
         l_y = c_bottom - di.lineSpacing - 1.3
-        s = s + "%5.3f SLW\n" % self.di.lineThickness
+        s = s + f"{self.di.lineThickness:5.3f} SLW\n"
         while l_y > (di.lineSpacing * 0.3):
-            s = s + "%5.3f %5.3f M %5.2f 0 RL S\n" % (c_indent,l_y,c_totalwidth)
+            s = s + f"{c_indent:5.3f} {l_y:5.3f} M {c_totalwidth:5.2f} 0 RL S\n"
             l_y = l_y - di.lineSpacing
 
         s = s + "RE\n"
@@ -554,27 +535,17 @@ class DiaryPage(PostscriptPage):
             date -= DT.delta(1) * 30 * 5
         else:
             date += DT.delta(1) * 30
-        s = "%% -- Bottom calendars, starting at %s\n" % date.strftime("%Y %m")
+        s = f"%% -- Bottom calendars, starting at {date.strftime('%Y %m')}\n"
 
         # Proportion of the month box to fill.
         monthprop = 0.90
 
         for i in range(0,6):
-            s = s + "%5.3f %5.3f M SA %5.3f %5.3f SC %s RE\n" % \
-                    (self.pLeft+(self.dwidth/6.0)*(i+((1.0-monthprop)/2.0)),
-                     self.pBottom + self.bottomcalheight*(1.0-monthprop)/2.0,
-                     (self.dwidth/6.0)*monthprop,
-                     self.bottomcalheight*monthprop,
-                     self.di.getMonthCalendarPsFnCall(date.year, date.month) )
+            s = s + f"{self.pLeft+(self.dwidth/6.0)*(i+((1.0-monthprop)/2.0)):5.3f} {self.pBottom + self.bottomcalheight*(1.0-monthprop)/2.0:5.3f} M SA {self.dwidth/6.0*monthprop:5.3f} {self.bottomcalheight*monthprop:5.3f} SC {self.di.getMonthCalendarPsFnCall(date.year, date.month)} RE\n"
             if self.di.evenPage and i == 5:
                 # Draw a box around the current month.  Make the box just inside the area set
                 # aside for the month.
-                s = s + "%5.3f %5.3f %5.3f %5.3f %5.3f boxLBWH\n" % \
-                    (self.pLeft+self.dwidth*5.02/6.0,
-                     self.pBottom+self.bottomcalheight*0.02,
-                     self.dwidth*0.96/6.0,
-                     self.bottomcalheight*0.96,
-                     0)
+                s = s + f"{self.pLeft+self.dwidth*5.02/6.0:5.3f} {self.pBottom+self.bottomcalheight*0.02:5.3f} {self.dwidth*0.96/6.0:5.3f} {self.bottomcalheight*0.96:5.3f} {0} boxLBWH\n"
             date += DT.delta(1) * 30
         return s
 
@@ -603,45 +574,38 @@ class DiaryPage(PostscriptPage):
         linex = x + size * 0.65
         line1y = y + size * 0.1
         line2y = y - size * 0.4
-        s = "%% Moon for %d-%d-%d\n" % (dt.year, dt.month, dt.day)
+        s = f"%% Moon for {dt.year}-{dt.month}-{dt.day}\n"
         # Make sure the colour is right.
-        s = s + "gsave %5.3f %5.3f %5.3f SRC\n" % \
-            (self.di.lineColour[0], self.di.lineColour[1], self.di.lineColour[2])
-        s = s + "newpath 0.1 SLW /%s %5.3f selectfont " % \
-            (di.subtitleFontName, fontsize)
-        s = s + "%5.3f %5.3f %5.3f 0 360 arc S %% circle\n" % (x,y,radius)
+        s = s + f"gsave {self.di.lineColour[0]:5.3f} {self.di.lineColour[1]:5.3f} {self.di.lineColour[2]:5.3f} SRC\n"
+        s = s + f"newpath 0.1 SLW /{di.subtitleFontName} {fontsize:5.3f} selectfont "
+        s = s + f"{x:5.3f} {y:5.3f} {radius:5.3f} 0 360 arc S %% circle\n"
 
         # In the southern hemisphere, a first quarter moon is light on the left, and a third
         # quarter moon is light on the right.
 
         if quarter == self.mooncalc.MOON_NM:
-            s = s + "%5.3f %5.3f %5.3f 0 360 arc fill %% new moon\n" % (x,y,radius) \
-                + "%5.3f %5.3f M (New) SH %5.3f %5.3f M (Moon) SH\n" % \
-                (linex,line1y, linex,line2y)
+            s = s + f"{x:5.3f} {y:5.3f} {radius:5.3f} 0 360 arc fill %% new moon\n" \
+                + f"{linex:5.3f} {line1y:5.3f} M (New) SH {linex:5.3f} {line2y:5.3f} M (Moon) SH\n"
         elif quarter == self.mooncalc.MOON_1Q:
             if self.di.northernHemisphereMoon:
                 s = s + self.drawMoonRightWhite(x, y, radius, size)
             else:
                 s = s + self.drawMoonLeftWhite(x, y, radius, size)
-            s = s + "%5.3f %5.3f M (First) SH %5.3f %5.3f M (Quarter) SH\n" % \
-                (linex,line1y, linex,line2y)
+            s = s + f"{linex:5.3f} {line1y:5.3f} M (First) SH {linex:5.3f} {line2y:5.3f} M (Quarter) SH\n"
         elif quarter == self.mooncalc.MOON_FM:
-            s = s + "%5.3f %5.3f M (Full) SH %5.3f %5.3f M (Moon) SH\n" % \
-                (linex,line1y, linex,line2y)
+            s = s + f"{linex:5.3f} {line1y:5.3f} M (Full) SH {linex:5.3f} {line2y:5.3f} M (Moon) SH\n"
         elif quarter == self.mooncalc.MOON_3Q:
             if self.di.northernHemisphereMoon:
                 s = s + self.drawMoonLeftWhite(x, y, radius, size)
             else:
                 s = s + self.drawMoonRightWhite(x, y, radius, size)
-            s = s + "%5.3f %5.3f M (Third) SH %5.3f %5.3f M (Quarter) SH\n" % \
-                (linex,line1y, linex,line2y)
+            s = s + f"{linex:5.3f} {line1y:5.3f} M (Third) SH {linex:5.3f} {line2y:5.3f} M (Quarter) SH\n"
         s = s + "grestore\n"
 
         return s
 
     def drawMoonLeftWhite(self, x, y, radius, size):
-        s = "%5.3f %5.3f %5.3f 270 90 arc 0 %5.3f RL fill %% white left, " % \
-            (x,y,radius,-size)
+        s = f"{x:5.3f} {y:5.3f} {radius:5.3f} 270 90 arc 0 {-size:5.3f} RL fill %% white left, "
         if self.di.northernHemisphereMoon:
             s = s + "third quarter in northern hemisphere\n"
         else:
@@ -649,8 +613,7 @@ class DiaryPage(PostscriptPage):
         return s
 
     def drawMoonRightWhite(self, x, y, radius, size):
-        s = "%5.3f %5.3f %5.3f 90 270 arc 0 %5.3f RL fill %% white right, " % \
-            (x,y,radius,size)
+        s = f"{x:5.3f} {y:5.3f} {radius:5.3f} 90 270 arc 0 {size:5.3f} RL fill %% white right, "
         if self.di.northernHemisphereMoon:
             s = s + "first quarter in northern hemisphere\n"
         else:
