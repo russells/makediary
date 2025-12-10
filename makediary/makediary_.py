@@ -82,9 +82,8 @@ class Diary:
                 w( TwoImageFilePages(di, imagePage["fileName"], imagePage["title"],
                                      imagePage["coverage"]).page() )
             else:
-                print("makediary: internal error:", file=sys.stderr)
-                print("-- image file (%s): imagePage['pages'] == %d" \
-                      % (imagePage['fileName'], npages), file=sys.stderr)
+                print(f"makediary: internal error:", file=sys.stderr)
+                print(f"-- image file ({imagePage['fileName']}): imagePage['pages'] == {npages}", file=sys.stderr)
                 sys.exit(1)
         if di.evenPage:
             self.w( EmptyPage(di).page() )
@@ -138,8 +137,7 @@ class Diary:
                 eps_title1 = epsPage["title1"]
                 eps_title2 = epsPage["title2"]
             except KeyError as reason:
-                print("KeyError: missing key for EPS page (%s): %s" % \
-                      (epsPage, str(reason)), file=sys.stderr)
+                print(f"KeyError: missing key for EPS page ({epsPage}): {reason}", file=sys.stderr)
                 continue
             if eps_pages == 1:
                 w( EPSFilePage(di, eps_fileName, eps_title1).page() )
@@ -172,7 +170,7 @@ class Diary:
         # start of a year, set it to the year.  Otherwise, empty.
         if di.layout == "week-with-notes":
             if di.dtbegin.month==1 and di.dtbegin.day==1:
-                wwnNotesTitle = "%d" % di.dtbegin.year
+                wwnNotesTitle = f"{di.dtbegin.year}"
             else:
                 wwnNotesTitle = ""
 
@@ -229,7 +227,7 @@ class Diary:
         elif m == 1 and d <= 7 and d >= 2:
             # From the 2nd to the 7th of Jan, the previous page must have had days from this
             # year and last year.  So the title reflects that.
-            return NotesPage(self.di, str(y-1)+" - "+str(y)).page()
+            return NotesPage(self.di, f"{y-1} - {y}").page()
         else:
             return NotesPage(self.di, str(y)).page()
 
