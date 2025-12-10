@@ -41,94 +41,79 @@ class Diary:
         self.out = self.di.out
         self.convert_to_bytes = False
 
-    def w(self,s):
-        # If we're writing straight to a file, we need a string.  If we're writing to a pipe
-        # that goes to ps2pdf, we need bytes.  There's not an obvious way to easily tell which
-        # when we get here.  So, if writing as a string fails the first time, we set a flag to
-        # tell us to always convert.
 
-        # Write as bytes, since the first write failed.
-        if self.convert_to_bytes:
-            self.out.write(bytes(s,'utf-8'))
-        else:
-            # Write as a string.  If that fails, write as bytes.
-            try:
-                self.out.write(s)
-            except TypeError:
-                self.convert_to_bytes = True
-                self.w(s)
 
     # print the whole diary
     def diary(self):
         di = self.di
-        w = self.w
-        w( DSC.preamble(self.di) )
-        w( CoverPage(di).page() )
+
+        self.out.write( DSC.preamble(self.di) )
+        self.out.write( CoverPage(di).page() )
         #self.w( CalendarPage(di).page() )
         if di.debugVersion:
-            w( VersionPage(di).page() )
+            self.out.write( VersionPage(di).page() )
         else:
-            w( EmptyPage(di).page() )
-        w( PersonalInformationPage(di).page() )
+            self.out.write( EmptyPage(di).page() )
+        self.out.write( PersonalInformationPage(di).page() )
 
         # Print image pages, if there are any, and end on a new opening.
         for imagePage in di.imagePages:
             npages = imagePage["pages"]
             if npages == 1:
-                w( ImageFilePage(di, imagePage["fileName"], imagePage["title"] ).page() )
+                self.out.write( ImageFilePage(di, imagePage["fileName"], imagePage["title"] ).page() )
             elif npages == 2:
                 if di.evenPage:
-                    self.w( NotesPage(di).page() )
-                w( TwoImageFilePages(di, imagePage["fileName"], imagePage["title"],
+                    self.out.write( NotesPage(di).page() )
+                self.out.write( TwoImageFilePages(di, imagePage["fileName"], imagePage["title"],
                                      imagePage["coverage"]).page() )
             else:
                 print(f"makediary: internal error:", file=sys.stderr)
                 print(f"-- image file ({imagePage['fileName']}): imagePage['pages'] == {npages}", file=sys.stderr)
                 sys.exit(1)
         if di.evenPage:
-            self.w( EmptyPage(di).page() )
+            self.out.write( EmptyPage(di).page() )
 
         if di.calendarPages:
-            w( TwoCalendarPages(di).page() )
+            self.out.write( TwoCalendarPages(di).page() )
 
         if di.perpetualCalendars:
-            self.w( PerpetualCalendarPages(di).page() )
+            self.out.write( PerpetualCalendarPages(di).page() )
 
         # Ensure that the planner pages are on facing pages.
         if di.nPlannerYears > 0:
             if di.evenPage:
-                self.w( EmptyPage(di).page() )
+                self.out.write( EmptyPage(di).page() )
             # Decide whether to put short events on the planner pages.  If we are not using
             # pcal to generate the events, then yes.  If we are using pcal, only put short
             # events on if we have been told.
             doEventsOnPlanner = (not di.pcal or (di.pcal and di.pcalPlanner))
             if di.largePlanner:
-                w( TwelvePlannerPages(di.dtbegin.year, di, doEventsOnPlanner).page() )
+                self.out.write( TwelvePlannerPages(di.dtbegin.year, di, doEventsOnPlanner).page() )
             else:
-                w( FourPlannerPages(di.dtbegin.year, di, doEventsOnPlanner).page() )
+                self.out.write( FourPlannerPages(di.dtbegin.year, di, doEventsOnPlanner).page() )
             if di.dtbegin.month==1 and di.dtbegin.day==1:
                 for i in range(1, di.nPlannerYears):
-                    w( TwoPlannerPages(di.dtbegin.year+i, di).page() )
+                    self.out.write( TwoPlannerPages(di.dtbegin.year+i, di).page() )
             else:
-                w( FourPlannerPages(di.dtbegin.year+1, di).page() )
+                self.out.write( FourPlannerPages(di.dtbegin.year+1, di).page() )
                 for i in range(2, di.nPlannerYears):
-                    w( TwoPlannerPages(di.dtbegin.year+i, di).page() )
+                    self.out.write( TwoPlannerPages(di.dtbegin.year+i, di).page() )
 
 
         for i in range(di.nAddressPages):
-            w( AddressPage(di).page() )
+            self.out.write( AddressPage(di).page() )
 
         # Ensure we start the expense pages on an even page
         if di.evenPage:
             if di.nAddressPages != 0:
-                w( AddressPage(di).page() )
+                self.out.write( AddressPage(di).page() )
             else:
-                w( EmptyPage(di).page() )
+                self.out.write( EmptyPage(di).page() )
 
         if di.nExpensePages == 2:
-            w( TwoExpensePages().page(di) )
+            self.out.write( TwoExpensePages().page(di) )
         elif di.nExpensePages == 4:
-            w( FourExpensePages().page(di) )
+            self.out.write( FourExpensePages().page(di) )
 
         for epsPage in di.epsPages:
             try:
@@ -140,18 +125,18 @@ class Diary:
                 print(f"KeyError: missing key for EPS page ({epsPage}): {reason}", file=sys.stderr)
                 continue
             if eps_pages == 1:
-                w( EPSFilePage(di, eps_fileName, eps_title1).page() )
+                self.out.write( EPSFilePage(di, eps_fileName, eps_title1).page() )
             elif eps_pages == 2:
                 # Ensure we start the two eps pages on an even page
                 if di.evenPage:
-                    w( EmptyPage(di).page() )
-                w( TwoEPSFilePages(di, eps_fileName, eps_title1, eps_title2).page() )
+                    self.out.write( EmptyPage(di).page() )
+                self.out.write( TwoEPSFilePages(di, eps_fileName, eps_title1, eps_title2).page() )
 
         for manPageInfo in di.manPages:
-            w( ManPagePages(di, manPageInfo).page() )
+            self.out.write( ManPagePages(di, manPageInfo).page() )
 
         for i in range(di.nNotesPages):
-            w( NotesPage(di).page() )
+            self.out.write( NotesPage(di).page() )
 
         # Ensure we start the diary pages on a Monday
         while di.dt.day_of_week() != DT.Monday: di.gotoPreviousDay()
@@ -161,9 +146,9 @@ class Diary:
         # Print a blank page or an extra notes page to start the year on a left side page
         if di.evenPage:
             if di.nNotesPages > 0:
-                w( NotesPage(di).page() )
+                self.out.write( NotesPage(di).page() )
             else:
-                w( EmptyPage(di).page() )
+                self.out.write( EmptyPage(di).page() )
 
 
         # Set the title for notes pages in the week-with-notes layout.  If we start at the
@@ -180,38 +165,38 @@ class Diary:
             # DiaryPage inspects the layout and changes its behaviour, but for logbook we use
             # the layout directly here.
             for n in range(di.nLogbookPages):
-                w( LogbookPage(di).page() )
+                self.out.write( LogbookPage(di).page() )
         else:
             # Print diary pages until we see the end date
             while True:
                 if di.dt >= di.dtend:
                     break
                 y1 = di.dt.year
-                w( DiaryPage(di).page() )
+                self.out.write( DiaryPage(di).page() )
                 if di.layout == "week-with-notes":
-                    w( self.weekWithNotesNotesPage() )
+                    self.out.write( self.weekWithNotesNotesPage() )
 
             # If specified, add a number of whole weeks after, probably in the next year.
             if di.nWeeksAfter:
                 dw = di.dt + DT.delta(7*di.nWeeksAfter)
                 while di.dt < dw:
-                    w( DiaryPage(di).page() )
+                    self.out.write( DiaryPage(di).page() )
                     if di.layout == "week-with-notes":
-                        w( self.weekWithNotesNotesPage() )
+                        self.out.write( self.weekWithNotesNotesPage() )
 
             # Finish at the end of a week
             while di.dt.day_of_week() != DT.Monday:
-                w( DiaryPage(di).page() )
+                self.out.write( DiaryPage(di).page() )
 
         # Notes pages at the rear
         for i in range(di.nNotesPages):
-            w( NotesPage(di).page() )
+            self.out.write( NotesPage(di).page() )
         # Print an extra notes page to finish on an even page.
         if not di.evenPage:
             if di.nNotesPages > 0:
-                w( NotesPage(di).page() )
+                self.out.write( NotesPage(di).page() )
 
-        w( DSC.postamble(self.di) )
+        self.out.write( DSC.postamble(self.di) )
 
     def weekWithNotesNotesPage(self):
         '''Return a Notes page with a year title.'''

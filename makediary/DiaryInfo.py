@@ -499,7 +499,7 @@ class DiaryInfo:
                         '-sPAPERSIZE='+self.paperSize,
                         '-', self.outName)
             #print(f"Running {pdfArgs}", file=sys.stderr)
-            self.pdfProcess = subprocess.Popen(pdfArgs, stdin=subprocess.PIPE)
+            self.pdfProcess = subprocess.Popen(pdfArgs, stdin=subprocess.PIPE, text=True, encoding='utf-8')
             self.out = self.pdfProcess.stdin
         else:
             if self.outName == '-':
