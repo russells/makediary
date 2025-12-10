@@ -6,7 +6,7 @@ from makediary.DiaryInfo import DiaryInfo
 from makediary.DSC import preamble, postamble
 
 
-class BasicPostscriptPage:
+class BasicPostscriptPage(object):
     """The basic PostScript page.  Other pages do their thing by overriding the body()
     method."""
 

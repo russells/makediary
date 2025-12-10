@@ -34,7 +34,7 @@ from makediary.LogbookPage             import LogbookPage
 
 # ############################################################################################
 
-class Diary:
+class Diary(object):
 
     def __init__(self,diaryinfo):
         self.di = diaryinfo

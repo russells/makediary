@@ -15,7 +15,7 @@ from makediary.versionNumber import versionNumber
 from makediary import PaperSize
 
 
-class DiaryInfo:
+class DiaryInfo(object):
 
     """ This class holds configuration information for the rest of the program, parses command
     line args, prints the usage message."""
