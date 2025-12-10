@@ -613,16 +613,16 @@ class DiaryInfo(object):
 
 
     def manPageOption(self, opt):
-        match = re.match('''^([_a-z0-9][-_a-z0-9:\.]*)\(([1-9])\)$''', opt, re.IGNORECASE)
+        match = re.match(r'''^([_a-z0-9][-_a-z0-9:\.]*)\(([1-9])\)$''', opt, re.IGNORECASE)
         if match:
             self.manPages.append( (match.group(1), match.group(2)) )
             return
-        match = re.match('''^([_a-z0-9][-_a-z0-9:\.]*),([1-9])$''', opt, re.IGNORECASE)
+        match = re.match(r'''^([_a-z0-9][-_a-z0-9:\.]*),([1-9])$''', opt, re.IGNORECASE)
         if match:
             self.manPages.append( (match.group(1), match.group(2)) )
             return
 
-        match = re.match('''^([_a-z0-9][-_a-z0-9:\.]*)$''', opt, re.IGNORECASE)
+        match = re.match(r'''^([_a-z0-9][-_a-z0-9:\.]*)$''', opt, re.IGNORECASE)
         if match:
             self.manPages.append( (match.group(1), None) )
             return

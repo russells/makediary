@@ -235,7 +235,7 @@ class BasicPostscriptPage(object):
 
 
     def postscriptEscape(self,s):
-        """Replace occurrences of PostScript special characters in a string.  The ones we
+        r"""Replace occurrences of PostScript special characters in a string.  The ones we
         replace are: '\' -> '\\', '(' -> '\(', ')' -> '\)'.  Note that the backslashes have to
         be done first, or they will be matched by the backslashes used to escape '(' and
         ')'."""

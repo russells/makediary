@@ -48,7 +48,7 @@ class DotCalendar:
 
     # Match <ordinal> <day_spec> in <month_spec>{*} {<text>}
     # This one seems to work.
-    re1 = re.compile("""
+    re1 = re.compile(r"""
     # <ordinal>
     (?:(?P<ordinal>[1-9][0-9]*(?:st|nd|rd|th)?)
        |(?P<ordinal_word>first|second|third|fourth|fifth|even|odd|last))
@@ -72,7 +72,7 @@ class DotCalendar:
 
     # Match {<ordinal>} <day_spec> <prep> <date_spec>{*} {<text>}
     # This one seems to work.
-    re2 = re.compile("""
+    re2 = re.compile(r"""
     # optional <ordinal>
     (?:(?:(?P<ordinal>[1-9][0-9]*(?:st|nd|rd|th)?)
        |(?P<ordinal_word>first|second|third|fourth|fifth|even|odd|last))
@@ -101,7 +101,7 @@ class DotCalendar:
     """, re.VERBOSE)
 
     # Match <date_spec>{*} {<text>}
-    re3 = re.compile("""
+    re3 = re.compile(r"""
     # The day
     (?P<day>[1-9]|(?:[012][0-9])|(?:3[012]))
     # Followed by white space or a separator
@@ -119,13 +119,13 @@ class DotCalendar:
     """, re.VERBOSE)
 
     # Match <holiday>
-    re4 = re.compile("""
+    re4 = re.compile(r"""
     (?P<name>Christmas|Boxing Day|ANZAC Day|Easter)
     (?:\s+(?P<text>.*))?
     """, re.VERBOSE)
 
     # Match <<key:value>> pairs
-    reKey = re.compile("""
+    reKey = re.compile(r"""
     # Indicator for the start of the key:value
     \#<<
     # The key
@@ -139,7 +139,7 @@ class DotCalendar:
     """, re.VERBOSE)
 
     # Match a '\' at the end of a line
-    reBackslash = re.compile("\\\\$")
+    reBackslash = re.compile(r"\\$")
 
     # List of month names
     monthnames = {'Jan':1, 'Feb':2, 'Mar':3, 'Apr':4, 'May':5, 'Jun':6,
@@ -277,7 +277,7 @@ class DotCalendar:
     def parseLine(self, line):
         line = line.strip()
         self.debug("-------- parseLine('%s')\n" % line)
-        if re.match("^\s+#.*", line): return None
+        if re.match(r"^\s+#.*", line): return None
         date = self.match1(line)
         if date is not None:
             self.debug('re1 matched\n')
@@ -485,7 +485,7 @@ class DotCalendar:
         # Now check for a warning period
         if 'warn' in event:
             warn = event['warn']
-            warnm = re.match('^\s*(?P<n>[0-9]+)\s+(?P<period>day|week|month)s?\s*$', warn, re.I)
+            warnm = re.match(r'^\s*(?P<n>[0-9]+)\s+(?P<period>day|week|month)s?\s*$', warn, re.I)
             if warnm:
                 n = int(warnm.group('n'))
                 period = warnm.group('period')
