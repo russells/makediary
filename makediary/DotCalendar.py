@@ -184,7 +184,7 @@ class DotCalendar:
 
     def hasYear(self,year):
         """Return true if the year specified is in our list of required years."""
-        return self.yearlist.count(year)
+        return year in self.yearlist
 
     def findCalendarFileName(self):
         try:
