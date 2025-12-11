@@ -303,6 +303,7 @@ class DotCalendar:
 
         match = self.re1.match(line)
         if match is None: return None   # Fail
+        return match
 
 
     def match2(self,line):
