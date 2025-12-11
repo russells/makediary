@@ -25,24 +25,20 @@ class BasicPostscriptPage(object):
 
         self.pagenum = self.di.getNextPageNumber()
         self.preamble =   self.di.sectionSep \
-                        + ("%%%%Page: %d %d\n" % (self.pagenum,self.pagenum)) \
-                        + "%%%%PageBoundingBox: 0 0 %.0f %.0f\n" % \
-                        (self.di.paperWidth * self.di.points_mm,
-                         self.di.paperHeight * self.di.points_mm) \
+                        + f"%%Page: {self.pagenum} {self.pagenum}\n" \
+                        + f"%%PageBoundingBox: 0 0 {self.di.paperWidth * self.di.points_mm:.0f} {self.di.paperHeight * self.di.points_mm:.0f}\n" \
                         + "%%BeginPageSetup\n" \
                         + "SA MM\n"
         if self.di.lineColour:
             self.preamble = self.preamble \
-              + "%5.3f %5.3f %5.3f SRC\n" % (self.di.lineColour[0], self.di.lineColour[1], self.di.lineColour[2])
+              + f"{self.di.lineColour[0]:5.3f} {self.di.lineColour[1]:5.3f} {self.di.lineColour[2]:5.3f} SRC\n"
         if self.di.translatePage:
             self.preamble = self.preamble \
-                            + "%5.3f %5.3f TR\n" % (self.di.translateXOffset,
-                                                    self.di.translateYOffset)
+                            + f"{self.di.translateXOffset:5.3f} {self.di.translateYOffset:5.3f} TR\n"
         self.preamble = self.preamble \
                         + "monthCalendars begin\n" \
                         + "%%EndPageSetup\n" \
-                        + "%% This is for year beginning %04d-%02d-%02d, " % \
-                        (self.di.dtbegin.year, self.di.dtbegin.month, self.di.dtbegin.day)
+                        + f"%% This is for year beginning {self.di.dtbegin.year:04d}-{self.di.dtbegin.month:02d}-{self.di.dtbegin.day:02d}, "
         if self.di.evenPage:
             self.preamble = self.preamble + "on an even page\n"
         else:

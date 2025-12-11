@@ -11,11 +11,9 @@ def preamble(di):
     p =   "%!PS-Adobe-2.0\n" \
         + ("%% -- printed by %s %s, %s\n" % (di.myname, di.opts,
                                              DT.now().strftime("%Y-%m-%dT%H%M%S%Z")))
-    p = p + "%%%%Creator: %s, by Russell Steicke, version: %s\n" % \
-        (di.myname,versionNumber) \
-        + DT.now().strftime("%%%%CreationDate: %a, %d %b %Y %H:%M:%S %z\n") \
-        + "%%%%BoundingBox: 0 0 %.0f %.0f\n" % \
-        (di.paperWidth * di.points_mm, di.paperHeight * di.points_mm)
+    p = p + f"%%Creator: {__name__}, by Russell Steicke, version: {versionNumber}\n" \
+        + DT.now().strftime("%%CreationDate: %a, %d %b %Y %H:%M:%S %z\n") \
+        + f"%%BoundingBox: 0 0 {di.paperWidth * di.points_mm:.0f} {di.paperHeight * di.points_mm:.0f}\n"
     p = p + "%%DocumentNeededResources: font Times-Roman\n" \
         "%%+ font Times-Bold\n" \
         "%%+ font Helvetica\n" \
@@ -174,7 +172,7 @@ def preamble(di):
         "%%IncludeResource: font Courier\n" \
         "%%IncludeResource: font Courier-Bold\n" \
         "%%IncludeResource: procset MakediaryProcs\n" \
-        + "%%%%IncludeFeature: *PageSize %s\n" % di.paperSize.title() \
+        + f"%%IncludeFeature: *PageSize {di.paperSize.title()}\n" \
         + "%%EndSetup\n"
     return p
 
@@ -183,7 +181,7 @@ def postamble(di):
     """Return the document trailer as a string."""
     p =   di.sectionSep \
         + "%%Trailer\n" \
-        + ("%%%%Pages: %d\n" % di.pageNumber) \
+        + f"%%Pages: {di.pageNumber}\n" \
         + "%%EOF\n"
     return p
 
@@ -219,7 +217,7 @@ def monthCalendars(di):
             # "0 25 TR" here is to move things up very slightly, so that the
             # bottom line is not right on the bottom.  "25" should be calculated,
             # but at the moment it is measured and a static quantity.
-            p = p + mtime.strftime("%%%%----\n/M_m%%02m_b%d_e%d{" % (day_b, day_e)) \
+            p = p + f"%%----\n/M_m{mtime.strftime('%m')}_b{day_b}_e{day_e}{{ " \
                 + " 5 dict begin /TT exch def\n" \
                 + " SA CP TR 0.001 0.001 scale 0 25 TR\n" \
                 + "/Helvetica-Bold findfont [80 0 0 100 0 0] makefont setfont\n"

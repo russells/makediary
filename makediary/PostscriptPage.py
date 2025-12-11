@@ -74,7 +74,7 @@ class PostscriptPage(BasicPostscriptPage):
             (xmaxsize*scale,ymaxsize*scale)
         s = s + "5 dict begin /showpage { } bind def SA %5.3f %5.3f TR\n" % (xpos,ypos)
         s = s + "%5.3f %5.3f scale\n" % (scale, scale)
-        s = s + "%%%%BeginDocument: %s\n" % file
+        s = s + f"%%BeginDocument: {file}\n"
         EpsImagePlugin._save(im,epsfile,None,1)
         eps = epsfile.getvalue()
         epsfile.close()
@@ -112,7 +112,7 @@ class PostscriptPage(BasicPostscriptPage):
         if boundingboxfound:
             return (None, (epsx1_pt, epsy1_pt, epsx2_pt, epsy2_pt))
         else:
-            return ("EPS file %s: no %%%%BoundingBox in first 20 lines" % epsfilename,
+            return ("EPS file %s: no %%BoundingBox in first 20 lines" % epsfilename,
                     None)
 
 
@@ -130,7 +130,7 @@ class PostscriptPage(BasicPostscriptPage):
         # of millimetres.
         s = s + "5 dict begin /showpage { } bind def SA %5.6f %5.6f SC\n" % \
                 (1.0/self.di.points_mm, 1.0/self.di.points_mm)
-        s = s + "%%%%BeginDocument: %s\n" % filename
+        s = s + f"%%BeginDocument: {filename}\n"
 
         for line in epsfile.readlines():
             s = s + line
