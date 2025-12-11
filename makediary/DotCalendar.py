@@ -164,7 +164,7 @@ class DotCalendar:
 
     def debug(self,s):
         if self.debugflag:
-            sys.stderr.write(s)
+            print(s, file=sys.stderr)
 
 
     def setYears(self, years):
@@ -247,7 +247,7 @@ class DotCalendar:
         lines = self.cfile.readlines()
         nlines = len(lines)
         for i in range(nlines):
-            self.debug("doing line %d\n" % i)
+            self.debug(f"doing line {i}\n")
             # Muck around a bit to handle \-continued lines
             line = lines[i].strip()
             while self.reBackslash.search(line):
@@ -256,27 +256,27 @@ class DotCalendar:
                 if i < nlines-1:
                     line2 = lines[i+1].strip()
                     self.debug("adding 2 lines...\n")
-                    self.debug("%s\n" % line)
-                    self.debug("%s\n" % line2)
+                    self.debug(f"{line}\n")
+                    self.debug(f"{line2}\n")
                     line = line + ' ' + lines[i+1].strip()
                     i = i + 1           #FIXME can this be done in the middle of a range loop?
             m = self.parseLine(line)
             if m is not None:
-                self.debug("match: %s\n" % m)
+                self.debug(f"match: {m}\n")
                 self.debug("--- dictionary groups\n")
                 gd = m.groupdict()
                 for gk in list(gd.keys()):
                     g = gd.get(gk)
                     if g is None:
-                        self.debug("Group %s is None\n" % gk)
+                        self.debug(f"Group {gk} is None\n")
                     else:
-                        self.debug("Group: %s: '%s'\n" % (gk,g))
+                        self.debug(f"Group: {gk}: '{g}'\n")
         #percentSubEvents
                 
 
     def parseLine(self, line):
         line = line.strip()
-        self.debug("-------- parseLine('%s')\n" % line)
+        self.debug(f"-------- parseLine('{line}')\n")
         if re.match(r"^\s+#.*", line): return None
         date = self.match1(line)
         if date is not None:
@@ -329,7 +329,7 @@ class DotCalendar:
         if 'holiday' in gd and gd['holiday'] is not None:
             text = text + " #<<holiday>> "
         self.addEvent(DT(year,month,day), text)
-        self.debug('re3: dmy=%d,%d,%d\n' % (day,month,year))
+        self.debug(f're3: dmy={day},{month},{year}\n')
         return match
 
 
@@ -353,7 +353,7 @@ class DotCalendar:
         while mkey is not None:
             key = mkey.group('key')
             value = mkey.group('value')
-            self.debug("Found key:%s value:%s\n" % (key, value))
+            self.debug(f"Found key:{key} value:{value}\n")
             if value is not None:
                 event[key] = value
             else:
@@ -398,7 +398,7 @@ class DotCalendar:
         exist it will be created.  This will be the normal way to create date entries.  Also,
         do %-substitution on the event text."""
 
-        self.debug("--- adding event: %s to date: %s\n" % (date,event))
+        self.debug(f"--- adding event: {event} to date: {date}\n")
 
         # Do % substitution
         text = ''
@@ -442,32 +442,32 @@ class DotCalendar:
                         text = text + date.strftime("%b")
                         done = 1
                     elif L2=='d':
-                        if zero_flag: text = text + ("%02d" % date.day)
-                        else:         text = text + ("%d"   % date.day)
+                        if zero_flag: text = text + f"{date.day:02d}"
+                        else:         text = text + f"{date.day}"
                         done = 1
                     elif L2=='j':
                         jday = int(date.strftime("%j"))
-                        if zero_flag: text = text + ("%03d" % jday)
-                        else:         text = text + ("%d"   % jday)
+                        if zero_flag: text = text + f"{jday:03d}"
+                        else:         text = text + f"{jday}"
                         done = 1
                     elif L2=='l':
                         jday = int(date.strftime("%j"))
                         if date.is_leapyear: daysleft = 366-jday
                         else:                daysleft = 365-jday
-                        if zero_flag: text = text + ("%03d" % daysleft)
-                        else:         text = text + ("%d"   % daysleft)
+                        if zero_flag: text = text + f"{daysleft:03d}"
+                        else:         text = text + f"{daysleft}"
                         done = 1
                     elif L2=='m':
-                        text = text + ("%02d" % date.month)
+                        text = text + f"{date.month:02d}"
                         done = 1
                     elif L2=='U':
                         text = text + date.strftime("%U")
                         done = 1
                     elif L2=='Y':
-                        text = text + ("%04d" % date.year)
+                        text = text + f"{date.year:04d}"
                         done = 1
                     elif L2=='y':
-                        text = text + ("%02d" % (date.year%100))
+                        text = text + f"{date.year%100:02d}"
                         done = 1
                     elif L2=='%':
                         text = text + '%'
@@ -545,19 +545,19 @@ if __name__ == '__main__':
         y = DT.now().year
     d.setYears([y-1,y+1,y+2])
     d.addYear(y)
-    print("hasYear(2002)==%s" % d.hasYear(2002))
-    print("hasYear(2005)==%s" % d.hasYear(2005))
-    print("--- yearlist == %s" % d.yearlist)
+    print(f"hasYear(2002)=={d.hasYear(2002)}")
+    print(f"hasYear(2005)=={d.hasYear(2005)}")
+    print(f"--- yearlist == {d.yearlist}")
     print()
     d.readCalendarFile()
     keys = sorted(d.datelist.keys())
     for key in keys:
-        print("date %s" % key)
+        print(f"date {key}")
         for date in d.datelist[key]:
             print("---")
             for datekey in date:
-                print(datekey,":",date[datekey])
+                print(f"{datekey}: {date[datekey]}")
         print()
-    print("Calendar file was %s" % d.cfilename)
-    print("--- yearlist == %s" % d.yearlist)
+    print(f"Calendar file was {d.cfilename}")
+    print(f"--- yearlist == {d.yearlist}")
 
