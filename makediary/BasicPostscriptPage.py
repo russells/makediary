@@ -48,39 +48,35 @@ class BasicPostscriptPage(object):
             # Print faint boxes around all the pages.
             self.preamble = self.preamble \
                             + "% Faint box around the page\n" \
-                            + "0 SLW 0 0 M 0 %5.3f RL " % self.di.pageHeight \
-                            + " %5.3f 0 RL " % self.di.pageWidth \
-                            + " 0 -%5.3f RL " % self.di.pageHeight \
-                            + " -%5.3f 0 RL S\n" % self.di.pageWidth
+                            + f"0 SLW 0 0 M 0 {self.di.pageHeight:5.3f} RL " \
+                            + f" {self.di.pageWidth:5.3f} 0 RL " \
+                            + f" 0 -{self.di.pageHeight:5.3f} RL " \
+                            + f" -{self.di.pageWidth:5.3f} 0 RL S\n"
 
         if self.di.pageRegistrationMarks:
             self.preamble = self.preamble \
                             + "% Registration marks, 10mm long\n" \
                             + "0.1 SLW 0 -2 M 0 -10 RL S\n" \
                             + "-2 0 M -10 0 RL S\n" \
-                            + "0 %5.3f M 0 10 RL S\n" % (self.di.pageHeight+2,) \
-                            + "-2 %5.3f M -10 0 RL S\n" % (self.di.pageHeight,) \
-                            + "%5.3f %5.3f M 0 10 RL S\n" % (self.di.pageWidth,
-                                                             self.di.pageHeight+2) \
-                            + "%5.3f %5.3f M 10 0 RL S\n" % (self.di.pageWidth+2,
-                                                             self.di.pageHeight) \
-                            + "%5.3f -2 M 0 -10 RL S\n" % (self.di.pageWidth,) \
-                            + "%5.3f 0 M 10 0 RL S\n" % (self.di.pageWidth+2,)
+                            + f"0 {self.di.pageHeight+2:5.3f} M 0 10 RL S\n" \
+                            + f"-2 {self.di.pageHeight:5.3f} M -10 0 RL S\n" \
+                            + f"{self.di.pageWidth:5.3f} {self.di.pageHeight+2:5.3f} M 0 10 RL S\n" \
+                            + f"{self.di.pageWidth+2:5.3f} {self.di.pageHeight:5.3f} M 10 0 RL S\n" \
+                            + f"{self.di.pageWidth:5.3f} -2 M 0 -10 RL S\n" \
+                            + f"{self.di.pageWidth+2:5.3f} 0 M 10 0 RL S\n"
             self.preamble = self.preamble \
                             + "% Internal registration marks, 5mm long\n" \
                             + "2 0 M 5 0 RL S\n" \
                             + "0 2 M 0 5 RL S\n" \
-                            + "0 %5.3f M 0 -5 RL S\n" % (self.di.pageHeight-2,) \
-                            + "2 %5.3f M 5 0 RL S\n" % (self.di.pageHeight,) \
-                            + "%5.3f %5.3f M -5 0 RL S\n" % (self.di.pageWidth-2, \
-                                                              self.di.pageHeight) \
-                            + "%5.3f %5.3f M 0 -5 RL S\n" % (self.di.pageWidth,
-                                                              self.di.pageHeight-2) \
-                            + "%5.3f 2 M 0 5 RL S\n" % (self.di.pageWidth,) \
-                            + "%5.3f 0 M -5 0 RL S\n" % (self.di.pageWidth-2,)
+                            + f"0 {self.di.pageHeight-2:5.3f} M 0 -5 RL S\n" \
+                            + f"2 {self.di.pageHeight:5.3f} M 5 0 RL S\n" \
+                            + f"{self.di.pageWidth-2:5.3f} {self.di.pageHeight:5.3f} M -5 0 RL S\n" \
+                            + f"{self.di.pageWidth:5.3f} {self.di.pageHeight-2:5.3f} M 0 -5 RL S\n" \
+                            + f"{self.di.pageWidth:5.3f} 2 M 0 5 RL S\n" \
+                            + f"{self.di.pageWidth-2:5.3f} 0 M -5 0 RL S\n"
 
         self.postamble =   "end RE SP\n" \
-                         + "%% End of page %d\n" % (self.pagenum)
+                         + f"%% End of page {self.pagenum}\n"
         self.setMargins()
 
     def page(self):
@@ -100,7 +96,7 @@ class BasicPostscriptPage(object):
             left = self.di.iMargin
             right = self.di.pageWidth - self.di.oMargin
         #return "0 SLW %5.3f %5.3f %5.3f %5.3f 2 debugboxLBRTD\n" % (left,bottom,right,top)
-        return "0 SLW %5.3f %5.3f %5.3f %5.3f debugboxLBRT\n" % (left,bottom,right,top)
+        return f"0 SLW {left:5.3f} {bottom:5.3f} {right:5.3f} {top:5.3f} debugboxLBRT\n"
 
     def body(self):
         return "% Nothing here\n"
@@ -121,14 +117,12 @@ class BasicPostscriptPage(object):
     def topline(self):
         thickness = max(self.di.underlineThick, self.di.lineThickness)
         s = ""
-        s = s + "%5.3f SLW 1 setlinecap %5.3f %5.3f M %5.3f %5.3f L S\n" \
-            % (thickness,self.pLeft,self.di.titleLineY,self.pRight,self.di.titleLineY)
+        s = s + f"{thickness:5.3f} SLW 1 setlinecap {self.pLeft:5.3f} {self.di.titleLineY:5.3f} M {self.pRight:5.3f} {self.di.titleLineY:5.3f} L S\n"
         return s
 
     def bottomline(self):
         s = ""
-        s = s + "%5.3f SLW 1 setlinecap %5.3f %5.3f M %5.3f %5.3f L S\n" \
-            % (self.di.underlineThick,self.pLeft,self.di.bMargin,self.pRight,self.di.bMargin)
+        s = s + f"{self.di.underlineThick:5.3f} SLW 1 setlinecap {self.pLeft:5.3f} {self.di.bMargin:5.3f} M {self.pRight:5.3f} {self.di.bMargin:5.3f} L S\n"
         return s
 
 
@@ -150,27 +144,26 @@ class BasicPostscriptPage(object):
             fontsize = self.di.subtitleFontSize * 0.7
             fontsizemultiplier = 1.5
             s = ""
-            s += "%% Page number %d\n" % self.di.pageNumber
+            s += f"%% Page number {self.di.pageNumber}\n"
             s += "5 dict begin\n"
-            s += "/%s %5.3f selectfont " % (self.di.subtitleFontName, fontsize)
-            s += "/pn (%d) def " % self.di.pageNumber
+            s += f"/{self.di.subtitleFontName} {fontsize:5.3f} selectfont "
+            s += f"/pn ({self.di.pageNumber}) def "
             # Find out the width of the string, and the string with spaces at each end.
             s += "pn SW pop /w ED ( ) SW pop 2 mul w add /bw ED "
-            s += "/h %5.3f def /bh %5.3f def\n" % (fontsize,
-                                                   fontsize*fontsizemultiplier)
+            s += f"/h {fontsize:5.3f} def /bh {fontsize*fontsizemultiplier:5.3f} def\n"
             if self.di.evenPage:
                 # On an even page, the number is on the left, to the right of the outer margin.
                 x = self.di.oMargin
             else:
                 # On an odd page, the number is on the right, to the left of the outer margin.
                 x = self.di.pageWidth - self.di.oMargin
-            s += "/y %5.3f def " % (self.di.bMargin/2.0)
+            s += f"/y {self.di.bMargin/2.0:5.3f} def "
             if self.di.evenPage:
                 # For even pages, we can print the page number starting at the x,y.
-                s += "/x %5.3f def " % x
+                s += f"/x {x:5.3f} def "
             else:
                 # For odd pages, we need to move the number left.
-                s += "/x %5.3f w sub def " % x
+                s += f"/x {x:5.3f} w sub def "
             s += "\n"
             s += "/bx bw w sub 2 div x exch sub def\n"
             s += "/by bh h sub 1.4 div y exch sub def\n"
@@ -194,20 +187,18 @@ class BasicPostscriptPage(object):
             subtitleFontName = self.di.subtitleFontNoBoldName
         text1e = self.postscriptEscape(text1)
         s = self.topline()
-        s = s + "/%s %5.3f selectfont " % (titleFontName,self.di.titleFontSize)
+        s = s + f"/{titleFontName} {self.di.titleFontSize:5.3f} selectfont "
         if self.di.evenPage:
-            s = s + ("%5.3f %5.3f M (%s) SH\n" % (self.pLeft,self.di.titleY,text1e))
+            s = s + (f"{self.pLeft:5.3f} {self.di.titleY:5.3f} M ({text1e}) SH\n")
         else:
-            s = s + ("(%s) dup %5.3f exch SW pop sub %5.3f M SH\n" % \
-                     (text1e,self.pRight,self.di.titleY))
+            s = s + (f"({text1e}) dup {self.pRight:5.3f} exch SW pop sub {self.di.titleY:5.3f} M SH\n")
         if text2 != "":
             text2e = self.postscriptEscape(text2)
-            s = s + "/%s %5.3f selectfont " % (subtitleFontName, self.di.subtitleFontSize)
+            s = s + f"/{subtitleFontName} {self.di.subtitleFontSize:5.3f} selectfont "
             if self.di.evenPage:
-                s = s + "(%s) dup %5.3f exch SW pop sub %5.3f M SH\n" % \
-                    (text2e,self.pRight,self.di.titleY)
+                s = s + f"({text2e}) dup {self.pRight:5.3f} exch SW pop sub {self.di.titleY:5.3f} M SH\n"
             else:
-                s = s + "%5.3f %5.3f M (%s) SH\n" % (self.pLeft,self.di.titleY,text2e)
+                s = s + f"{self.pLeft:5.3f} {self.di.titleY:5.3f} M ({text2e}) SH\n"
         return s
 
 
