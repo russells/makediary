@@ -376,17 +376,18 @@ class DotCalendar:
     def isHoliday(self, date):
         """Find out if a particular date is a holiday or not.  Weekend days are not counted as
         holidays, unless specified as a holiday previously."""
-        if date in datelist:
-            d = datelist[date]
-            if 'holiday' in d:
-                return 1
+        if date in self.datelist:
+            # Need to iterate through the events for the given date
+            for event in self.datelist[date]:
+                if 'holiday' in event:
+                    return 1
         return 0
 
 
     def isWeekday(self, date):
         """Find out if a particular date is a week day or not."""
-        weekday = date.day_of_week
-        if weekday==Saturday or weekday==Sunday:
+        weekday = date.day_of_week()
+        if weekday==DT.Saturday or weekday==DT.Sunday:
             return 0
         return 1
 
@@ -515,7 +516,7 @@ class DotCalendar:
 
     def dateMinusDays(self,date,n):
         """Return a date for a date n days before this one."""
-        return date - n*oneDay
+        return date - n*DT.delta(1)
 
 
     def dateMinusMonths(self,date,n):
@@ -541,7 +542,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         y = int(sys.argv[1])
     else:
-        y = now().year
+        y = DT.now().year
     d.setYears([y-1,y+1,y+2])
     d.addYear(y)
     print("hasYear(2002)==%s" % d.hasYear(2002))
