@@ -8,7 +8,7 @@ export PYTHONPATH=`pwd` #:`pwd`/makediary
 P=${P:-python3}
 MD=${MD:-./bin/makediary}
 
-set -x
+set -x -e
 
 $P $MD
 $P $MD --output=d.ps
