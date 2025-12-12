@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import io
-import imageio as Image
+from PIL import Image
 try:
     #print("EpsImagePlugin")
     import EpsImagePlugin
@@ -37,7 +37,7 @@ class PostscriptPage(BasicPostscriptPage):
                 im = im.convert("RGB")
         else:
             im = im.convert("L")
-        epsfile = io.StringIO()
+        epsfile = io.BytesIO()
 
         rawxscale = float(xmaxsize)/xsize
         rawyscale = float(ymaxsize)/ysize
@@ -76,7 +76,7 @@ class PostscriptPage(BasicPostscriptPage):
         s = s + "%5.3f %5.3f scale\n" % (scale, scale)
         s = s + f"%%BeginDocument: {file}\n"
         EpsImagePlugin._save(im,epsfile,None,1)
-        eps = epsfile.getvalue()
+        eps = epsfile.getvalue().decode('latin-1')
         epsfile.close()
         #im.close()
         s = s + eps
