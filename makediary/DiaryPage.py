@@ -29,6 +29,27 @@ class DiaryPage(PostscriptPage):
         if self.di.evenPage:
             self.di.openingCalendarsCurrentDate = self.di.dt
 
+    # Layout-specific constants
+    LAYOUT_WEEK_TO_OPENING_DHEIGHT_FACTOR = 1.0 / 4.0
+    LAYOUT_WEEK_TO_PAGE_DHEIGHT_FACTOR = 1.0 / 7.0
+    LAYOUT_DAY_TO_PAGE_DHEIGHT_FACTOR = 0.9
+    LAYOUT_WORK_DHEIGHT_FACTOR = 0.45
+    LAYOUT_DEFAULT_DHEIGHT_FACTOR = 1.0 / 2.0
+
+    TITLE_BOX_SIZE_FACTOR_SMALL = 1.2
+    TITLE_BOX_SIZE_FACTOR_LARGE = 1.4
+    TITLE_FONT_SIZE_FACTOR = 0.63
+    TITLE_FONT_Y_FACTOR = 0.7
+    TITLE_FONT_GAP_FACTOR = 0.5
+    SUBTITLE_FONT_SIZE_FACTOR = 0.35
+    MOON_EVEN_PAGE_X_FACTOR = 0.68
+    MOON_ODD_PAGE_X_FACTOR = 0.32
+    MOON_SIZE_FACTOR = 0.8
+    APPOINTMENT_SUBTITLE_FONT_SIZE_FACTOR = 0.5
+    APPOINTMENT_LEFT_THICKNESS_FACTOR = 0.5
+    APPOINTMENT_TIME_X_OFFSET_FACTOR = 0.2
+    APPOINTMENT_TIME_Y_OFFSET_FACTOR = 0.55
+
     def setMargins(self):
         """Override setMargins() specially for diary pages."""
         PostscriptPage.setMargins(self)
@@ -39,103 +60,69 @@ class DiaryPage(PostscriptPage):
         self.pheight_diary = 0
 
         if di.layout == "week-to-opening":
-            self.dheight = self.pHeight_diary/4.0
-        elif di.layout == "week-to-page" or di.layout == "week-with-notes":
-            self.dheight = self.pHeight_diary/7.0
+            self.dheight = self.pHeight_diary * self.LAYOUT_WEEK_TO_OPENING_DHEIGHT_FACTOR
+        elif di.layout in ("week-to-page", "week-with-notes"):
+            self.dheight = self.pHeight_diary * self.LAYOUT_WEEK_TO_PAGE_DHEIGHT_FACTOR
         elif di.layout == "day-to-page":
-            self.dheight = self.pHeight_diary * 0.9
+            self.dheight = self.pHeight_diary * self.LAYOUT_DAY_TO_PAGE_DHEIGHT_FACTOR
             self.bottomcalheight = self.pHeight_diary - self.dheight
         elif di.layout == "work":
-            self.dheight = self.pHeight_diary * 0.45
+            self.dheight = self.pHeight_diary * self.LAYOUT_WORK_DHEIGHT_FACTOR
             self.bottomcalheight = self.pHeight_diary - self.dheight * 2.0
             self.weekendDheight = self.dheight / 2.0
         else:
-            self.dheight = self.pHeight_diary/2.0
+            self.dheight = self.pHeight_diary * self.LAYOUT_DEFAULT_DHEIGHT_FACTOR
         self.dwidth = self.pWidth
 
         # In here, "app" is short for appointment.
         if di.appointments:
-            self.appProportion = self.di.appointmentWidth /100.0 # Proportion of page width
+            self.appProportion = self.di.appointmentWidth / 100.0  # Proportion of page width
             self.appLeft = self.dwidth * (1.0 - self.appProportion)
             self.appRight = self.dwidth
             self.appWidth = self.appRight - self.appLeft
-            self.dwidthLines = self.appLeft - 0.2*di.lineSpacing
+            self.dwidthLines = self.appLeft - 0.2 * di.lineSpacing
         else:
             self.dwidthLines = self.pWidth
 
         # These are the settings that have the most effect on the layout of a day.
         if di.layout == "week-to-opening" or di.layout == "week-to-page":
             # Smaller boxes when we cram a week into one or two pages
-            self.titleboxsize = di.lineSpacing * 1.2
+            self.titleboxsize = di.lineSpacing * self.TITLE_BOX_SIZE_FACTOR_SMALL
         else:
-            self.titleboxsize = di.lineSpacing * 1.4
+            self.titleboxsize = di.lineSpacing * self.TITLE_BOX_SIZE_FACTOR_LARGE
         self.titleboxy = self.dheight - self.titleboxsize
-        self.titlefontsize = self.titleboxsize * 0.63
-        self.titlefonty = self.dheight - self.titleboxsize * 0.7
+        self.titlefontsize = self.titleboxsize * self.TITLE_FONT_SIZE_FACTOR
+        self.titlefonty = self.dheight - self.titleboxsize * self.TITLE_FONT_Y_FACTOR
         if self.di.dayTitleBoxes:
             # If we're printing boxes around the title, move the title text in slightly so it's
             # inside the box.
-            self.titlefontgap = self.titlefontsize * 0.5
+            self.titlefontgap = self.titlefontsize * self.TITLE_FONT_GAP_FACTOR
         else:
             # No boxes, so put the title text at the edge.
             self.titlefontgap = 0
-        self.subtitlefontsize = self.titleboxsize * 0.35
+        self.subtitlefontsize = self.titleboxsize * self.SUBTITLE_FONT_SIZE_FACTOR
 
         # Number of writing lines
         self.nlines = int(self.titleboxy / di.lineSpacing)
 
 
-    def diaryDay(self, height=None):
-
-        """Print a diary day in part of a page.  At the point this is called, the graphics
-        state has already been translated so we can just draw straight into our patch."""
-
+    def _diaryDay_internal(self, dheight, titleboxy, titlefonty, nlines):
         di = self.di
         dt = di.dt
-
-        # If a height has been specified, we adjust some of the layout parameters to make the
-        # day fit within that space.  But we have to save and restore the old parameters as
-        # this may not be the last day printed on this page.
-        #
-        # This is simulated dynamic scope.  Yuk.
-
-        if height is not None:
-            saved_dheight = self.dheight
-            saved_titleboxy = self.titleboxy
-            saved_titlefonty = self.titlefonty
-            saved_nlines = self.nlines
-
-            self.dheight = height
-            self.titleboxy = self.dheight - self.titleboxsize
-            self.titlefonty = self.dheight - self.titleboxsize * 0.7
-            self.nlines = int(self.titleboxy / di.lineSpacing)
-
-            s = self.diaryDay()
-
-            self.dheight = saved_dheight
-            self.nlines = saved_nlines
-            self.titleboxy = saved_titleboxy
-            self.titlefonty = saved_titlefonty
-
-            return s
-
         s = f"%%--- diary day for {dt.year}-{dt.month:02d}-{dt.day:02d}\n"
 
         # Find out if this is a holiday.
         dd = DT(dt.year, dt.month, dt.day)
         isholiday = 0
         if dd in self.di.events:
-            #sys.stderr.write("%s has events\n" % dd)
             eventlist = self.di.events[dd]
             for event in eventlist:
                 if 'holiday' in event:
-                    #sys.stderr.write("%s is a holiday: %s\n" % (dd,str(event)))
                     isholiday = 1
 
         isweekend = dd.day_of_week()==DT.Saturday or dd.day_of_week()==DT.Sunday
 
-        # Draw the box around the title.  Fill in the box with the appropriate shading, which
-        # is determined from the type of day and a user option.
+        # Draw the box around the title.
         if self.di.dayTitleShading == "all":
             if isholiday or isweekend:
                 gr = self.weekendgray
@@ -154,39 +141,39 @@ class DiaryPage(PostscriptPage):
 
         if self.di.dayTitleBoxes:
             if gr:
-                s = s + f"0 {self.titleboxy:5.3f} {self.dwidth:5.3f} {self.titleboxsize:5.3f} {di.underlineThick:5.3f} {gr:5.3f} boxLBWHgray\n"
+                s = s + f"0 {titleboxy:5.3f} {self.dwidth:5.3f} {self.titleboxsize:5.3f} {di.underlineThick:5.3f} {gr:5.3f} boxLBWHgray\n"
             else:
-                s = s + f"0 {self.titleboxy:5.3f} {self.dwidth:5.3f} {self.titleboxsize:5.3f} {di.underlineThick:5.3f} boxLBWH\n"
+                s = s + f"0 {titleboxy:5.3f} {self.dwidth:5.3f} {self.titleboxsize:5.3f} {di.underlineThick:5.3f} boxLBWH\n"
 
         # Print the day name as the diary day header.
         s = s + f"10 10 M /{di.titleFontName} {self.titlefontsize:5.2f} selectfont "
         daynumber = dt.strftime("%d")
         if daynumber[0] == '0':
             daynumber = ' ' + daynumber[1]
-        dtext = dt.strftime("%A, " + daynumber + " %B") # %e seems to be undocumented
+        dtext = dt.strftime("%A, " + daynumber + " %B")
         if di.evenPage:
-            s = s + f"{self.titlefontgap:5.3f} {self.titlefonty:5.3f} M ({dtext}) SH\n"
+            s = s + f"{self.titlefontgap:5.3f} {titlefonty:5.3f} M ({dtext}) SH\n"
         else:
-            s = s + f"({dtext}) dup {self.dwidth-self.titlefontgap:5.3f} exch SW pop sub {self.titlefonty:5.3f} M SH\n"
+            s = s + f"({dtext}) dup {self.dwidth-self.titlefontgap:5.3f} exch SW pop sub {titlefonty:5.3f} M SH\n"
         # And draw the julian day as well
         jtext = f"{dt.jday():03d}/{di.currentJDaysLeft:03d}"
         s = s + f"/{di.subtitleFontName} {self.subtitlefontsize:5.3f} selectfont "
         if di.evenPage:
-            s = s + f"({jtext}) dup {self.dwidth-self.titlefontgap:5.3f} exch SW pop sub {self.titlefonty:5.3f} M SH\n"
+            s = s + f"({jtext}) dup {self.dwidth-self.titlefontgap:5.3f} exch SW pop sub {titlefonty:5.3f} M SH\n"
         else:
-            s = s + f"{self.titlefontgap:5.3f} {self.titlefonty:5.3f} M ({jtext}) SH\n"
+            s = s + f"{self.titlefontgap:5.3f} {titlefonty:5.3f} M ({jtext}) SH\n"
 
         # Draw all the writing lines, but if the appointments take up the whole width, don't
         # print the writing lines.
         if self.di.appointmentWidth != 100:
             s = s + f"{self.di.lineThickness:5.3f} SLW "
-            for lineno in range(self.nlines):
-                liney = self.titleboxy-(1+lineno)*di.lineSpacing
+            for lineno in range(nlines):
+                liney = titleboxy-(1+lineno)*di.lineSpacing
                 s = s + f"0 {liney:5.3f} M {self.dwidthLines:5.3f} 0 RL S "
             s = s + "\n"
 
         # Put in the events for this day
-        eventstr = self.drawEvents(0, self.titleboxy - di.lineSpacing, di.lineSpacing)
+        eventstr = self.drawEvents(0, titleboxy - di.lineSpacing, di.lineSpacing)
         if eventstr is not None:
             s = s + eventstr
 
@@ -197,18 +184,31 @@ class DiaryPage(PostscriptPage):
         # Draw the moon phase, if required.
         if di.moon:
             if di.evenPage:
-                moonx = self.dwidth * 0.68
+                moonx = self.dwidth * self.MOON_EVEN_PAGE_X_FACTOR
             else:
-                moonx = self.dwidth * 0.32
+                moonx = self.dwidth * self.MOON_ODD_PAGE_X_FACTOR
             s = s + self.drawMoon(moonx,
-                                  self.titleboxy + self.titleboxsize * 0.5,
-                                  di.lineSpacing*0.8)
-
-        # Other bits of code rely on us going to the next day only at the end of printing a
-        # diary day.  An example is the code that prints six months at the bottom of each page
-        # in some layouts.  Don't change this without thinking hard, and testing harder.
-        di.gotoNextDay()
+                                  titleboxy + self.titleboxsize * 0.5,
+                                  di.lineSpacing*self.MOON_SIZE_FACTOR)
         return s
+    
+    def diaryDay(self, height=None):
+
+        """Print a diary day in part of a page.  At the point this is called, the graphics
+        state has already been translated so we can just draw straight into our patch."""
+
+        if height is not None:
+            dheight = height
+            titleboxy = dheight - self.titleboxsize
+            titlefonty = dheight - self.titleboxsize * self.TITLE_FONT_Y_FACTOR
+            nlines = int(titleboxy / self.di.lineSpacing)
+            s = self._diaryDay_internal(dheight, titleboxy, titlefonty, nlines)
+        else:
+            s = self._diaryDay_internal(self.dheight, self.titleboxy, self.titlefonty, self.nlines)
+
+        self.di.gotoNextDay()
+        return s
+
 
     def drawAppointments(self):
         """Draw the appointments box on the diary day."""
@@ -226,15 +226,15 @@ class DiaryPage(PostscriptPage):
                 appTimes.append(None)
         # Make the appointment lines end at the same spot as the diary lines.
         appheight = di.lineSpacing #(self.nlines * di.lineSpacing) / len(appTimes)
-        s = s + f'/{di.subtitleFontName} {appheight*0.5:5.3f} selectfont\n'
+        s = s + f'/{di.subtitleFontName} {appheight * self.APPOINTMENT_SUBTITLE_FONT_SIZE_FACTOR:5.3f} selectfont\n'
         # Line thicknesses
-        leftTh = di.underlineThick * 0.5
+        leftTh = di.underlineThick * self.APPOINTMENT_LEFT_THICKNESS_FACTOR
         bottomTh = 0
         for lineno in range(len(appTimes)):
             s = s + f"{leftTh:5.3f} SLW {self.appLeft:5.3f} {self.titleboxy-appheight*lineno:5.3f} M 0 {-appheight:5.3f} RL CP S {bottomTh:5.3f} SLW M {self.appWidth:5.3f} 0 RL S "
             if di.appointmentTimes and appTimes[lineno] is not None:
-                appx = self.appLeft + appheight*0.2
-                appy = self.titleboxy - appheight * (lineno+0.55)
+                appx = self.appLeft + appheight * self.APPOINTMENT_TIME_X_OFFSET_FACTOR
+                appy = self.titleboxy - appheight * (lineno + self.APPOINTMENT_TIME_Y_OFFSET_FACTOR)
                 s = s + f" {appx:5.3f} {appy:5.3f} M ({self.postscriptEscape(appTimes[lineno])}) SH\n"
             else:
                 s = s + "\n"
@@ -314,104 +314,53 @@ class DiaryPage(PostscriptPage):
             + "RE\n"
         return s
 
+    def _print_day_at(self, y_offset, day_name):
+        return (f'% -- {day_name}\n'
+                f"SA {self.pLeft:5.3f} {y_offset:5.3f} TR\n"
+                + self.diaryDay()
+                + "RE\n")
+
     def printMondayWTO(self):
-        s = '% -- Monday\n' \
-            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*0.5):5.3f} TR\n") \
-            + self.diaryDay() \
-            + "RE\n"
-        return s
+        return self._print_day_at(self.pBottom + (self.pHeight_diary * 0.5), "Monday")
 
     def printTuesdayWTO(self):
-        s = '% -- Tuesday\n' \
-            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*0.25):5.3f} TR\n") \
-            + self.diaryDay() \
-            + "RE\n"
-        return s
+        return self._print_day_at(self.pBottom + (self.pHeight_diary * 0.25), "Tuesday")
 
     def printWednesdayWTO(self):
-        s = '% -- Wednesday\n' \
-            + (f"SA {self.pLeft:5.3f} {self.pBottom:5.3f} TR\n") \
-            + self.diaryDay() \
-            + "RE\n"
-        return s
+        return self._print_day_at(self.pBottom, "Wednesday")
 
     def printThursdayWTO(self):
-        s = '% -- Thursday\n' \
-            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*0.75):5.3f} TR\n") \
-            + self.diaryDay() \
-            + "RE\n"
-        return s
+        return self._print_day_at(self.pBottom + (self.pHeight_diary * 0.75), "Thursday")
 
     def printFridayWTO(self):
-        s = '% -- Friday\n' \
-            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*0.5):5.3f} TR\n") \
-            + self.diaryDay() \
-            + "RE\n"
-        return s
+        return self._print_day_at(self.pBottom + (self.pHeight_diary * 0.5), "Friday")
 
     def printSaturdayWTO(self):
-        s = '% -- Saturday\n' \
-            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*0.25):5.3f} TR\n") \
-            + self.diaryDay() \
-            + "RE\n"
-        return s
+        return self._print_day_at(self.pBottom + (self.pHeight_diary * 0.25), "Saturday")
 
     def printSundayWTO(self):
-        s = '% -- Sunday\n' \
-            + (f"SA {self.pLeft:5.3f} {self.pBottom:5.3f} TR\n") \
-            + self.diaryDay() \
-            + "RE\n"
-        return s
-
+        return self._print_day_at(self.pBottom, "Sunday")
 
     def printMondayWTP(self):
-        s = '% -- Monday (WTP\n' \
-            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*6.0/7.0):5.3f} TR\n") \
-            + self.diaryDay() \
-            + "RE\n"
-        return s
+        return self._print_day_at(self.pBottom + (self.pHeight_diary * 6.0 / 7.0), "Monday (WTP)")
 
     def printTuesdayWTP(self):
-        s = '% -- Tuesday (WTP\n' \
-            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*5.0/7.0):5.3f} TR\n") \
-            + self.diaryDay() \
-            + "RE\n"
-        return s
+        return self._print_day_at(self.pBottom + (self.pHeight_diary * 5.0 / 7.0), "Tuesday (WTP)")
 
     def printWednesdayWTP(self):
-        s = '% -- Wednesday (WTP\n' \
-            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*4.0/7.0):5.3f} TR\n") \
-            + self.diaryDay() \
-            + "RE\n"
-        return s
+        return self._print_day_at(self.pBottom + (self.pHeight_diary * 4.0 / 7.0), "Wednesday (WTP)")
 
     def printThursdayWTP(self):
-        s = '% -- Thursday (WTP\n' \
-            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*3.0/7.0):5.3f} TR\n") \
-            + self.diaryDay() \
-            + "RE\n"
-        return s
+        return self._print_day_at(self.pBottom + (self.pHeight_diary * 3.0 / 7.0), "Thursday (WTP)")
 
     def printFridayWTP(self):
-        s = '% -- Friday (WTP\n' \
-            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*2.0/7.0):5.3f} TR\n") \
-            + self.diaryDay() \
-            + "RE\n"
-        return s
+        return self._print_day_at(self.pBottom + (self.pHeight_diary * 2.0 / 7.0), "Friday (WTP)")
 
     def printSaturdayWTP(self):
-        s = '% -- Saturday (WTP\n' \
-            + (f"SA {self.pLeft:5.3f} {self.pBottom+(self.pHeight_diary*1.0/7.0):5.3f} TR\n") \
-            + self.diaryDay() \
-            + "RE\n"
-        return s
+        return self._print_day_at(self.pBottom + (self.pHeight_diary * 1.0 / 7.0), "Saturday (WTP)")
 
     def printSundayWTP(self):
-        s = '% -- Sunday (WTP\n' \
-            + (f"SA {self.pLeft:5.3f} {self.pBottom:5.3f} TR\n") \
-            + self.diaryDay() \
-            + "RE\n"
-        return s
+        return self._print_day_at(self.pBottom, "Sunday (WTP)")
 
 
     def largeDayOnPage(self):
@@ -620,41 +569,65 @@ class DiaryPage(PostscriptPage):
             s = s + "third quarter in southern hemisphere\n"
         return s
 
-    def body(self):
-        s = ""
-        if self.di.layout == "day-to-page":
-            s = self.sixMonthsAtBottom() + self.largeDayOnPage()
-        elif self.di.layout == "work":
-            s = self.sixMonthsAtBottom() + self.workLayoutTopDay()
-            if self.di.dt.day_of_week() == DT.Saturday:
-                s += self.workLayoutSaturday() + self.workLayoutSunday()
-            else:
-                s += self.workLayoutBottomDay()
-        elif self.di.dt.day_of_week() == DT.Monday:
-            if self.di.layout == "week-to-opening":
-                s = self.titleAndThreeMonthsAtTop() +  \
-                    self.printMondayWTO() + \
-                    self.printTuesdayWTO() + \
-                    self.printWednesdayWTO()
-            elif self.di.layout == "week-to-page" or self.di.layout == "week-with-notes":
-                s = self.printMondayWTP() + \
-                    self.printTuesdayWTP() + \
-                    self.printWednesdayWTP() + \
-                    self.printThursdayWTP() + \
-                    self.printFridayWTP() + \
-                    self.printSaturdayWTP() + \
-                    self.printSundayWTP()
-            else:
-                s = self.titleAndThreeMonthsAtTop() + self.bottomHalf();
-        else:
-            if self.di.layout == "week-to-opening":
-                s = self.printThursdayWTO() + \
-                    self.printFridayWTO() + \
-                    self.printSaturdayWTO() + \
-                    self.printSundayWTO()
-            else:
-                s = self.topHalf() + self.bottomHalf();
+    def _generate_day_to_page_layout(self):
+        s = self.sixMonthsAtBottom() + self.largeDayOnPage()
         return s
+
+    def _generate_work_layout(self):
+        s = self.sixMonthsAtBottom() + self.workLayoutTopDay()
+        if self.di.dt.day_of_week() == DT.Saturday:
+            s += self.workLayoutSaturday() + self.workLayoutSunday()
+        else:
+            s += self.workLayoutBottomDay()
+        return s
+
+    def _generate_week_to_opening_layout(self):
+        s = ""
+        if self.di.dt.day_of_week() == DT.Monday:
+            s = self.titleAndThreeMonthsAtTop() +  \
+                self.printMondayWTO() + \
+                self.printTuesdayWTO() + \
+                self.printWednesdayWTO()
+        else:
+            s = self.printThursdayWTO() + \
+                self.printFridayWTO() + \
+                self.printSaturdayWTO() + \
+                self.printSundayWTO()
+        return s
+
+    def _generate_week_to_page_layout(self):
+        s = ""
+        if self.di.dt.day_of_week() == DT.Monday:
+            s = self.printMondayWTP() + \
+                self.printTuesdayWTP() + \
+                self.printWednesdayWTP() + \
+                self.printThursdayWTP() + \
+                self.printFridayWTP() + \
+                self.printSaturdayWTP() + \
+                self.printSundayWTP()
+        else:
+            s = self.topHalf() + self.bottomHalf() # This case was not explicitly handled in the original code, but implicitly fell through. I'm adding it for completeness
+        return s
+
+    def _generate_default_layout(self):
+        s = ""
+        if self.di.dt.day_of_week() == DT.Monday:
+            s = self.titleAndThreeMonthsAtTop() + self.bottomHalf();
+        else:
+            s = self.topHalf() + self.bottomHalf();
+        return s
+
+    def body(self):
+        if self.di.layout == "day-to-page":
+            return self._generate_day_to_page_layout()
+        elif self.di.layout == "work":
+            return self._generate_work_layout()
+        elif self.di.layout == "week-to-opening":
+            return self._generate_week_to_opening_layout()
+        elif self.di.layout == "week-to-page" or self.di.layout == "week-with-notes":
+            return self._generate_week_to_page_layout()
+        else:
+            return self._generate_default_layout()
 
 
 if __name__ == '__main__':
