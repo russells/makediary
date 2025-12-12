@@ -41,13 +41,8 @@ class Diary(object):
         self.out = self.di.out
         self.convert_to_bytes = False
 
-
-
-    # print the whole diary
-    def diary(self):
+    def _generate_cover_pages(self):
         di = self.di
-
-        self.out.write( DSC.preamble(self.di) )
         self.out.write( CoverPage(di).page() )
         #self.w( CalendarPage(di).page() )
         if di.debugVersion:
@@ -56,6 +51,8 @@ class Diary(object):
             self.out.write( EmptyPage(di).page() )
         self.out.write( PersonalInformationPage(di).page() )
 
+    def _generate_image_pages(self):
+        di = self.di
         # Print image pages, if there are any, and end on a new opening.
         for imagePage in di.imagePages:
             npages = imagePage["pages"]
@@ -73,6 +70,8 @@ class Diary(object):
         if di.evenPage:
             self.out.write( EmptyPage(di).page() )
 
+    def _generate_calendar_and_planner_pages(self):
+        di = self.di
         if di.calendarPages:
             self.out.write( TwoCalendarPages(di).page() )
 
@@ -99,7 +98,8 @@ class Diary(object):
                 for i in range(2, di.nPlannerYears):
                     self.out.write( TwoPlannerPages(di.dtbegin.year+i, di).page() )
 
-
+    def _generate_address_and_expense_pages(self):
+        di = self.di
         for i in range(di.nAddressPages):
             self.out.write( AddressPage(di).page() )
 
@@ -115,6 +115,8 @@ class Diary(object):
         elif di.nExpensePages == 4:
             self.out.write( FourExpensePages().page(di) )
 
+    def _generate_eps_and_man_pages(self):
+        di = self.di
         for epsPage in di.epsPages:
             try:
                 eps_pages = epsPage["pages"]
@@ -135,6 +137,8 @@ class Diary(object):
         for manPageInfo in di.manPages:
             self.out.write( ManPagePages(di, manPageInfo).page() )
 
+    def _generate_diary_pages(self):
+        di = self.di
         for i in range(di.nNotesPages):
             self.out.write( NotesPage(di).page() )
 
@@ -196,6 +200,17 @@ class Diary(object):
             if di.nNotesPages > 0:
                 self.out.write( NotesPage(di).page() )
 
+    # print the whole diary
+    def diary(self):
+        di = self.di
+
+        self.out.write( DSC.preamble(self.di) )
+        self._generate_cover_pages()
+        self._generate_image_pages()
+        self._generate_calendar_and_planner_pages()
+        self._generate_address_and_expense_pages()
+        self._generate_eps_and_man_pages()
+        self._generate_diary_pages()
         self.out.write( DSC.postamble(self.di) )
 
     def weekWithNotesNotesPage(self):
