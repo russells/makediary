@@ -27,7 +27,7 @@ class DotCalendar:
                                        "-c",
                                        "-f", self.cfilename,
                                        "1", str(year), "12"],
-                                      stdout=subprocess.PIPE).communicate()[0]
+                                      stdout=subprocess.PIPE, text=True, encoding='utf-8').communicate()[0]
             eventlines = output.split('\n')
             for eventline in eventlines:
                 self.addEventLine(year, eventline)
